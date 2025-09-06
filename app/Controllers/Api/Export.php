@@ -6,23 +6,30 @@ use App\Controllers\BaseController;
 use App\Models\SqlServerModel;
 
 /**
- * Controlador responsável pela exportação de dados em diferentes formatos via API.
+ * Controller responsible for exporting data in different formats via the API.
  *
- * Permite exportar o resultado da última consulta SQL bem-sucedida em CSV ou JSON.
+ * Allows exporting the result of the last successful SQL query into CSV or JSON formats.
+ * It retrieves the query from the user's session, re-executes it, and streams
+ * the formatted file back to the user as a download.
+ * * @package App\Controllers\Api
  */
 class Export extends BaseController
 {
     /**
-     * Exporta o resultado da última consulta SQL bem-sucedida em formato CSV.
+     * Exports the result of the last successful SQL query as a CSV file.
      *
-     * O arquivo é enviado como download para o usuário.
+     * Retrieves the query from the session, executes it, formats the data into CSV,
+     * and sends the appropriate headers to trigger a file download in the user's browser.
+     * Includes a BOM (Byte Order Mark) for better Excel compatibility with UTF-8 characters.
      *
      * @return void
      */
     public function csv()
     {
         $sql = session()->get('last_successful_query');
-        if (empty($sql)) exit(lang('App.noquery'));
+        if (empty($sql)) {
+            exit(lang('App.noquery'));
+        }
 
         $model = new SqlServerModel();
         $result = $model->executeQuery($sql);
@@ -34,7 +41,7 @@ class Export extends BaseController
             header("Content-Type: text/csv; charset=UTF-8");
 
             $output = fopen("php://output", "w");
-            fputs($output, "\xEF\xBB\xBF");
+            fputs($output, "\xEF\xBB\xBF"); // BOM for UTF-8
             fputcsv($output, $result['headers']);
             foreach ($result['data'] as $row) {
                 fputcsv($output, $row);
@@ -43,18 +50,22 @@ class Export extends BaseController
             exit();
         }
     }
-    
+
     /**
-     * Exporta o resultado da última consulta SQL bem-sucedida em formato JSON.
+     * Exports the result of the last successful SQL query as a JSON file.
      *
-     * O arquivo é enviado como download para o usuário.
+     * Retrieves the query from the session, executes it, formats the data into
+     * a human-readable (pretty-printed) JSON string, and sends the appropriate headers
+     * to trigger a file download in the user's browser.
      *
      * @return void
      */
     public function json()
     {
         $sql = session()->get('last_successful_query');
-        if (empty($sql)) exit(lang('App.noquery'));
+        if (empty($sql)) {
+            exit(lang('App.noquery'));
+        }
 
         $model = new SqlServerModel();
         $result = $model->executeQuery($sql);
@@ -63,7 +74,7 @@ class Export extends BaseController
             $filename = "export_" . date("Y-m-d_H-i-s") . ".json";
             header('Content-Type: application/json');
             header("Content-Disposition: attachment; filename={$filename}");
-            
+
             echo json_encode($result['data'], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
             exit();
         }

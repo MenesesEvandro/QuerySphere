@@ -7,22 +7,25 @@ use App\Models\SqlServerModel;
 use CodeIgniter\API\ResponseTrait;
 
 /**
- * Controlador para explorar objetos do banco de dados via API.
+ * Controller for exploring database objects via the API.
  *
- * Fornece endpoints para listar bancos, tabelas, views, procedures, funções e realizar buscas.
+ * Provides endpoints for listing databases, tables, views, procedures, functions,
+ * and performing searches across these objects to power the jsTree-based object explorer.
+ *
+ * @package App\Controllers\Api
  */
 class ObjectExplorer extends BaseController
 {
     use ResponseTrait;
 
     /**
-     * Instância do modelo para acesso ao SQL Server.
+     * Instance of the model for accessing the SQL Server.
      * @var SqlServerModel
      */
     private $model;
 
     /**
-     * Construtor: inicializa o modelo SqlServerModel.
+     * Constructor: initializes the SqlServerModel.
      */
     public function __construct()
     {
@@ -30,9 +33,11 @@ class ObjectExplorer extends BaseController
     }
 
     /**
-     * Retorna a lista de bancos de dados disponíveis.
+     * Retrieves the list of available databases on the connected server.
      *
-     * @return \CodeIgniter\HTTP\ResponseInterface
+     * Formats the list for consumption by the jsTree library.
+     *
+     * @return \CodeIgniter\HTTP\ResponseInterface The JSON response with the database list.
      */
     public function databases()
     {
@@ -50,36 +55,45 @@ class ObjectExplorer extends BaseController
         return $this->respond($response);
     }
 
+    /**
+     * Retrieves the source definition of a database object (Procedure, Function, View, etc.).
+     *
+     * It fetches the original 'CREATE' script from the database and intelligently
+     * converts it to an 'ALTER' script for easy editing.
+     *
+     * @return \CodeIgniter\HTTP\ResponseInterface The JSON response with the ALTER script or an error.
+     */
     public function getObjectSource()
     {
         $db = $this->request->getGet('db');
         $schema = $this->request->getGet('schema');
         $object = $this->request->getGet('object');
-        $type = $this->request->getGet('type'); // 'procedure' ou 'function'
+        $type = $this->request->getGet('type');
 
         if (empty($db) || empty($schema) || empty($object) || empty($type)) {
-            return $this->fail('Parâmetros insuficientes.', 400);
+            return $this->fail('Insufficient parameters provided.', 400);
         }
 
         $definition = $this->model->getObjectDefinition($db, $schema, $object);
 
         if (is_null($definition)) {
-            return $this->failNotFound('Não foi possível encontrar a definição do objeto.');
+            return $this->failNotFound('Could not find the object definition.');
         }
 
-        // Converte a primeira ocorrência de CREATE para ALTER, de forma case-insensitive
-        // Isso transforma "CREATE PROCEDURE" em "ALTER PROCEDURE"
+        // Converts the first occurrence of CREATE to ALTER, case-insensitively.
+        // This turns "CREATE PROCEDURE" into "ALTER PROCEDURE".
         $alterScript = preg_replace('/^\s*CREATE/i', 'ALTER', $definition, 1);
-        
+
         return $this->respond(['sql' => $alterScript]);
     }
 
     /**
-     * Retorna os filhos de um nó do explorador de objetos (tabelas, views, procedures, funções, colunas, parâmetros).
+     * Retrieves the children of an object explorer node.
      *
-     * O tipo de nó é determinado pelo parâmetro 'id' da requisição.
+     * The type of children returned (e.g., folders, tables, columns, parameters)
+     * is determined by the 'id' parameter from the GET request, which indicates the parent node.
      *
-     * @return \CodeIgniter\HTTP\ResponseInterface
+     * @return \CodeIgniter\HTTP\ResponseInterface The JSON response with the child nodes.
      */
     public function children()
     {
@@ -92,12 +106,12 @@ class ObjectExplorer extends BaseController
         [$type, $dbName] = $parts;
 
         switch ($type) {
-            case 'db': // Usuário expandiu um banco de dados, mostre as pastas
+            case 'db': // User expanded a database, show static folders
                 $response = [
-                    ['id' => 'folder-tables_' . $dbName, 'text' => 'Tabelas', 'icon' => 'fa fa-folder', 'children' => true, 'data' => ['type' => 'folder_tables']],
-                    ['id' => 'folder-views_' . $dbName, 'text' => 'Views', 'icon' => 'fa fa-folder', 'children' => true, 'data' => ['type' => 'folder_views']],
-                    ['id' => 'folder-procs_' . $dbName, 'text' => 'Stored Procedures', 'icon' => 'fa fa-folder', 'children' => true, 'data' => ['type' => 'folder_procs']],
-                    ['id' => 'folder-funcs_' . $dbName, 'text' => 'Funções', 'icon' => 'fa fa-folder', 'children' => true, 'data' => ['type' => 'folder_funcs']],
+                    ['id' => 'folder-tables_' . $dbName, 'text' => lang('App.tables'), 'icon' => 'fa fa-folder', 'children' => true, 'data' => ['type' => 'folder_tables']],
+                    ['id' => 'folder-views_' . $dbName, 'text' => lang('App.views'), 'icon' => 'fa fa-folder', 'children' => true, 'data' => ['type' => 'folder_views']],
+                    ['id' => 'folder-procs_' . $dbName, 'text' => lang('App.stored_procedures'), 'icon' => 'fa fa-folder', 'children' => true, 'data' => ['type' => 'folder_procs']],
+                    ['id' => 'folder-funcs_' . $dbName, 'text' => lang('App.functions'), 'icon' => 'fa fa-folder', 'children' => true, 'data' => ['type' => 'folder_funcs']],
                 ];
                 break;
 
@@ -130,19 +144,19 @@ class ObjectExplorer extends BaseController
                             'id' => ($is_proc ? 'proc_' : 'func_') . $dbName . '.' . $item['ROUTINE_SCHEMA'] . '.' . $item['ROUTINE_NAME'],
                             'text' => esc($item['ROUTINE_SCHEMA']) . '.' . esc($item['ROUTINE_NAME']),
                             'icon' => $is_proc ? 'fa fa-cog' : 'fa fa-cogs',
-                            'children' => true, // Para expandir e ver os parâmetros
+                            'children' => true, // Allows expansion to see parameters
                             'data' => ['type' => $is_proc ? 'procedure' : 'function', 'db' => $dbName, 'schema' => $item['ROUTINE_SCHEMA'], 'routine' => $item['ROUTINE_NAME']]
                         ];
                     }
                 }
                 break;
-            
+
             case 'tbl':
                 $nameParts = explode('.', $dbName, 3);
                 if (count($nameParts) === 3) {
                     [$db, $schema, $table] = $nameParts;
                     $columns = $this->model->getColumns($db, $table);
-                     foreach ($columns as $column) {
+                    foreach ($columns as $column) {
                         $response[] = [
                             'text' => esc($column['COLUMN_NAME']) . ' <small class="text-muted">(' . esc($column['DATA_TYPE']) . ')</small>',
                             'id' => 'col_' . $db . '.' . $schema . '.' . $table . '.' . $column['COLUMN_NAME'],
@@ -152,37 +166,41 @@ class ObjectExplorer extends BaseController
                     }
                 }
                 break;
-            
+
             case 'proc':
             case 'func':
-                 $nameParts = explode('.', $dbName, 3);
-                 if (count($nameParts) === 3) {
+                $nameParts = explode('.', $dbName, 3);
+                if (count($nameParts) === 3) {
                     [$db, $schema, $routine] = $nameParts;
                     $params = $this->model->getRoutineParameters($db, $schema, $routine);
                     if (empty($params)) {
-                        $response[] = ['text' => '<em class="text-muted">Sem parâmetros</em>', 'icon' => 'fa fa-ellipsis-h', 'children' => false];
+                        $response[] = ['text' => '<em class="text-muted">' . lang('App.no_parameters') . '</em>', 'icon' => 'fa fa-ellipsis-h', 'children' => false];
                     } else {
                         foreach ($params as $param) {
-                           $response[] = [
-                               'text' => esc($param['PARAMETER_NAME']) . ' <small class="text-muted">(' . esc($param['full_type']) . ')</small>',
-                               'id' => 'param_' . $dbName . '.' . $param['PARAMETER_NAME'],
-                               'icon' => 'fa fa-arrow-right',
-                               'children' => false
-                           ];
-                       }
+                            $response[] = [
+                                'text' => esc($param['PARAMETER_NAME']) . ' <small class="text-muted">(' . esc($param['full_type']) . ')</small>',
+                                'id' => 'param_' . $dbName . '.' . $param['PARAMETER_NAME'],
+                                'icon' => 'fa fa-arrow-right',
+                                'children' => false
+                            ];
+                        }
                     }
-                 }
+                }
                 break;
         }
 
         return $this->respond($response);
-    } 
+    }
 
 
     /**
-     * Busca objetos no banco de dados pelo termo informado.
+     * Searches for database objects based on a provided search term.
      *
-     * @return \CodeIgniter\HTTP\ResponseInterface
+     * It queries tables, views, procedures, and functions. The results are formatted
+     * as an array of jsTree node IDs, which represents the full path to each found object.
+     * This allows the jsTree search plugin to open the tree directly to the search results.
+     *
+     * @return \CodeIgniter\HTTP\ResponseInterface The JSON response with an array of node ID paths.
      */
     public function search()
     {
@@ -220,7 +238,7 @@ class ObjectExplorer extends BaseController
             }
             $paths = array_merge($paths, $path);
         }
-        
+
         return $this->respond(array_unique($paths));
     }
 }
