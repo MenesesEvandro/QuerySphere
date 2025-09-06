@@ -3,16 +3,23 @@
 namespace App\Libraries;
 
 /**
- * Gerenciador de credenciais de conexão com o banco de dados.
+ * Manages database connection credentials within the user's session.
  *
- * Armazena e recupera dados de conexão na sessão do usuário.
+ * This library provides a centralized way to securely store connection details
+ * after a successful login and retrieve them for subsequent database operations.
+ * The password is obfuscated using base64 encoding before being stored.
+ *
+ * @package App\Libraries
  */
 class ConnectionManager
 {
     /**
-     * Armazena as credenciais de conexão na sessão do usuário.
+     * Stores the database connection credentials in the user's session.
      *
-     * @param array $credentials Credenciais de conexão (host, database, user, password, port).
+     * The password is base64 encoded for simple obfuscation before being saved.
+     * It also sets an 'is_connected' flag in the session to indicate an active connection.
+     *
+     * @param array $credentials An associative array containing connection details: 'host', 'database', 'user', 'password', 'port'.
      * @return void
      */
     public function storeCredentials(array $credentials): void
@@ -21,17 +28,22 @@ class ConnectionManager
             'db_host'     => $credentials['host'],
             'db_database' => $credentials['database'],
             'db_user'     => $credentials['user'],
-            'db_password' => base64_encode($credentials['password']),
+            'db_password' => base64_encode($credentials['password']), // Obfuscate password
             'db_port'     => $credentials['port'],
             'is_connected'=> true
         ];
+        
         session()->set($sessionData);
     }
 
     /**
-     * Recupera as credenciais de conexão armazenadas na sessão.
+     * Retrieves the stored connection credentials from the session.
      *
-     * @return array|null Retorna as credenciais ou null se não estiver conectado.
+     * It first checks for the 'is_connected' session flag. If the user is not connected,
+     * it returns null. Otherwise, it returns the credentials array with the
+     * password base64 decoded.
+     *
+     * @return array|null An associative array of credentials if the user is connected, otherwise null.
      */
     public function getCredentials(): ?array
     {
