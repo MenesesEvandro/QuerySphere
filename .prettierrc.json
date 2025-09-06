@@ -1,0 +1,29 @@
+{
+    "plugins": ["@prettier/plugin-php"],
+    "phpVersion": "8.0",
+    "trailingCommaPHP": true,
+    "braceStyle": "psr-2",
+    "tabWidth": 4,
+    "useTabs": false,
+    "singleQuote": true,
+    "semi": true,
+    "printWidth": 80,
+    "arrowParens": "avoid",
+    "overrides": [
+        {
+            "files": "*.php",
+            "options": {
+                "parser": "php"
+            }
+        },
+        {
+            "files": [
+                ".prettierrc",
+                ".prettierrc.json"
+            ],
+            "options": {
+                "parser": "json"
+            }
+        }
+    ]
+}

@@ -1,0 +1,28 @@
+{
+  "name": "qs",
+  "version": "1.0.0",
+  "description": "We are pleased to introduce a new approach to database interaction.",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "devDependencies": {
+    "@prettier/plugin-php": "^0.24.0",
+    "prettier": "^3.6.2"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MenesesEvandro/QuerySphere.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/MenesesEvandro/QuerySphere/issues"
+  },
+  "homepage": "https://github.com/MenesesEvandro/QuerySphere#readme"
+}

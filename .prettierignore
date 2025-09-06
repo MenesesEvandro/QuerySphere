@@ -1,0 +1,5 @@
+vendor/
+writable/
+public/assets/
+*.min.js
+*.min.css
