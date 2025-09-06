@@ -34,7 +34,11 @@ class ServerCheck extends BaseController
 
         // 1. PHP Version Check
         $php_version_required = '8.0.0';
-        $php_version_ok = version_compare(PHP_VERSION, $php_version_required, '>=');
+        $php_version_ok = version_compare(
+            PHP_VERSION,
+            $php_version_required,
+            '>=',
+        );
         if (!$php_version_ok) {
             $overall_status = 'danger';
         }
@@ -43,7 +47,7 @@ class ServerCheck extends BaseController
             'required' => '>= ' . $php_version_required,
             'current' => PHP_VERSION,
             'status' => $php_version_ok,
-            'notes' => lang('App.check_php_version_note')
+            'notes' => lang('App.check_php_version_note'),
         ];
 
         // 2. PHP Extensions Check
@@ -52,7 +56,7 @@ class ServerCheck extends BaseController
             'intl' => lang('App.check_note_intl'),
             'mbstring' => lang('App.check_note_mbstring'),
             'json' => lang('App.check_note_json'),
-            'xml' => lang('App.check_note_xml')
+            'xml' => lang('App.check_note_xml'),
         ];
         foreach ($required_extensions as $ext => $note) {
             $is_loaded = extension_loaded($ext);
@@ -62,9 +66,11 @@ class ServerCheck extends BaseController
             $checks[] = [
                 'item' => lang('App.check_item_extension', [$ext]),
                 'required' => lang('App.check_enabled'),
-                'current' => $is_loaded ? lang('App.check_enabled') : lang('App.check_not_found'),
+                'current' => $is_loaded
+                    ? lang('App.check_enabled')
+                    : lang('App.check_not_found'),
                 'status' => $is_loaded,
-                'notes' => $note
+                'notes' => $note,
             ];
         }
 
@@ -76,9 +82,11 @@ class ServerCheck extends BaseController
         $checks[] = [
             'item' => lang('App.check_writable_folder'),
             'required' => lang('App.check_writable'),
-            'current' => $is_writable ? lang('App.check_writable') : lang('App.check_not_writable'),
+            'current' => $is_writable
+                ? lang('App.check_writable')
+                : lang('App.check_not_writable'),
             'status' => $is_writable,
-            'notes' => lang('App.check_writable_note')
+            'notes' => lang('App.check_writable_note'),
         ];
 
         // 4. .env File Check
@@ -89,9 +97,11 @@ class ServerCheck extends BaseController
         $checks[] = [
             'item' => lang('App.check_env_file'),
             'required' => lang('App.check_found'),
-            'current' => $env_exists ? lang('App.check_found') : lang('App.check_not_found'),
+            'current' => $env_exists
+                ? lang('App.check_found')
+                : lang('App.check_not_found'),
             'status' => $env_exists,
-            'notes' => lang('App.check_env_file_note')
+            'notes' => lang('App.check_env_file_note'),
         ];
 
         $data['checks'] = $checks;

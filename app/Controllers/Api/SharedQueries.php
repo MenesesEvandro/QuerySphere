@@ -48,7 +48,9 @@ class SharedQueries extends BaseController
         if (!file_exists($this->filePath)) {
             return $this->respond([]);
         }
-        return $this->respond(json_decode(file_get_contents($this->filePath), true));
+        return $this->respond(
+            json_decode(file_get_contents($this->filePath), true),
+        );
     }
 
     /**
@@ -71,21 +73,24 @@ class SharedQueries extends BaseController
             return $this->fail('Insufficient data to share the query.', 400);
         }
 
-        $queries = file_exists($this->filePath) ? json_decode(file_get_contents($this->filePath), true) : [];
+        $queries = file_exists($this->filePath)
+            ? json_decode(file_get_contents($this->filePath), true)
+            : [];
 
         $newQuery = [
             'id' => uniqid('q_', true), // Generate a unique ID
             'name' => $name,
             'author' => $author,
             'sql' => $sql,
-            'timestamp' => date('c') // ISO 8601 format
+            'timestamp' => date('c'), // ISO 8601 format
         ];
 
         array_unshift($queries, $newQuery);
 
         // File locking logic to prevent race conditions
         $fp = fopen($this->filePath, 'w');
-        if (flock($fp, LOCK_EX)) { // Acquire exclusive lock
+        if (flock($fp, LOCK_EX)) {
+            // Acquire exclusive lock
             fwrite($fp, json_encode($queries, JSON_PRETTY_PRINT));
             flock($fp, LOCK_UN); // Release lock
         }
@@ -112,7 +117,10 @@ class SharedQueries extends BaseController
 
         $queries = json_decode(file_get_contents($this->filePath), true);
 
-        $queriesAfterDelete = array_filter($queries, fn ($q) => $q['id'] !== $id);
+        $queriesAfterDelete = array_filter(
+            $queries,
+            fn($q) => $q['id'] !== $id,
+        );
 
         if (count($queries) === count($queriesAfterDelete)) {
             return $this->failNotFound('Query not found to delete.');
@@ -120,7 +128,13 @@ class SharedQueries extends BaseController
 
         $fp = fopen($this->filePath, 'w');
         if (flock($fp, LOCK_EX)) {
-            fwrite($fp, json_encode(array_values($queriesAfterDelete), JSON_PRETTY_PRINT));
+            fwrite(
+                $fp,
+                json_encode(
+                    array_values($queriesAfterDelete),
+                    JSON_PRETTY_PRINT,
+                ),
+            );
             flock($fp, LOCK_UN);
         }
         fclose($fp);

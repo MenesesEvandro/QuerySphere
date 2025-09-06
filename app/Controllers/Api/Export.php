@@ -35,12 +35,12 @@ class Export extends BaseController
         $result = $model->executeQuery($sql);
 
         if ($result['status'] === 'success' && !empty($result['data'])) {
-            $filename = "export_" . date("Y-m-d_H-i-s") . ".csv";
-            header("Content-Description: File Transfer");
+            $filename = 'export_' . date('Y-m-d_H-i-s') . '.csv';
+            header('Content-Description: File Transfer');
             header("Content-Disposition: attachment; filename={$filename}");
-            header("Content-Type: text/csv; charset=UTF-8");
+            header('Content-Type: text/csv; charset=UTF-8');
 
-            $output = fopen("php://output", "w");
+            $output = fopen('php://output', 'w');
             fputs($output, "\xEF\xBB\xBF"); // BOM for UTF-8
             fputcsv($output, $result['headers']);
             foreach ($result['data'] as $row) {
@@ -71,11 +71,14 @@ class Export extends BaseController
         $result = $model->executeQuery($sql);
 
         if ($result['status'] === 'success' && !empty($result['data'])) {
-            $filename = "export_" . date("Y-m-d_H-i-s") . ".json";
+            $filename = 'export_' . date('Y-m-d_H-i-s') . '.json';
             header('Content-Type: application/json');
             header("Content-Disposition: attachment; filename={$filename}");
 
-            echo json_encode($result['data'], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+            echo json_encode(
+                $result['data'],
+                JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE,
+            );
             exit();
         }
     }

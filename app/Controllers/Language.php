@@ -28,7 +28,9 @@ class Language extends BaseController
     {
         // Access the 'supportedLocales' config from the App.php file in a safe way
         if (!in_array($locale, config('App')->supportedLocales)) {
-            return redirect()->back()->with('error', lang('App.language_not_supported'));
+            return redirect()
+                ->back()
+                ->with('error', lang('App.language_not_supported'));
         }
 
         session()->set('locale', $locale);

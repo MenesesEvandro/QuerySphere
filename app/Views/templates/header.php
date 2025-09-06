@@ -35,8 +35,12 @@
                             <i class="fa fa-language"></i>
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="<?= site_url('lang/pt-BR') ?>">Português (BR)</a></li>
-                            <li><a class="dropdown-item" href="<?= site_url('lang/en-US') ?>">English (US)</a></li>
+                            <li><a class="dropdown-item" href="<?= site_url(
+                                'lang/pt-BR',
+                            ) ?>">Português (BR)</a></li>
+                            <li><a class="dropdown-item" href="<?= site_url(
+                                'lang/en-US',
+                            ) ?>">English (US)</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -49,9 +53,11 @@
                         </span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-dark" id="db-selector-list">
-                        <?php foreach ($databases as $db) : ?>
+                        <?php foreach ($databases as $db): ?>
                             <li>
-                                <a class="dropdown-item" href="#" data-dbname="<?= esc($db['name']) ?>">
+                                <a class="dropdown-item" href="#" data-dbname="<?= esc(
+                                    $db['name'],
+                                ) ?>">
                                     <?= esc($db['name']) ?>
                                 </a>
                             </li>
@@ -65,10 +71,16 @@
                         <i class="fa fa-sun"></i> </button>
 
                     <span class="navbar-text text-white-50 me-3">
-                        <?= lang('App.connectedTo') ?>: <strong><?= esc($db_host) ?></strong> (<?= esc($db_user) ?>)
+                        <?= lang('App.connectedTo') ?>: <strong><?= esc(
+    $db_host,
+) ?></strong> (<?= esc($db_user) ?>)
                     </span>
-                    <a href="<?= site_url('logout') ?>" class="btn btn-outline-danger btn-sm">
-                        <i class="fa fa-sign-out-alt"></i> <?= lang('App.disconnect') ?>
+                    <a href="<?= site_url(
+                        'logout',
+                    ) ?>" class="btn btn-outline-danger btn-sm">
+                        <i class="fa fa-sign-out-alt"></i> <?= lang(
+                            'App.disconnect',
+                        ) ?>
                     </a>
                 </div>
             </div>

@@ -35,7 +35,7 @@ class Connection extends BaseController
             'db_user',
             'db_password',
             'last_successful_query',
-            'query_history'
+            'query_history',
         ]);
 
         return view('connection/index');
@@ -56,11 +56,15 @@ class Connection extends BaseController
             'host' => 'required',
             'user' => 'required',
             'password' => 'permit_empty',
-            'port' => 'required|integer|greater_than_equal_to[1]|less_than_equal_to[65535]'
+            'port' =>
+                'required|integer|greater_than_equal_to[1]|less_than_equal_to[65535]',
         ];
 
         if (!$this->validate($rules)) {
-            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('errors', $this->validator->getErrors());
         }
 
         $credentials = [
@@ -68,7 +72,7 @@ class Connection extends BaseController
             'database' => $this->request->getPost('database'),
             'user' => $this->request->getPost('user'),
             'password' => $this->request->getPost('password'),
-            'port' => $this->request->getPost('port')
+            'port' => $this->request->getPost('port'),
         ];
 
         $sqlServerModel = new SqlServerModel();
@@ -77,9 +81,14 @@ class Connection extends BaseController
         if ($connectionResult['status'] === true) {
             $connManager = new ConnectionManager();
             $connManager->storeCredentials($credentials);
-            return redirect()->to('/main')->with('success', lang('App.connection_success'));
+            return redirect()
+                ->to('/main')
+                ->with('success', lang('App.connection_success'));
         } else {
-            return redirect()->back()->withInput()->with('error', $connectionResult['message']);
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', $connectionResult['message']);
         }
     }
 

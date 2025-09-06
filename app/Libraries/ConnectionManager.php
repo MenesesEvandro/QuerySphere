@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Libraries;
 
@@ -25,14 +25,14 @@ class ConnectionManager
     public function storeCredentials(array $credentials): void
     {
         $sessionData = [
-            'db_host'     => $credentials['host'],
+            'db_host' => $credentials['host'],
             'db_database' => $credentials['database'],
-            'db_user'     => $credentials['user'],
+            'db_user' => $credentials['user'],
             'db_password' => base64_encode($credentials['password']), // Obfuscate password
-            'db_port'     => $credentials['port'],
-            'is_connected'=> true
+            'db_port' => $credentials['port'],
+            'is_connected' => true,
         ];
-        
+
         session()->set($sessionData);
     }
 
@@ -47,16 +47,16 @@ class ConnectionManager
      */
     public function getCredentials(): ?array
     {
-        if (! session()->get('is_connected')) {
+        if (!session()->get('is_connected')) {
             return null;
         }
 
         return [
-            'host'     => session()->get('db_host'),
+            'host' => session()->get('db_host'),
             'database' => session()->get('db_database'),
-            'user'     => session()->get('db_user'),
+            'user' => session()->get('db_user'),
             'password' => base64_decode(session()->get('db_password')),
-            'port'     => session()->get('db_port')
+            'port' => session()->get('db_port'),
         ];
     }
 }

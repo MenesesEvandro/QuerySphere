@@ -49,7 +49,7 @@ class ObjectExplorer extends BaseController
                 'text' => $db['name'],
                 'icon' => 'fa fa-database',
                 'children' => true,
-                'data' => ['type' => 'database']
+                'data' => ['type' => 'database'],
             ];
         }
         return $this->respond($response);
@@ -108,26 +108,64 @@ class ObjectExplorer extends BaseController
         switch ($type) {
             case 'db': // User expanded a database, show static folders
                 $response = [
-                    ['id' => 'folder-tables_' . $dbName, 'text' => lang('App.tables'), 'icon' => 'fa fa-folder', 'children' => true, 'data' => ['type' => 'folder_tables']],
-                    ['id' => 'folder-views_' . $dbName, 'text' => lang('App.views'), 'icon' => 'fa fa-folder', 'children' => true, 'data' => ['type' => 'folder_views']],
-                    ['id' => 'folder-procs_' . $dbName, 'text' => lang('App.stored_procedures'), 'icon' => 'fa fa-folder', 'children' => true, 'data' => ['type' => 'folder_procs']],
-                    ['id' => 'folder-funcs_' . $dbName, 'text' => lang('App.functions'), 'icon' => 'fa fa-folder', 'children' => true, 'data' => ['type' => 'folder_funcs']],
+                    [
+                        'id' => 'folder-tables_' . $dbName,
+                        'text' => lang('App.tables'),
+                        'icon' => 'fa fa-folder',
+                        'children' => true,
+                        'data' => ['type' => 'folder_tables'],
+                    ],
+                    [
+                        'id' => 'folder-views_' . $dbName,
+                        'text' => lang('App.views'),
+                        'icon' => 'fa fa-folder',
+                        'children' => true,
+                        'data' => ['type' => 'folder_views'],
+                    ],
+                    [
+                        'id' => 'folder-procs_' . $dbName,
+                        'text' => lang('App.stored_procedures'),
+                        'icon' => 'fa fa-folder',
+                        'children' => true,
+                        'data' => ['type' => 'folder_procs'],
+                    ],
+                    [
+                        'id' => 'folder-funcs_' . $dbName,
+                        'text' => lang('App.functions'),
+                        'icon' => 'fa fa-folder',
+                        'children' => true,
+                        'data' => ['type' => 'folder_funcs'],
+                    ],
                 ];
                 break;
 
             case 'folder-tables':
             case 'folder-views':
                 $items = $this->model->getTablesAndViews($dbName);
-                $filter = ($type === 'folder-tables') ? 'BASE TABLE' : 'VIEW';
+                $filter = $type === 'folder-tables' ? 'BASE TABLE' : 'VIEW';
                 foreach ($items as $item) {
                     if ($item['TABLE_TYPE'] === $filter) {
-                        $is_table = ($filter === 'BASE TABLE');
+                        $is_table = $filter === 'BASE TABLE';
                         $response[] = [
-                            'id' => ($is_table ? 'tbl_' : 'vw_') . $dbName . '.' . $item['TABLE_SCHEMA'] . '.' . $item['TABLE_NAME'],
-                            'text' => esc($item['TABLE_SCHEMA']) . '.' . esc($item['TABLE_NAME']),
+                            'id' =>
+                                ($is_table ? 'tbl_' : 'vw_') .
+                                $dbName .
+                                '.' .
+                                $item['TABLE_SCHEMA'] .
+                                '.' .
+                                $item['TABLE_NAME'],
+                            'text' =>
+                                esc($item['TABLE_SCHEMA']) .
+                                '.' .
+                                esc($item['TABLE_NAME']),
                             'icon' => $is_table ? 'fa fa-table' : 'fa fa-eye',
                             'children' => $is_table,
-                            'data' => ['type' => $is_table ? 'table' : 'view', 'db' => $dbName, 'schema' => $item['TABLE_SCHEMA'], 'table' => $item['TABLE_NAME']]
+                            'data' => [
+                                'type' => $is_table ? 'table' : 'view',
+                                'db' => $dbName,
+                                'schema' => $item['TABLE_SCHEMA'],
+                                'table' => $item['TABLE_NAME'],
+                            ],
                         ];
                     }
                 }
@@ -136,16 +174,30 @@ class ObjectExplorer extends BaseController
             case 'folder-procs':
             case 'folder-funcs':
                 $items = $this->model->getProceduresAndFunctions($dbName);
-                $filter = ($type === 'folder-procs') ? 'PROCEDURE' : 'FUNCTION';
+                $filter = $type === 'folder-procs' ? 'PROCEDURE' : 'FUNCTION';
                 foreach ($items as $item) {
                     if ($item['ROUTINE_TYPE'] === $filter) {
-                        $is_proc = ($filter === 'PROCEDURE');
+                        $is_proc = $filter === 'PROCEDURE';
                         $response[] = [
-                            'id' => ($is_proc ? 'proc_' : 'func_') . $dbName . '.' . $item['ROUTINE_SCHEMA'] . '.' . $item['ROUTINE_NAME'],
-                            'text' => esc($item['ROUTINE_SCHEMA']) . '.' . esc($item['ROUTINE_NAME']),
+                            'id' =>
+                                ($is_proc ? 'proc_' : 'func_') .
+                                $dbName .
+                                '.' .
+                                $item['ROUTINE_SCHEMA'] .
+                                '.' .
+                                $item['ROUTINE_NAME'],
+                            'text' =>
+                                esc($item['ROUTINE_SCHEMA']) .
+                                '.' .
+                                esc($item['ROUTINE_NAME']),
                             'icon' => $is_proc ? 'fa fa-cog' : 'fa fa-cogs',
                             'children' => true, // Allows expansion to see parameters
-                            'data' => ['type' => $is_proc ? 'procedure' : 'function', 'db' => $dbName, 'schema' => $item['ROUTINE_SCHEMA'], 'routine' => $item['ROUTINE_NAME']]
+                            'data' => [
+                                'type' => $is_proc ? 'procedure' : 'function',
+                                'db' => $dbName,
+                                'schema' => $item['ROUTINE_SCHEMA'],
+                                'routine' => $item['ROUTINE_NAME'],
+                            ],
                         ];
                     }
                 }
@@ -158,8 +210,20 @@ class ObjectExplorer extends BaseController
                     $columns = $this->model->getColumns($db, $table);
                     foreach ($columns as $column) {
                         $response[] = [
-                            'text' => esc($column['COLUMN_NAME']) . ' <small class="text-muted">(' . esc($column['DATA_TYPE']) . ')</small>',
-                            'id' => 'col_' . $db . '.' . $schema . '.' . $table . '.' . $column['COLUMN_NAME'],
+                            'text' =>
+                                esc($column['COLUMN_NAME']) .
+                                ' <small class="text-muted">(' .
+                                esc($column['DATA_TYPE']) .
+                                ')</small>',
+                            'id' =>
+                                'col_' .
+                                $db .
+                                '.' .
+                                $schema .
+                                '.' .
+                                $table .
+                                '.' .
+                                $column['COLUMN_NAME'],
                             'icon' => 'fa fa-columns',
                             'children' => false,
                         ];
@@ -172,16 +236,35 @@ class ObjectExplorer extends BaseController
                 $nameParts = explode('.', $dbName, 3);
                 if (count($nameParts) === 3) {
                     [$db, $schema, $routine] = $nameParts;
-                    $params = $this->model->getRoutineParameters($db, $schema, $routine);
+                    $params = $this->model->getRoutineParameters(
+                        $db,
+                        $schema,
+                        $routine,
+                    );
                     if (empty($params)) {
-                        $response[] = ['text' => '<em class="text-muted">' . lang('App.no_parameters') . '</em>', 'icon' => 'fa fa-ellipsis-h', 'children' => false];
+                        $response[] = [
+                            'text' =>
+                                '<em class="text-muted">' .
+                                lang('App.no_parameters') .
+                                '</em>',
+                            'icon' => 'fa fa-ellipsis-h',
+                            'children' => false,
+                        ];
                     } else {
                         foreach ($params as $param) {
                             $response[] = [
-                                'text' => esc($param['PARAMETER_NAME']) . ' <small class="text-muted">(' . esc($param['full_type']) . ')</small>',
-                                'id' => 'param_' . $dbName . '.' . $param['PARAMETER_NAME'],
+                                'text' =>
+                                    esc($param['PARAMETER_NAME']) .
+                                    ' <small class="text-muted">(' .
+                                    esc($param['full_type']) .
+                                    ')</small>',
+                                'id' =>
+                                    'param_' .
+                                    $dbName .
+                                    '.' .
+                                    $param['PARAMETER_NAME'],
                                 'icon' => 'fa fa-arrow-right',
-                                'children' => false
+                                'children' => false,
                             ];
                         }
                     }
@@ -191,7 +274,6 @@ class ObjectExplorer extends BaseController
 
         return $this->respond($response);
     }
-
 
     /**
      * Searches for database objects based on a provided search term.
@@ -221,19 +303,43 @@ class ObjectExplorer extends BaseController
             switch ($result['ObjectType']) {
                 case 'BASE TABLE':
                     $path[] = 'folder-tables_' . $dbName;
-                    $path[] = 'tbl_' . $dbName . '.' . $result['ObjectSchema'] . '.' . $result['ObjectName'];
+                    $path[] =
+                        'tbl_' .
+                        $dbName .
+                        '.' .
+                        $result['ObjectSchema'] .
+                        '.' .
+                        $result['ObjectName'];
                     break;
                 case 'VIEW':
                     $path[] = 'folder-views_' . $dbName;
-                    $path[] = 'vw_' . $dbName . '.' . $result['ObjectSchema'] . '.' . $result['ObjectName'];
+                    $path[] =
+                        'vw_' .
+                        $dbName .
+                        '.' .
+                        $result['ObjectSchema'] .
+                        '.' .
+                        $result['ObjectName'];
                     break;
                 case 'PROCEDURE':
                     $path[] = 'folder-procs_' . $dbName;
-                    $path[] = 'proc_' . $dbName . '.' . $result['ObjectSchema'] . '.' . $result['ObjectName'];
+                    $path[] =
+                        'proc_' .
+                        $dbName .
+                        '.' .
+                        $result['ObjectSchema'] .
+                        '.' .
+                        $result['ObjectName'];
                     break;
                 case 'FUNCTION':
                     $path[] = 'folder-funcs_' . $dbName;
-                    $path[] = 'func_' . $dbName . '.' . $result['ObjectSchema'] . '.' . $result['ObjectName'];
+                    $path[] =
+                        'func_' .
+                        $dbName .
+                        '.' .
+                        $result['ObjectSchema'] .
+                        '.' .
+                        $result['ObjectName'];
                     break;
             }
             $paths = array_merge($paths, $path);

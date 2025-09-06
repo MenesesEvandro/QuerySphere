@@ -33,7 +33,7 @@ class Main extends BaseController
             'db_host' => $this->session->get('db_host'),
             'db_user' => $this->session->get('db_user'),
             'db_database' => $this->session->get('db_database'),
-            'databases' => $model->getDatabases()
+            'databases' => $model->getDatabases(),
         ];
 
         return view('main/index', $data);

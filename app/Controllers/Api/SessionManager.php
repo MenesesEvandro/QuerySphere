@@ -41,7 +41,10 @@ class SessionManager extends BaseController
         // 3. Final Check: Ensures the name is not empty.
         if (empty($dbName)) {
             // Provides a more descriptive error message for debugging.
-            return $this->fail('Database name not provided. Please check the submitted data.', 400);
+            return $this->fail(
+                'Database name not provided. Please check the submitted data.',
+                400,
+            );
         }
 
         // 4. Business Logic: Saves to the session.
@@ -49,7 +52,7 @@ class SessionManager extends BaseController
 
         return $this->respond([
             'status' => 'success',
-            'message' => 'Database context changed to ' . $dbName
+            'message' => 'Database context changed to ' . $dbName,
         ]);
     }
 }

@@ -34,13 +34,17 @@ class AuthFilter implements FilterInterface
     {
         $session = session();
 
-        if (! $session->get('is_connected')) {
+        if (!$session->get('is_connected')) {
             // For AJAX requests, return a 401 error instead of redirecting
             if ($request->isAJAX()) {
-                return service('response')->setStatusCode(401)->setBody('Session expired or invalid.');
+                return service('response')
+                    ->setStatusCode(401)
+                    ->setBody('Session expired or invalid.');
             }
             // For standard page loads, redirect to the login page
-            return redirect()->to(site_url('/'))->with('error', 'Please connect to access this page.');
+            return redirect()
+                ->to(site_url('/'))
+                ->with('error', 'Please connect to access this page.');
         }
     }
 
@@ -55,8 +59,11 @@ class AuthFilter implements FilterInterface
      *
      * @return void
      */
-    public function after(RequestInterface $request, ResponseInterface $response, $arguments = null)
-    {
+    public function after(
+        RequestInterface $request,
+        ResponseInterface $response,
+        $arguments = null,
+    ) {
         // No action needed here.
     }
 }

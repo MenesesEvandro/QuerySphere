@@ -40,12 +40,12 @@ class LocaleFilter implements FilterInterface
 
             // Set the locale for the current request
             $request->setLocale($locale);
-            
+
             // Also explicitly set the locale for the Language service
             service('language')->setLocale($locale);
         }
     }
-    
+
     /**
      * Runs after the controller has executed and the response is generated.
      *
@@ -57,8 +57,11 @@ class LocaleFilter implements FilterInterface
      *
      * @return void
      */
-    public function after(RequestInterface $request, ResponseInterface $response, $arguments = null) 
-    {
+    public function after(
+        RequestInterface $request,
+        ResponseInterface $response,
+        $arguments = null,
+    ) {
         // No action needed here.
     }
 }

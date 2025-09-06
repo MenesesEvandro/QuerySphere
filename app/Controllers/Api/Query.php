@@ -60,12 +60,25 @@ class Query extends BaseController
         // Build the localized status message in the controller
         $message = lang('App.commands_executed_successfully');
         if ($result['resultSetCount'] > 0) {
-            $message .= "\n" . $result['resultSetCount'] . ' ' . lang('App.result_sets_returned');
+            $message .=
+                "\n" .
+                $result['resultSetCount'] .
+                ' ' .
+                lang('App.result_sets_returned');
         }
         if ($result['totalRowsAffected'] > 0) {
-            $message .= "\n" . $result['totalRowsAffected'] . ' ' . lang('App.rows_affected');
+            $message .=
+                "\n" .
+                $result['totalRowsAffected'] .
+                ' ' .
+                lang('App.rows_affected');
         }
-        $message .= "\n" . lang('App.execution_time') . ": " . $result['executionTime'] . "s";
+        $message .=
+            "\n" .
+            lang('App.execution_time') .
+            ': ' .
+            $result['executionTime'] .
+            's';
         $result['message'] = $message;
 
         // Update session history

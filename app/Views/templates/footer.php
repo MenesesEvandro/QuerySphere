@@ -3,24 +3,34 @@
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="chartModalLabel"><?= lang('App.chartModalTitle') ?></h5>
+                <h5 class="modal-title" id="chartModalLabel"><?= lang(
+                    'App.chartModalTitle',
+                ) ?></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"
                     aria-label="<?= lang('App.close') ?>"></button>
             </div>
             <div class="modal-body">
                 <div class="row g-3">
                     <div class="col-md-4"><label for="chart-type"
-                            class="form-label"><?= lang('App.chartType') ?></label><select id="chart-type"
+                            class="form-label"><?= lang(
+                                'App.chartType',
+                            ) ?></label><select id="chart-type"
                             class="form-select">
                             <option value="bar"><?= lang('App.bar') ?></option>
-                            <option value="line"><?= lang('App.line') ?></option>
+                            <option value="line"><?= lang(
+                                'App.line',
+                            ) ?></option>
                             <option value="pie"><?= lang('App.pie') ?></option>
                         </select></div>
                     <div class="col-md-4"><label for="chart-label-col"
-                            class="form-label"><?= lang('App.chartLabelAxis') ?></label><select id="chart-label-col"
+                            class="form-label"><?= lang(
+                                'App.chartLabelAxis',
+                            ) ?></label><select id="chart-label-col"
                             class="form-select"></select></div>
                     <div class="col-md-4"><label for="chart-value-col"
-                            class="form-label"><?= lang('App.chartValueAxis') ?></label><select id="chart-value-col"
+                            class="form-label"><?= lang(
+                                'App.chartValueAxis',
+                            ) ?></label><select id="chart-value-col"
                             class="form-select"></select></div>
                 </div>
                 <div class="mt-3" style="position: relative; height:60vh; width:100%"><canvas id="myChart"></canvas>
@@ -30,7 +40,9 @@
                 <button type="button" class="btn btn-secondary"
                     data-bs-dismiss="modal"><?= lang('App.close') ?></button>
                 <button type="button" id="generate-chart-btn"
-                    class="btn btn-primary"><?= lang('App.chartGenerate') ?></button>
+                    class="btn btn-primary"><?= lang(
+                        'App.chartGenerate',
+                    ) ?></button>
             </div>
         </div>
     </div>
@@ -106,7 +118,9 @@
         prompt_script_name: "<?= lang('App.prompt_script_name') ?>",
         script_name_default: "<?= lang('App.script_name_default') ?>",
         empty_script_alert: "<?= lang('App.empty_script_alert') ?>",
-        empty_shared_script_alert: "<?= lang('App.empty_shared_script_alert') ?>",
+        empty_shared_script_alert: "<?= lang(
+            'App.empty_shared_script_alert',
+        ) ?>",
         prompt_shared_name: "<?= lang('App.prompt_shared_name') ?>",
         shared_name_default: "<?= lang('App.shared_name_default') ?>",
         prompt_author: "<?= lang('App.prompt_author') ?>",
@@ -413,7 +427,9 @@
         $('#object-explorer-tree').jstree({
             'core': {
                 'data': {
-                    'url': (node) => "#" === node.id ? '<?= site_url('api/objects/databases') ?>' : '<?= site_url('api/objects/children') ?>',
+                    'url': (node) => "#" === node.id ? '<?= site_url(
+                        'api/objects/databases',
+                    ) ?>' : '<?= site_url('api/objects/children') ?>',
                     'data': (node) => ({ id: node.id })
                 }
             },
@@ -447,7 +463,9 @@
                                 icon: "fa fa-play-circle",
                                 action: () => {
                                     const { db, schema, routine } = nodeData;
-                                    $.get('<?= site_url('api/objects/children') ?>', { id: node.id }, params => {
+                                    $.get('<?= site_url(
+                                        'api/objects/children',
+                                    ) ?>', { id: node.id }, params => {
                                         let script = `EXEC [${db}].[${schema}].[${routine}]\n`;
                                         if (params && params.length > 0 && params[0].id) {
                                             script += params.map(p => `    ${p.text.split(" ")[0]} = ?`).join(",\n");
@@ -465,7 +483,9 @@
                                 const { db, schema, routine, type } = nodeData;
                                 const objectName = `${schema}.${routine}`;
                                 editor.setValue(`-- ${LANG.loading_definition_for.replace("{0}", objectName)}`);
-                                $.get("<?= site_url('api/objects/source') ?>", { db: db, schema: schema, object: routine, type: type })
+                                $.get("<?= site_url(
+                                    'api/objects/source',
+                                ) ?>", { db: db, schema: schema, object: routine, type: type })
                                     .done(function(data) {
                                         editor.setValue(data.sql);
                                     })
@@ -566,7 +586,9 @@
             const author = prompt(LANG.prompt_author, LANG.author_default);
             if (!author) return;
 
-            $.post('<?= site_url('api/shared-queries') ?>', { name, author, sql, '<?= csrf_token() ?>': '<?= csrf_hash() ?>' })
+            $.post('<?= site_url(
+                'api/shared-queries',
+            ) ?>', { name, author, sql, '<?= csrf_token() ?>': '<?= csrf_hash() ?>' })
                 .done(() => renderSharedScripts())
                 .fail(() => alert(LANG.share_fail));
         });
@@ -705,7 +727,9 @@
                     new bootstrap.Tab(document.getElementById('messages-tab')).show();
                 },
                 complete: () => btn.prop('disabled', false).html(
-                    `<i class="fa fa-sitemap me-1"></i> <?= lang('App.explain') ?>`
+                    `<i class="fa fa-sitemap me-1"></i> <?= lang(
+                        'App.explain',
+                    ) ?>`
                 )
             });
         });
