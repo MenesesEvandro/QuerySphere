@@ -58,7 +58,7 @@ class ConnectionManager
             'user' => session()->get('db_user'),
             'password' => base64_decode(session()->get('db_password')),
             'port' => session()->get('db_port'),
-            'db_trust_cert' => session()->get('db_trust_cert'),
+            'trust_cert' => session()->get('db_trust_cert'),
         ];
     }
 }
