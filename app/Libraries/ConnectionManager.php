@@ -31,6 +31,7 @@ class ConnectionManager
             'db_password' => base64_encode($credentials['password']), // Obfuscate password
             'db_port' => $credentials['port'],
             'is_connected' => true,
+            'db_trust_cert' => $credentials['trust_cert'],
         ];
 
         session()->set($sessionData);
@@ -57,6 +58,7 @@ class ConnectionManager
             'user' => session()->get('db_user'),
             'password' => base64_decode(session()->get('db_password')),
             'port' => session()->get('db_port'),
+            'db_trust_cert' => session()->get('db_trust_cert'),
         ];
     }
 }

@@ -150,4 +150,6 @@ return [
     'check_env_file_note' =>
         'Recommended for configuring the production/development environment.',
     'check_go_to_app' => 'Go to Application',
+    'trust_server_certificate' =>
+        'Trust server certificate (for localhost/self-signed)',
 ];

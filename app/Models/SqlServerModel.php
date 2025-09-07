@@ -42,6 +42,10 @@ class SqlServerModel extends Model
             'CharacterSet' => 'UTF-8',
         ];
 
+        if (!empty($credentials['trust_cert'])) {
+            $connectionInfo['TrustServerCertificate'] = true;
+        }
+
         $conn = @sqlsrv_connect($serverName, $connectionInfo);
 
         if ($conn) {
@@ -93,6 +97,10 @@ class SqlServerModel extends Model
             'CharacterSet' => 'UTF-8',
             'LoginTimeout' => 10,
         ];
+
+        if (!empty($credentials['trust_cert'])) {
+            $connectionInfo['TrustServerCertificate'] = true;
+        }
 
         $this->conn = sqlsrv_connect($serverName, $connectionInfo);
 

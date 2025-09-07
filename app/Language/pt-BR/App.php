@@ -152,4 +152,6 @@ return [
     'check_env_file_note' =>
         'Recomendado para configurar o ambiente de produção/desenvolvimento.',
     'check_go_to_app' => 'Ir para a Aplicação',
+    'trust_server_certificate' =>
+        'Confiar no certificado do servidor (para localhost/autoassinado)',
 ];

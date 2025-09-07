@@ -73,6 +73,9 @@ class Connection extends BaseController
             'user' => $this->request->getPost('user'),
             'password' => $this->request->getPost('password'),
             'port' => $this->request->getPost('port'),
+            'trust_cert' => $this->request->getPost('trust_cert')
+                ? true
+                : false,
         ];
 
         $sqlServerModel = new SqlServerModel();
