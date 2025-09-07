@@ -3,7 +3,7 @@
 namespace App\Models;
 
 use CodeIgniter\Model;
-use App\Libraries\ConnectionManager;
+use App\Libraries\DatabaseConnector;
 
 /**
  * The primary data access layer for interacting with a Microsoft SQL Server database.
@@ -17,10 +17,35 @@ use App\Libraries\ConnectionManager;
 class SqlServerModel extends Model
 {
     /**
-     * The active SQL Server connection resource.
-     * @var resource|false|null
+     * The active SQL Server connection resource, obtained from the shared connector.
+     * @var resource|false
      */
     private $conn;
+
+    /**
+     * Constructor: gets the shared connection from the connector.
+     */
+    public function __construct()
+    {
+        parent::__construct();
+        $this->conn = DatabaseConnector::getConnection();
+    }
+
+    /**
+     * Checks if the model has a valid and active connection.
+     * @return bool
+     */
+    private function hasConnection(): bool
+    {
+        if ($this->conn === false || $this->conn === null) {
+            log_message(
+                'error',
+                'SqlServerModel: Database connection failed or was not established.',
+            );
+            return false;
+        }
+        return true;
+    }
 
     /**
      * Attempts a preliminary connection to the SQL Server to validate credentials.
@@ -41,13 +66,10 @@ class SqlServerModel extends Model
             'PWD' => $credentials['password'],
             'CharacterSet' => 'UTF-8',
         ];
-
         if (!empty($credentials['trust_cert'])) {
             $connectionInfo['TrustServerCertificate'] = true;
         }
-
         $conn = @sqlsrv_connect($serverName, $connectionInfo);
-
         if ($conn) {
             sqlsrv_close($conn);
             return [
@@ -68,46 +90,6 @@ class SqlServerModel extends Model
     }
 
     /**
-     * Establishes a persistent connection for the model instance using session credentials.
-     *
-     * This method is used internally by all other data-fetching methods. It retrieves
-     * credentials from the session via the ConnectionManager and establishes a connection
-     * that is stored in the private `$conn` property for reuse during the object's lifecycle.
-     *
-     * @return bool True if the connection is successful, false otherwise.
-     */
-    public function connectFromSession(): bool
-    {
-        if ($this->conn) {
-            return true;
-        }
-
-        $connManager = new ConnectionManager();
-        $credentials = $connManager->getCredentials();
-
-        if (!$credentials) {
-            return false;
-        }
-
-        $serverName = $credentials['host'] . ',' . $credentials['port'];
-        $connectionInfo = [
-            'Database' => $credentials['database'],
-            'UID' => $credentials['user'],
-            'PWD' => $credentials['password'],
-            'CharacterSet' => 'UTF-8',
-            'LoginTimeout' => 10,
-        ];
-
-        if (!empty($credentials['trust_cert'])) {
-            $connectionInfo['TrustServerCertificate'] = true;
-        }
-
-        $this->conn = sqlsrv_connect($serverName, $connectionInfo);
-
-        return $this->conn !== false;
-    }
-
-    /**
      * Retrieves a list of all user databases on the server.
      *
      * Filters out system databases like 'master', 'tempdb', etc.
@@ -116,10 +98,9 @@ class SqlServerModel extends Model
      */
     public function getDatabases(): array
     {
-        if (!$this->connectFromSession()) {
+        if (!$this->hasConnection()) {
             return [];
         }
-
         $sql =
             "SELECT name FROM sys.databases WHERE state = 0 AND name NOT IN ('master', 'tempdb', 'model', 'msdb') ORDER BY name;";
         $stmt = sqlsrv_query($this->conn, $sql);
@@ -141,15 +122,13 @@ class SqlServerModel extends Model
      */
     public function getTablesAndViews(string $database): array
     {
-        if (!$this->connectFromSession()) {
+        if (!$this->hasConnection()) {
             return [];
         }
-
         $sql =
             'SELECT TABLE_SCHEMA, TABLE_NAME, TABLE_TYPE FROM [' .
             $database .
             '].INFORMATION_SCHEMA.TABLES ORDER BY TABLE_SCHEMA, TABLE_NAME;';
-
         $stmt = sqlsrv_query($this->conn, $sql);
         $results = [];
         if ($stmt) {
@@ -170,15 +149,13 @@ class SqlServerModel extends Model
      */
     public function getColumns(string $database, string $table): array
     {
-        if (!$this->connectFromSession()) {
+        if (!$this->hasConnection()) {
             return [];
         }
-
         $sql =
             'SELECT COLUMN_NAME, DATA_TYPE FROM [' .
             $database .
             '].INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = ? ORDER BY ORDINAL_POSITION;';
-
         $params = [$table];
         $stmt = sqlsrv_query($this->conn, $sql, $params);
         $results = [];
@@ -199,18 +176,13 @@ class SqlServerModel extends Model
      */
     public function getProceduresAndFunctions(string $database): array
     {
-        if (!$this->connectFromSession()) {
+        if (!$this->hasConnection()) {
             return [];
         }
-
         $sql =
-            "SELECT ROUTINE_SCHEMA, ROUTINE_NAME, ROUTINE_TYPE 
-                FROM [" .
+            'SELECT ROUTINE_SCHEMA, ROUTINE_NAME, ROUTINE_TYPE FROM [' .
             $database .
-            "].INFORMATION_SCHEMA.ROUTINES 
-                WHERE ROUTINE_TYPE IN ('PROCEDURE', 'FUNCTION') 
-                ORDER BY ROUTINE_TYPE, ROUTINE_SCHEMA, ROUTINE_NAME;";
-
+            "].INFORMATION_SCHEMA.ROUTINES WHERE ROUTINE_TYPE IN ('PROCEDURE', 'FUNCTION') ORDER BY ROUTINE_TYPE, ROUTINE_SCHEMA, ROUTINE_NAME;";
         $stmt = sqlsrv_query($this->conn, $sql);
         $results = [];
         if ($stmt) {
@@ -235,18 +207,13 @@ class SqlServerModel extends Model
         string $routineSchema,
         string $routineName,
     ): array {
-        if (!$this->connectFromSession()) {
+        if (!$this->hasConnection()) {
             return [];
         }
-
         $sql =
-            "SELECT PARAMETER_NAME, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH 
-                FROM [" .
+            'SELECT PARAMETER_NAME, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH FROM [' .
             $database .
-            "].INFORMATION_SCHEMA.PARAMETERS 
-                WHERE SPECIFIC_SCHEMA = ? AND SPECIFIC_NAME = ?
-                ORDER BY ORDINAL_POSITION;";
-
+            '].INFORMATION_SCHEMA.PARAMETERS WHERE SPECIFIC_SCHEMA = ? AND SPECIFIC_NAME = ? ORDER BY ORDINAL_POSITION;';
         $params = [$routineSchema, $routineName];
         $stmt = sqlsrv_query($this->conn, $sql, $params);
         $results = [];
@@ -275,12 +242,10 @@ class SqlServerModel extends Model
      */
     public function getAutocompletionSchema(): array
     {
-        if (!$this->connectFromSession()) {
+        if (!$this->hasConnection()) {
             return [];
         }
-
         $database = session()->get('db_database');
-
         if (empty($database)) {
             $stmt = sqlsrv_query($this->conn, 'SELECT DB_NAME() AS dbname');
             if (
@@ -290,32 +255,17 @@ class SqlServerModel extends Model
                 $database = $row['dbname'];
             }
         }
-
         if (empty($database)) {
             return [];
         }
-
         $sql =
-            "
-            SELECT 
-                t.TABLE_SCHEMA, 
-                t.TABLE_NAME, 
-                c.COLUMN_NAME
-            FROM 
-                [" .
+            'SELECT t.TABLE_SCHEMA, t.TABLE_NAME, c.COLUMN_NAME FROM [' .
             $database .
-            "].INFORMATION_SCHEMA.TABLES t
-            INNER JOIN 
-                [" .
+            '].INFORMATION_SCHEMA.TABLES t INNER JOIN [' .
             $database .
-            "].INFORMATION_SCHEMA.COLUMNS c ON t.TABLE_NAME = c.TABLE_NAME AND t.TABLE_SCHEMA = c.TABLE_SCHEMA
-            ORDER BY 
-                t.TABLE_SCHEMA, t.TABLE_NAME, c.ORDINAL_POSITION;
-        ";
-
+            '].INFORMATION_SCHEMA.COLUMNS c ON t.TABLE_NAME = c.TABLE_NAME AND t.TABLE_SCHEMA = c.TABLE_SCHEMA ORDER BY t.TABLE_SCHEMA, t.TABLE_NAME, c.ORDINAL_POSITION;';
         $stmt = sqlsrv_query($this->conn, $sql);
         $schema = [];
-
         if ($stmt) {
             while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
                 $tableNameForHint = $row['TABLE_NAME'];
@@ -323,7 +273,6 @@ class SqlServerModel extends Model
                     $schema[$tableNameForHint] = [];
                 }
                 $schema[$tableNameForHint][] = $row['COLUMN_NAME'];
-
                 $fullTableName =
                     $row['TABLE_SCHEMA'] . '.' . $row['TABLE_NAME'];
                 if (!isset($schema[$fullTableName])) {
@@ -332,7 +281,6 @@ class SqlServerModel extends Model
             }
             sqlsrv_free_stmt($stmt);
         }
-
         return $schema;
     }
 
@@ -356,23 +304,21 @@ class SqlServerModel extends Model
         int $page = 1,
         int $pageSize = 1000,
     ): array {
-        if (!$this->connectFromSession()) {
+        ini_set('memory_limit', '512M');
+        set_time_limit(300);
+        if (!$this->hasConnection()) {
             return ['status' => 'error', 'message' => lang('App.session_lost')];
         }
-
         $startTime = microtime(true);
         $totalRows = 0;
         $allResults = [];
         $totalRowsAffected = 0;
         $paginated = false;
-
         $isPaginatable =
             stripos(trim($sql), 'SELECT') === 0 &&
             substr_count(strtoupper($sql), 'SELECT') === 1;
-
         if ($isPaginatable) {
             $paginated = true;
-
             $countSql = "WITH UserQuery AS ({$sql}) SELECT COUNT(*) as TotalRows FROM UserQuery";
             $countStmt = sqlsrv_query($this->conn, $countSql);
             if (
@@ -384,19 +330,16 @@ class SqlServerModel extends Model
             if ($countStmt) {
                 sqlsrv_free_stmt($countStmt);
             }
-
             $paginatedSql = $sql;
             if (stripos($paginatedSql, 'ORDER BY') === false) {
                 $paginatedSql .= ' ORDER BY (SELECT NULL)';
             }
             $offset = ($page - 1) * $pageSize;
             $paginatedSql .= " OFFSET {$offset} ROWS FETCH NEXT {$pageSize} ROWS ONLY";
-
             $stmt = sqlsrv_query($this->conn, $paginatedSql);
         } else {
             $stmt = sqlsrv_query($this->conn, $sql);
         }
-
         if ($stmt === false) {
             $errors = sqlsrv_errors();
             return [
@@ -406,7 +349,6 @@ class SqlServerModel extends Model
                     ($errors[0]['message'] ?? lang('App.unknown_error')),
             ];
         }
-
         do {
             $headers = [];
             $data = [];
@@ -414,7 +356,6 @@ class SqlServerModel extends Model
             if ($rowsAffected > 0 && sqlsrv_field_metadata($stmt) === false) {
                 $totalRowsAffected += $rowsAffected;
             }
-
             if (sqlsrv_has_rows($stmt)) {
                 foreach (sqlsrv_field_metadata($stmt) as $fieldMetadata) {
                     $headers[] = $fieldMetadata['Name'];
@@ -441,13 +382,10 @@ class SqlServerModel extends Model
                 $allResults[] = $result;
             }
         } while (!$paginated && sqlsrv_next_result($stmt));
-
         $executionTime = number_format(microtime(true) - $startTime, 4);
-
         if ($stmt) {
             sqlsrv_free_stmt($stmt);
         }
-
         return [
             'status' => 'success',
             'results' => $allResults,
@@ -468,33 +406,27 @@ class SqlServerModel extends Model
      */
     public function getExecutionPlan(string $sql): array
     {
-        if (!$this->connectFromSession()) {
+        if (!$this->hasConnection()) {
             return ['status' => 'error', 'message' => lang('App.session_lost')];
         }
-
         sqlsrv_query($this->conn, 'SET SHOWPLAN_XML ON;');
         $stmt = sqlsrv_query($this->conn, $sql);
-
         if ($stmt === false) {
             sqlsrv_query($this->conn, 'SET SHOWPLAN_XML OFF;');
             $errors = sqlsrv_errors();
             return ['status' => 'error', 'message' => $errors[0]['message']];
         }
-
         $xmlPlan = '';
         while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
             $xmlPlan .= current($row);
         }
-
         sqlsrv_query($this->conn, 'SET SHOWPLAN_XML OFF;');
-
         if (empty($xmlPlan)) {
             return [
                 'status' => 'error',
                 'message' => lang('App.execution_plan_generation_failed'),
             ];
         }
-
         return ['status' => 'success', 'plan' => $xmlPlan];
     }
 
@@ -507,35 +439,16 @@ class SqlServerModel extends Model
      */
     public function searchObjects(string $database, string $searchTerm): array
     {
-        if (!$this->connectFromSession()) {
+        if (!$this->hasConnection()) {
             return [];
         }
-
         $likeTerm = '%' . $searchTerm . '%';
-
         $sql =
-            "
-            SELECT 
-                'TABLE' AS ObjectType, 
-                TABLE_SCHEMA AS ObjectSchema, 
-                TABLE_NAME AS ObjectName 
-            FROM [" .
+            "SELECT 'TABLE' AS ObjectType, TABLE_SCHEMA AS ObjectSchema, TABLE_NAME AS ObjectName FROM [" .
             $database .
-            "].INFORMATION_SCHEMA.TABLES 
-            WHERE TABLE_NAME LIKE ?
-            
-            UNION ALL
-            
-            SELECT 
-                ROUTINE_TYPE AS ObjectType, 
-                ROUTINE_SCHEMA AS ObjectSchema, 
-                ROUTINE_NAME AS ObjectName 
-            FROM [" .
+            '].INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME LIKE ? UNION ALL SELECT ROUTINE_TYPE AS ObjectType, ROUTINE_SCHEMA AS ObjectSchema, ROUTINE_NAME AS ObjectName FROM [' .
             $database .
-            "].INFORMATION_SCHEMA.ROUTINES 
-            WHERE ROUTINE_NAME LIKE ?;
-        ";
-
+            '].INFORMATION_SCHEMA.ROUTINES WHERE ROUTINE_NAME LIKE ?;';
         $params = [$likeTerm, $likeTerm];
         $stmt = sqlsrv_query($this->conn, $sql, $params);
         $results = [];
@@ -564,21 +477,17 @@ class SqlServerModel extends Model
         string $schema,
         string $objectName,
     ): ?string {
-        if (!$this->connectFromSession()) {
+        if (!$this->hasConnection()) {
             return null;
         }
-
         if (sqlsrv_query($this->conn, 'USE [' . $database . ']') === false) {
-            return null; // Failed to switch database context
+            return null;
         }
-
         $qualifiedName = $schema . '.' . $objectName;
         $sql = 'EXEC sp_helptext ?';
         $params = [$qualifiedName];
-
         $stmt = sqlsrv_query($this->conn, $sql, $params);
         $definition = '';
-
         if ($stmt) {
             while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
                 $definition .= $row['Text'];
@@ -586,17 +495,6 @@ class SqlServerModel extends Model
             sqlsrv_free_stmt($stmt);
             return $definition;
         }
-
         return null;
-    }
-
-    /**
-     * Destructor: ensures the database connection is closed when the object is destroyed.
-     */
-    public function __destruct()
-    {
-        if ($this->conn) {
-            sqlsrv_close($this->conn);
-        }
     }
 }
