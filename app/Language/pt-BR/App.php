@@ -155,4 +155,154 @@ return [
     'trust_server_certificate' =>
         'Confiar no certificado do servidor (para localhost/autoassinado)',
     'search_placeholder' => 'Buscar em {0}...',
+    'no_templates' => 'Nenhum template encontrado.',
+
+    // Traduções para Query Templates
+    'query_templates' => [
+        '10_performance' => [
+            'title' => 'Performance',
+            'scripts' => [
+                '10_active_queries.sql' => [
+                    'title' => 'Monitorar Queries Ativas',
+                    'description' =>
+                        'Mostra todas as queries sendo executadas no servidor neste exato momento.',
+                ],
+                '20_slowest_queries_history.sql' => [
+                    'title' => 'Top 10 Queries Mais Lentas (Histórico)',
+                    'description' =>
+                        'Analisa o cache para encontrar as queries que mais consumiram tempo de CPU.',
+                ],
+                '30_wait_stats.sql' => [
+                    'title' => 'Estatísticas de Espera (Wait Stats)',
+                    'description' =>
+                        'Mostra os principais gargalos do servidor, indicando o que o SQL Server está esperando.',
+                ],
+            ],
+        ],
+        '20_space_usage' => [
+            'title' => 'Uso de Espaço',
+            'scripts' => [
+                '10_largest_tables.sql' => [
+                    'title' => 'Listar Maiores Tabelas',
+                    'description' =>
+                        'Calcula e lista as tabelas do banco de dados atual, ordenadas por espaço total.',
+                ],
+                '20_space_by_database.sql' => [
+                    'title' => 'Uso de Espaço por Banco de Dados',
+                    'description' =>
+                        'Mostra o tamanho total, espaço usado e livre para todos os bancos de dados.',
+                ],
+            ],
+        ],
+        '30_indexes' => [
+            'title' => 'Índices',
+            'scripts' => [
+                '10_index_fragmentation.sql' => [
+                    'title' => 'Verificar Fragmentação de Índices',
+                    'description' =>
+                        'Analisa e lista índices com fragmentação acima de 10%.',
+                ],
+                '20_unused_indexes.sql' => [
+                    'title' => 'Índices Não Utilizados',
+                    'description' =>
+                        'Encontra índices que são mantidos (updates) mas raramente ou nunca são usados em leituras.',
+                ],
+                '30_missing_indexes.sql' => [
+                    'title' => 'Índices Faltantes (Sugeridos)',
+                    'description' =>
+                        'Lista as sugestões de criação de índices que o próprio SQL Server faz.',
+                ],
+                '40_list_table_constraints.sql' => [
+                    'title' => 'Listar Constraints da Tabela',
+                    'description' =>
+                        'Exibe todas as constraints (PK, FK, Unique) de uma tabela específica.',
+                ],
+            ],
+        ],
+        '40_current_activity' => [
+            'title' => 'Atividade Atual',
+            'scripts' => [
+                '10_active_locks.sql' => [
+                    'title' => 'Consultar Bloqueios (Locks) Ativos',
+                    'description' =>
+                        'Mostra quais processos (sessões) estão bloqueando outros processos.',
+                ],
+                '20_active_connections.sql' => [
+                    'title' => 'Listar Conexões Ativas',
+                    'description' =>
+                        'Lista todas as conexões ativas no servidor, mostrando usuário, máquina e programa.',
+                ],
+            ],
+        ],
+        '50_health_and_config' => [
+            'title' => 'Saúde e Configuração',
+            'scripts' => [
+                '10_backup_status.sql' => [
+                    'title' => 'Status dos Backups',
+                    'description' =>
+                        'Verifica e mostra a data e o tipo do último backup para cada banco de dados.',
+                ],
+                '20_database_configs.sql' => [
+                    'title' => 'Configurações dos Bancos',
+                    'description' =>
+                        'Lista configurações importantes (Recovery Model, Nível de Compatibilidade) para cada banco.',
+                ],
+                '30_transaction_log_vlf_analysis.sql' => [
+                    'title' => 'Analisar Uso do Transaction Log (VLFs)',
+                    'description' =>
+                        'Verifica a saúde do Transaction Log, um fator crítico de performance.',
+                ],
+            ],
+        ],
+        '60_security' => [
+            'title' => 'Segurança',
+            'scripts' => [
+                '10_list_sysadmin_logins.sql' => [
+                    'title' => 'Listar Logins com Sysadmin',
+                    'description' =>
+                        'Auditoria de segurança que lista todos os logins com controle total do servidor.',
+                ],
+                '20_find_orphan_users.sql' => [
+                    'title' => 'Encontrar Usuários Órfãos',
+                    'description' =>
+                        'Encontra usuários em um banco que não estão mais ligados a um login válido no servidor.',
+                ],
+                '30_audit_high_level_permissions.sql' => [
+                    'title' => 'Auditoria de Permissões Elevadas (Banco)',
+                    'description' =>
+                        'Verifica usuários com permissões críticas (CONTROL, IMPERSONATE) no banco de dados atual.',
+                ],
+                '40_audit_server_level_permissions.sql' => [
+                    'title' => 'Auditoria de Permissões Elevadas (Servidor)',
+                    'description' =>
+                        'Verifica logins com permissões críticas (CONTROL SERVER) a nível de servidor.',
+                ],
+            ],
+        ],
+        '70_sql_server_agent' => [
+            'title' => 'SQL Server Agent',
+            'scripts' => [
+                '10_failed_jobs_last_24h.sql' => [
+                    'title' => 'Jobs com Falha Recente',
+                    'description' =>
+                        'Lista todos os jobs do SQL Server Agent que falharam nas últimas 24 horas.',
+                ],
+                '20_currently_running_jobs.sql' => [
+                    'title' => 'Jobs em Execução Agora',
+                    'description' =>
+                        'Mostra quais jobs do SQL Server Agent estão em execução neste exato momento.',
+                ],
+            ],
+        ],
+        '80_object_management' => [
+            'title' => 'Gerenciamento de Objetos',
+            'scripts' => [
+                '10_check_object_dependencies.sql' => [
+                    'title' => 'Verificar Dependências de Objetos',
+                    'description' =>
+                        'Use este script para ver quais outros objetos dependem de uma tabela ou procedure antes de alterá-la.',
+                ],
+            ],
+        ],
+    ],
 ];

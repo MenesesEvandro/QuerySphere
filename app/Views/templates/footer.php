@@ -133,6 +133,7 @@
         loading_definition_for: "<?= lang('App.loading_definition_for') ?>",
         error_loading_definition: "<?= lang('App.error_loading_definition') ?>",
         search_placeholder: "<?= lang('App.search_placeholder') ?>",
+        no_templates: "<?= lang('App.no_templates') ?>",
     };
 
     var lastResultData = null;
@@ -430,39 +431,42 @@
     }
 
     function renderQueryTemplates() {
-        const accordion = $('#query-templates-accordion');
-        accordion.html('<div class="p-2 text-muted">' + LANG.loading + '</div>');
+    const accordion = $('#query-templates-accordion');
+    accordion.html('<div class="p-2 text-muted">' + LANG.js_loading + '</div>');
 
-        $.get('<?= site_url('api/templates') ?>', function (categories) {
-            accordion.empty();
-            if (categories && categories.length > 0) {
-                categories.forEach((cat, index) => {
-                    const categoryId = `category-${index}`;
-                    const categoryHtml = `
+    $.get('<?= site_url('api/templates') ?>', function(categories) {
+        accordion.empty();
+        if (categories && categories.length > 0) {
+            categories.forEach((cat, index) => {
+                const categoryId = `category-${index}`;
+                const categoryHtml = `
                     <div class="accordion-item">
                         <h2 class="accordion-header" id="heading-${categoryId}">
                             <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-${categoryId}">
-                                ${$('<div>').text(cat.category.substring(3)).html()}
+                                ${$('<div>').text(cat.category).html()}
                             </button>
                         </h2>
                         <div id="collapse-${categoryId}" class="accordion-collapse collapse" data-bs-parent="#query-templates-accordion">
                             <div class="list-group list-group-flush">
                                 ${cat.scripts.map(script => `
-                                    <a href="#" class="list-group-item list-group-item-action load-template" data-category="${cat.category}" data-filename="${script.filename}">
-                                        ${$('<div>').text(script.name.substring(3)).html()}
+                                    <a href="#" class="list-group-item list-group-item-action load-template" 
+                                       data-category="${script.category_key}" 
+                                       data-filename="${script.filename}" 
+                                       title="${$('<div>').text(script.description).html()}">
+                                        ${$('<div>').text(script.name).html()}
                                     </a>
                                 `).join('')}
                             </div>
                         </div>
                     </div>
                 `;
-                    accordion.append(categoryHtml);
-                });
-            } else {
-                accordion.html('<div class="p-2 text-muted">Nenhum template encontrado.</div>');
-            }
-        });
-    }
+                accordion.append(categoryHtml);
+            });
+        } else {
+            accordion.html('<div class="p-2 text-muted">${LANG.no_templates}</div>');
+        }
+    });
+}
 
     $(function () {
         function initializeIntellisense() {
@@ -827,12 +831,12 @@
 
         $('#templates-tab').on('click', '.load-template', function (e) {
             e.preventDefault();
-            const category = $(this).data('category');
+            const categoryKey = $(this).data('category');
             const filename = $(this).data('filename');
 
             $.get(`<?= site_url(
                 'api/templates/get',
-            ) ?>/${category}/${filename}`, function (response) {
+            ) ?>/${categoryKey}/${filename}`, function(response) {
                 let finalSql = response.sql;
 
                 const placeholders = finalSql.match(/'NOME_DA_SUA_TABELA'/g) || finalSql.match(/'schema.NomeDoObjeto'/g) || [];
@@ -844,7 +848,7 @@
                         finalSql = finalSql.replace(/'NOME_DA_SUA_TABELA'/g, objectName);
                         finalSql = finalSql.replace(/'schema.NomeDoObjeto'/g, objectName);
                     } else {
-                        return;
+                        return; // Usuário cancelou
                     }
                 }
 

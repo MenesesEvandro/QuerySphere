@@ -22,42 +22,49 @@ class QueryTemplates extends BaseController
     public function index()
     {
         helper('filesystem');
-        $map = directory_map($this->basePath, 2);
-        $templates = [];
 
-        if (!$map) {
+        $templateTranslations = lang('App.query_templates');
+
+        $directoryMap = directory_map($this->basePath, 2);
+        $response = [];
+
+        if (!$directoryMap || !$templateTranslations) {
             return $this->respond([]);
         }
 
-        ksort($map);
-
-        foreach ($map as $category => $scripts) {
-            if (
-                is_array($scripts) &&
-                substr($category, -1) === DIRECTORY_SEPARATOR
-            ) {
-                $categoryName = rtrim($category, DIRECTORY_SEPARATOR);
+        foreach ($templateTranslations as $categoryKey => $categoryData) {
+            if (isset($directoryMap[$categoryKey . DIRECTORY_SEPARATOR])) {
                 $templateCategory = [
-                    'category' => $categoryName,
+                    'category' => $categoryData['title'],
                     'scripts' => [],
                 ];
-                sort($scripts);
-                foreach ($scripts as $scriptFile) {
-                    if (pathinfo($scriptFile, PATHINFO_EXTENSION) === 'sql') {
+
+                foreach (
+                    $categoryData['scripts']
+                    as $scriptFileKey => $scriptData
+                ) {
+                    if (
+                        in_array(
+                            $scriptFileKey,
+                            $directoryMap[$categoryKey . DIRECTORY_SEPARATOR],
+                        )
+                    ) {
                         $templateCategory['scripts'][] = [
-                            'filename' => $scriptFile,
-                            'name' => str_replace(
-                                ['.sql', '_'],
-                                ['', ' '],
-                                pathinfo($scriptFile, PATHINFO_FILENAME),
-                            ),
+                            'filename' => $scriptFileKey,
+                            'category_key' => $categoryKey,
+                            'name' => $scriptData['title'],
+                            'description' => $scriptData['description'] ?? '',
                         ];
                     }
                 }
-                $templates[] = $templateCategory;
+
+                if (!empty($templateCategory['scripts'])) {
+                    $response[] = $templateCategory;
+                }
             }
         }
-        return $this->respond($templates);
+
+        return $this->respond($response);
     }
 
     /**

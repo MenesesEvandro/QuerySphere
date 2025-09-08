@@ -153,4 +153,154 @@ return [
     'trust_server_certificate' =>
         'Trust server certificate (for localhost/self-signed)',
     'search_placeholder' => 'Search in {0}...',
+    'no_templates' => 'No templates found.',
+
+    // Translations for Query Templates
+    'query_templates' => [
+        '10_performance' => [
+            'title' => 'Performance',
+            'scripts' => [
+                '10_active_queries.sql' => [
+                    'title' => 'Monitor Active Queries',
+                    'description' =>
+                        'Shows all queries currently executing on the server right now.',
+                ],
+                '20_slowest_queries_history.sql' => [
+                    'title' => 'Top 10 Slowest Queries (History)',
+                    'description' =>
+                        'Analyzes the cache to find the queries that have consumed the most CPU time.',
+                ],
+                '30_wait_stats.sql' => [
+                    'title' => 'Wait Stats',
+                    'description' =>
+                        'Shows the main server bottlenecks by indicating what SQL Server is waiting for.',
+                ],
+            ],
+        ],
+        '20_space_usage' => [
+            'title' => 'Space Usage',
+            'scripts' => [
+                '10_largest_tables.sql' => [
+                    'title' => 'List Largest Tables',
+                    'description' =>
+                        'Calculates and lists the tables of the current database, ordered by total space.',
+                ],
+                '20_space_by_database.sql' => [
+                    'title' => 'Space Usage by Database',
+                    'description' =>
+                        'Shows the total size, used space, and free space for all databases.',
+                ],
+            ],
+        ],
+        '30_indexes' => [
+            'title' => 'Indexes',
+            'scripts' => [
+                '10_index_fragmentation.sql' => [
+                    'title' => 'Check Index Fragmentation',
+                    'description' =>
+                        'Analyzes and lists indexes with fragmentation above 10%.',
+                ],
+                '20_unused_indexes.sql' => [
+                    'title' => 'Unused Indexes',
+                    'description' =>
+                        'Finds indexes that are maintained (updates) but rarely or never used in reads.',
+                ],
+                '30_missing_indexes.sql' => [
+                    'title' => 'Missing Indexes (Suggested)',
+                    'description' =>
+                        'Lists index creation suggestions made by SQL Server itself.',
+                ],
+                '40_list_table_constraints.sql' => [
+                    'title' => 'List Table Constraints',
+                    'description' =>
+                        'Displays all constraints (PK, FK, Unique) for a specific table.',
+                ],
+            ],
+        ],
+        '40_current_activity' => [
+            'title' => 'Current Activity',
+            'scripts' => [
+                '10_active_locks.sql' => [
+                    'title' => 'Query Active Locks',
+                    'description' =>
+                        'Shows which processes (sessions) are blocking other processes.',
+                ],
+                '20_active_connections.sql' => [
+                    'title' => 'List Active Connections',
+                    'description' =>
+                        'Lists all active connections to the server, showing user, host, and program.',
+                ],
+            ],
+        ],
+        '50_health_and_config' => [
+            'title' => 'Health and Config',
+            'scripts' => [
+                '10_backup_status.sql' => [
+                    'title' => 'Backup Status',
+                    'description' =>
+                        'Checks and shows the date and type of the last backup for each database.',
+                ],
+                '20_database_configs.sql' => [
+                    'title' => 'Database Configurations',
+                    'description' =>
+                        'Lists important settings (Recovery Model, Compatibility Level) for each database.',
+                ],
+                '30_transaction_log_vlf_analysis.sql' => [
+                    'title' => 'Analyze Transaction Log Usage (VLFs)',
+                    'description' =>
+                        'Checks the health of the Transaction Log, a critical performance factor.',
+                ],
+            ],
+        ],
+        '60_security' => [
+            'title' => 'Security',
+            'scripts' => [
+                '10_list_sysadmin_logins.sql' => [
+                    'title' => 'List Logins with Sysadmin',
+                    'description' =>
+                        'Security audit that lists all logins with full server control.',
+                ],
+                '20_find_orphan_users.sql' => [
+                    'title' => 'Find Orphan Users',
+                    'description' =>
+                        'Finds users in a database that are no longer linked to a valid server login.',
+                ],
+                '30_audit_high_level_permissions.sql' => [
+                    'title' => 'Audit High-Level Permissions (Database)',
+                    'description' =>
+                        'Checks for users with critical permissions (CONTROL, IMPERSONATE) in the current database.',
+                ],
+                '40_audit_server_level_permissions.sql' => [
+                    'title' => 'Audit High-Level Permissions (Server)',
+                    'description' =>
+                        'Checks for logins with critical permissions (CONTROL SERVER) at the server level.',
+                ],
+            ],
+        ],
+        '70_sql_server_agent' => [
+            'title' => 'SQL Server Agent',
+            'scripts' => [
+                '10_failed_jobs_last_24h.sql' => [
+                    'title' => 'Recently Failed Jobs',
+                    'description' =>
+                        'Lists all SQL Server Agent jobs that have failed in the last 24 hours.',
+                ],
+                '20_currently_running_jobs.sql' => [
+                    'title' => 'Currently Running Jobs',
+                    'description' =>
+                        'Shows which SQL Server Agent jobs are executing right now.',
+                ],
+            ],
+        ],
+        '80_object_management' => [
+            'title' => 'Object Management',
+            'scripts' => [
+                '10_check_object_dependencies.sql' => [
+                    'title' => 'Check Object Dependencies',
+                    'description' =>
+                        'Use this script to see which other objects depend on a table or procedure before altering it.',
+                ],
+            ],
+        ],
+    ],
 ];
