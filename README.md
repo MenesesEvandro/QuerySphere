@@ -12,6 +12,8 @@ Developed for developers, DBAs, and data analysts who value time and efficiency,
 
 Connect, query, analyze, and close. It's that simple.
 
+> *Follow the development of the next version:* [*v0.2 "Pulsar"*](https://github.com/MenesesEvandro/QuerySphere/tree/pulsar)
+
 ### The End of Waiting: A Truly Stateless Tool
 
 **QuerySphere** reinvents quick database access. Its "stateless" architecture means there's nothing to set up. Use your SQL Server database credentials and get to work in seconds. All your session data is temporary and secure, existing only as long as you need it. It's the perfect tool for the "*get in, get it done, get out*" philosophy.

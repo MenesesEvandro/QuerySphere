@@ -12,6 +12,8 @@ Desenvolvido para desenvolvedores, DBAs e analistas de dados que valorizam o tem
 
 Conecte-se, consulte, analise e feche. Simples assim.
 
+> *Acompanhe o desenvolvimento da próxima versão:* [*v0.2 "Pulsar"*](https://github.com/MenesesEvandro/QuerySphere/tree/pulsar)
+
 ### O Fim da Espera: Uma Ferramenta Verdadeiramente "Stateless"
 
 O **QuerySphere** reinventa o acesso rápido a bancos de dados. Sua arquitetura "stateless" (sem estado) significa que não há nada para configurar. Use as credenciais do seu banco de dados SQL Server e comece a trabalhar em segundos. Todos os dados da sua sessão são temporários e seguros, existindo apenas enquanto você precisa deles. É a ferramenta perfeita para o "*get in, get it done, get out*".
