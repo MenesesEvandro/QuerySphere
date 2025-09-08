@@ -29,6 +29,7 @@ return [
     'chartValueAxis' => 'Eixo Y (Valores)',
     'chartGenerate' => 'Gerar Gráfico',
     'close' => 'Fechar',
+    'submit' => 'Enviar',
     'bar' => 'Barras',
     'line' => 'Linhas',
     'pie' => 'Pizza',
@@ -81,7 +82,7 @@ return [
     'select' => 'Selecione ...',
     'error_alter_database' => 'Falha ao alterar o banco de dados.',
     'changing' => 'Alterando ...',
-    'rememberConnection' => 'Lembrar dados de conexão (exceto senha)',
+    'rememberConnection' => 'Salvar dados de conexão',
     'previous' => 'Anterior',
     'next' => 'Próximo',
     'shared' => 'Compartilhadas',
@@ -156,6 +157,57 @@ return [
         'Confiar no certificado do servidor (para localhost/autoassinado)',
     'search_placeholder' => 'Buscar em {0}...',
     'no_templates' => 'Nenhum template encontrado.',
+    'new_connection' => '-- Nova Conexão --',
+    'manage_connections' => 'Gerenciar Conexões',
+    'select_connection' =>
+        'Digite o NÚMERO da conexão que deseja apagar (ou cancele).',
+    'confirm_delete_connection' =>
+        'Tem certeza de que deseja apagar a conexão {0}?',
+    'invalid_number' => 'Número inválido.',
+    'new_master_password' =>
+        'CRIE uma Senha Mestra para proteger suas senhas salvas.\nEsta senha NÃO será salva e será solicitada sempre que você precisar carregar uma senha.',
+    'ask_master_password' =>
+        'Por favor, digite sua Senha Mestra para carregar a senha.',
+    'prompt_connection_name' => 'Digite um nome para esta nova conexão:',
+    'error_decrypting_password' =>
+        'Erro ao descriptografar a senha. Senha Mestra incorreta?',
+    'saved_connection' => 'Conexão Salva',
+    'saved_connections' => 'Conexões Salvas',
+    'no_saved_connections' => 'Nenhuma conexão salva para gerenciar.',
+    'connection_deleted' => 'Conexão apagada.',
+    'delete' => 'Apagar',
+    'edit' => 'Editar',
+    'connection' => 'Conexão',
+    'actions' => 'Ações',
+    'master_password' => 'Senha Mestra',
+    'master_password_hint' =>
+        'Deve ter pelo menos 8 caracteres com letras, números e símbolos.',
+    'enter_master_password' => 'Digite a Senha Mestra',
+    'change_master_password' => 'Alterar Senha Mestra',
+    'change_master_password_info' =>
+        'Você pode alterar sua Senha Mestra aqui. Será necessário digitar a senha atual para verificação.',
+    'current_master_password' => 'Senha Mestra Atual',
+    'new_master_password_text' => 'Nova Senha Mestra',
+    'confirm_new_master_password' => 'Confirmar Nova Senha Mestra',
+    'master_password_no_match' =>
+        'Nova Senha Mestra e confirmação não coincidem.',
+    'master_password_changed' => 'Senha Mestra alterada com sucesso.',
+    'master_password_incorrect' => 'Senha Mestra Atual está incorreta.',
+    'no_saved_passwords' => 'Nenhuma senha salva.',
+    'saved_passwords' => 'Senhas Salvas',
+    'show_password' => 'Mostrar Senha',
+    'hide_password' => 'Ocultar Senha',
+    'https_warning' =>
+        'Aviso: Esta página deve ser acessada via HTTPS para garantir a segurança.',
+    'invalid_master_password' =>
+        'Senha Mestra inválida. Deve ter pelo menos 8 caracteres com letras, números e símbolos.',
+    'confirm_clear_connections' =>
+        'Tem certeza de que deseja apagar todas as conexões salvas?',
+    'clear_saved_connections' => 'Apagar Conexões Salvas',
+    'connections_cleared' => 'Todas as conexões salvas foram apagadas.',
+    'clear_all_connections' => 'Apagar todas as conexões',
+    'crypto_warning' =>
+        'Erro: Este navegador não suporta a API Web Crypto. Por favor, use um navegador moderno.',
 
     // Traduções para Query Templates
     'query_templates' => [

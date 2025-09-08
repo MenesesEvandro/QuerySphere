@@ -29,6 +29,7 @@ return [
     'chartValueAxis' => 'Y-Axis (Values)',
     'chartGenerate' => 'Generate Chart',
     'close' => 'Close',
+    'submit' => 'Submit',
     'bar' => 'Bar',
     'line' => 'Line',
     'pie' => 'Pie',
@@ -80,7 +81,7 @@ return [
     'select' => 'Select ...',
     'error_alter_database' => 'Failed to alter database.',
     'changing' => 'Changing ...',
-    'rememberConnection' => 'Remember connection details (except password)',
+    'rememberConnection' => 'Save connection details',
     'previous' => 'Previous',
     'next' => 'Next',
     'shared' => 'Shared',
@@ -154,6 +155,55 @@ return [
         'Trust server certificate (for localhost/self-signed)',
     'search_placeholder' => 'Search in {0}...',
     'no_templates' => 'No templates found.',
+    'new_connection' => '-- New Connection --',
+    'manage_connections' => 'Manage Connections',
+    'select_connection' =>
+        'Enter the NUMBER of the connection you want to delete (or cancel).',
+    'confirm_delete_connection' =>
+        'Are you sure you want to delete the connection {0}?',
+    'invalid_number' => 'Invalid number.',
+    'new_master_password' =>
+        'CREATE a Master Password to protect your saved passwords.\nThis password will NOT be saved and will be requested whenever you need to load a password.',
+    'ask_master_password' =>
+        'Please enter your Master Password to load the password:',
+    'prompt_connection_name' => 'Enter a name for this new connection:',
+    'error_decrypting_password' =>
+        'Error decrypting password. Incorrect Master Password?',
+    'saved_connection' => 'Saved Connection',
+    'saved_connections' => 'Saved Connections',
+    'no_saved_connections' => 'No saved connections to manage.',
+    'connection_deleted' => 'Connection deleted.',
+    'delete' => 'Delete',
+    'connection' => 'Connection',
+    'actions' => 'Actions',
+    'master_password' => 'Master Password',
+    'master_password_hint' =>
+        'Must be at least 8 characters with letters, numbers, and symbols.',
+    'enter_master_password' => 'Enter Master Password',
+    'change_master_password' => 'Change Master Password',
+    'change_master_password_info' =>
+        'You can change your Master Password here. You will need to enter the current password for verification.',
+    'current_master_password' => 'Current Master Password',
+    'new_master_password_text' => 'New Master Password',
+    'confirm_new_master_password' => 'Confirm New Master Password',
+    'master_password_no_match' => 'New Master Passwords do not match.',
+    'master_password_changed' => 'Master Password changed successfully.',
+    'master_password_incorrect' => 'Current Master Password is incorrect.',
+    'no_saved_passwords' => 'No saved passwords.',
+    'saved_passwords' => 'Saved Passwords',
+    'show_password' => 'Show Password',
+    'hide_password' => 'Hide Password',
+    'https_warning' =>
+        'Warning: This page should be accessed over HTTPS to ensure security.',
+    'invalid_master_password' =>
+        'Invalid Master Password. It must be at least 8 characters with letters, numbers, and symbols.',
+    'confirm_clear_connections' =>
+        'Are you sure you want to clear all saved connections?',
+    'clear_saved_connections' => 'Clear Saved Connections',
+    'connections_cleared' => 'All saved connections have been cleared.',
+    'clear_all_connections' => 'Clear all connections',
+    'crypto_warning' =>
+        'Error: This browser does not support the Web Crypto API. Please use a modern browser.',
 
     // Translations for Query Templates
     'query_templates' => [

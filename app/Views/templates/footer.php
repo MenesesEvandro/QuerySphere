@@ -96,6 +96,7 @@
 <script src="https://unpkg.com/split.js/dist/split.min.js"></script>
 <script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
 <script src="<?= base_url('libs/qp/qp.js') ?>"></script>
 
 
