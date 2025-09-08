@@ -347,4 +347,26 @@ class ObjectExplorer extends BaseController
 
         return $this->respond(array_unique($paths));
     }
+
+    /**
+     * Retrieves a simple list of column names for a specific table.
+     * Used by the context menu to build scripts.
+     *
+     * @return \CodeIgniter\HTTP\ResponseInterface
+     */
+    public function getColumnsForScripting()
+    {
+        $db = $this->request->getGet('db');
+        $table = $this->request->getGet('table');
+
+        if (empty($db) || empty($table)) {
+            return $this->fail('Parâmetros insuficientes.', 400);
+        }
+
+        $columnsData = $this->model->getColumns($db, $table);
+
+        $columnNames = array_map(fn($col) => $col['COLUMN_NAME'], $columnsData);
+
+        return $this->respond($columnNames);
+    }
 }

@@ -40,18 +40,33 @@ $routes->group('', ['filter' => 'auth'], static function ($routes) {
         $routes->get('objects/search', 'Api\ObjectExplorer::search');
 
         //Set Active Database
-        $routes->post('session/database', 'Api\SessionManager::setActiveDatabase');
+        $routes->post(
+            'session/database',
+            'Api\SessionManager::setActiveDatabase',
+        );
 
         // Shared Queries
         $routes->get('shared-queries', 'Api\SharedQueries::index');
         $routes->post('shared-queries', 'Api\SharedQueries::create');
-        $routes->delete('shared-queries/(:segment)', 'Api\SharedQueries::delete/$1');
+        $routes->delete(
+            'shared-queries/(:segment)',
+            'Api\SharedQueries::delete/$1',
+        );
 
         // Object Source
         $routes->get('objects/source', 'Api\ObjectExplorer::getObjectSource');
 
         // Query Templates
         $routes->get('templates', 'Api\QueryTemplates::index');
-        $routes->get('templates/get/(:segment)/(:segment)', 'Api\QueryTemplates::get/$1/$2');
+        $routes->get(
+            'templates/get/(:segment)/(:segment)',
+            'Api\QueryTemplates::get/$1/$2',
+        );
+
+        // Columns for Scripting
+        $routes->get(
+            'objects/columns',
+            'Api\ObjectExplorer::getColumnsForScripting',
+        );
     });
 });

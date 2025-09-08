@@ -516,13 +516,31 @@
                     let menu = {};
                     const nodeData = node.data;
                     if (nodeData) {
-                        if (nodeData.type === "table" || nodeData.type === "view") {
+                        if (nodeData && (nodeData.type === "table" || nodeData.type === "view")) {
                             menu.selectTop1000 = {
                                 label: "SELECT TOP 1000 Rows",
                                 icon: "fa fa-bolt",
                                 action: () => {
                                     const { db, schema, table } = nodeData;
-                                    editor.setValue(`SELECT TOP 1000 *\nFROM [${db}].[${schema}].[${table}]`);
+                                    
+                                    editor.setValue(`-- ${LANG.loading}`);
+
+                                    $.get('<?= site_url(
+                                        'api/objects/columns',
+                                    ) ?>', { db, table })
+                                        .done(function(columns) {
+                                            if (columns && columns.length > 0) {
+                                                const columnList = columns.map(col => `    [${col}]`).join(',\n');
+                                                
+                                                const sql = `SELECT TOP 1000\n${columnList}\nFROM [${db}].[${schema}].[${table}]`;
+                                                editor.setValue(sql);
+                                            } else {
+                                                editor.setValue(`SELECT TOP 1000 *\nFROM [${db}].[${schema}].[${table}]`);
+                                            }
+                                        })
+                                        .fail(function() {
+                                            editor.setValue(`-- ${LANG.js_error_loading_definition}\n\nSELECT TOP 1000 *\nFROM [${db}].[${schema}].[${table}]`);
+                                        });
                                 }
                             };
                         }
