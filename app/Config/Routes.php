@@ -15,7 +15,7 @@ $routes->get('check', 'ServerCheck::index');
 // --- GRUPO DE ROTAS PROTEGIDAS --- //
 $routes->group('', ['filter' => 'auth'], static function ($routes) {
     $routes->get('main', 'Main::index');
-    
+
     // Rotas da API
     $routes->group('api', static function ($routes) {
         // Object Explorer
@@ -25,14 +25,14 @@ $routes->group('', ['filter' => 'auth'], static function ($routes) {
         // Query Execution
         $routes->post('query/execute', 'Api\Query::execute');
         $routes->post('query/explain', 'Api\Query::explain');
-        
+
         // Export
         $routes->get('export/csv', 'Api\Export::csv');
         $routes->get('export/json', 'Api\Export::json');
-        
+
         // History
         $routes->get('history/get', 'Api\History::get');
-        
+
         // Intellisense
         $routes->get('intellisense', 'Api\Intellisense::index');
 
@@ -49,5 +49,9 @@ $routes->group('', ['filter' => 'auth'], static function ($routes) {
 
         // Object Source
         $routes->get('objects/source', 'Api\ObjectExplorer::getObjectSource');
+
+        // Query Templates
+        $routes->get('templates', 'Api\QueryTemplates::index');
+        $routes->get('templates/get/(:segment)/(:segment)', 'Api\QueryTemplates::get/$1/$2');
     });
 });

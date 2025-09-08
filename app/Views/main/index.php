@@ -20,6 +20,8 @@
             <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#shared-tab"><?= lang(
                 'App.shared',
             ) ?></a></li>
+            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#templates-tab">Templates</a></li>
+
         </ul>
 
         <div class="tab-content flex-grow-1" style="overflow-y: auto; overflow-x: hidden;">
@@ -34,6 +36,9 @@
             </div>
             <div class="tab-pane h-100" id="shared-tab">
                 <ul id="shared-scripts-list" class="list-group list-group-flush"></ul>
+            </div>
+            <div class="tab-pane h-100" id="templates-tab">
+                <div class="accordion" id="query-templates-accordion"></div>
             </div>
         </div>
     </aside>
@@ -86,8 +91,9 @@
         </section>
 
         <section id="results-panel" class="p-2 d-flex flex-column">
-            
-            <div id="pagination-controls" class="pb-2 border-bottom d-flex justify-content-between align-items-center" style="display: none;">
+
+            <div id="pagination-controls" class="pb-2 border-bottom d-flex justify-content-between align-items-center"
+                style="display: none;">
                 <div>
                     <button id="pagination-prev" class="btn btn-sm btn-outline-secondary">&laquo; <?= lang(
                         'App.previous',
@@ -121,7 +127,7 @@
                     <div id="messages-content" class="text-monospace h-100"></div>
                 </div>
                 <div class="tab-pane fade h-100 p-2" id="execution-plan" role="tabpanel"></div>
-                </div>
+            </div>
         </section>
     </main>
 </div>

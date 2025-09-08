@@ -46,12 +46,18 @@ class Query extends BaseController
     {
         $sql = $this->request->getPost('sql');
         $page = $this->request->getPost('page') ?: 1;
+        $disablePagination =
+            $this->request->getPost('disable_pagination') ?? false;
 
         if (empty(trim($sql))) {
             return $this->fail(lang('App.query_empty'), 400);
         }
 
-        $result = $this->model->executeQuery($sql, (int) $page);
+        $result = $this->model->executeQuery(
+            $sql,
+            (int) $page,
+            (bool) $disablePagination,
+        );
 
         if ($result['status'] === 'error') {
             return $this->fail($result, 400);

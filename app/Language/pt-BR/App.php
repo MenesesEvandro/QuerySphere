@@ -154,4 +154,5 @@ return [
     'check_go_to_app' => 'Ir para a Aplicação',
     'trust_server_certificate' =>
         'Confiar no certificado do servidor (para localhost/autoassinado)',
+    'search_placeholder' => 'Buscar em {0}...',
 ];

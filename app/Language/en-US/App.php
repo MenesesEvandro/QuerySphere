@@ -152,4 +152,5 @@ return [
     'check_go_to_app' => 'Go to Application',
     'trust_server_certificate' =>
         'Trust server certificate (for localhost/self-signed)',
+    'search_placeholder' => 'Search in {0}...',
 ];

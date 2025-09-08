@@ -303,6 +303,7 @@ class SqlServerModel extends Model
         string $sql,
         int $page = 1,
         int $pageSize = 1000,
+        bool $disablePagination = false,
     ): array {
         ini_set('memory_limit', '512M');
         set_time_limit(300);
@@ -314,9 +315,19 @@ class SqlServerModel extends Model
         $allResults = [];
         $totalRowsAffected = 0;
         $paginated = false;
-        $isPaginatable =
-            stripos(trim($sql), 'SELECT') === 0 &&
-            substr_count(strtoupper($sql), 'SELECT') === 1;
+        $trimmedSql = ltrim($sql);
+        $normalizedSql = preg_replace('/\s+/', ' ', $trimmedSql);
+
+        $isSingleSelect =
+            substr_count(strtoupper($normalizedSql), 'SELECT ') === 1;
+        $hasTopClause = stripos($normalizedSql, 'SELECT TOP ') === 0;
+
+        $isPaginatable = $isSingleSelect && !$hasTopClause;
+
+        if ($disablePagination) {
+            $isPaginatable = false;
+        }
+
         if ($isPaginatable) {
             $paginated = true;
             $countSql = "WITH UserQuery AS ({$sql}) SELECT COUNT(*) as TotalRows FROM UserQuery";
@@ -409,24 +420,33 @@ class SqlServerModel extends Model
         if (!$this->hasConnection()) {
             return ['status' => 'error', 'message' => lang('App.session_lost')];
         }
+
         sqlsrv_query($this->conn, 'SET SHOWPLAN_XML ON;');
         $stmt = sqlsrv_query($this->conn, $sql);
+
         if ($stmt === false) {
             sqlsrv_query($this->conn, 'SET SHOWPLAN_XML OFF;');
             $errors = sqlsrv_errors();
             return ['status' => 'error', 'message' => $errors[0]['message']];
         }
+
         $xmlPlan = '';
-        while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
-            $xmlPlan .= current($row);
-        }
+
+        do {
+            while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+                $xmlPlan .= current($row);
+            }
+        } while (sqlsrv_next_result($stmt));
+
         sqlsrv_query($this->conn, 'SET SHOWPLAN_XML OFF;');
+
         if (empty($xmlPlan)) {
             return [
                 'status' => 'error',
                 'message' => lang('App.execution_plan_generation_failed'),
             ];
         }
+
         return ['status' => 'success', 'plan' => $xmlPlan];
     }
 

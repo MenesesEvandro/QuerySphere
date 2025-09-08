@@ -11,27 +11,21 @@
             </div>
             <div class="modal-body">
                 <div class="row g-3">
-                    <div class="col-md-4"><label for="chart-type"
-                            class="form-label"><?= lang(
-                                'App.chartType',
-                            ) ?></label><select id="chart-type"
-                            class="form-select">
+                    <div class="col-md-4"><label for="chart-type" class="form-label"><?= lang(
+                        'App.chartType',
+                    ) ?></label><select id="chart-type" class="form-select">
                             <option value="bar"><?= lang('App.bar') ?></option>
                             <option value="line"><?= lang(
                                 'App.line',
                             ) ?></option>
                             <option value="pie"><?= lang('App.pie') ?></option>
                         </select></div>
-                    <div class="col-md-4"><label for="chart-label-col"
-                            class="form-label"><?= lang(
-                                'App.chartLabelAxis',
-                            ) ?></label><select id="chart-label-col"
-                            class="form-select"></select></div>
-                    <div class="col-md-4"><label for="chart-value-col"
-                            class="form-label"><?= lang(
-                                'App.chartValueAxis',
-                            ) ?></label><select id="chart-value-col"
-                            class="form-select"></select></div>
+                    <div class="col-md-4"><label for="chart-label-col" class="form-label"><?= lang(
+                        'App.chartLabelAxis',
+                    ) ?></label><select id="chart-label-col" class="form-select"></select></div>
+                    <div class="col-md-4"><label for="chart-value-col" class="form-label"><?= lang(
+                        'App.chartValueAxis',
+                    ) ?></label><select id="chart-value-col" class="form-select"></select></div>
                 </div>
                 <div class="mt-3" style="position: relative; height:60vh; width:100%"><canvas id="myChart"></canvas>
                 </div>
@@ -39,10 +33,9 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary"
                     data-bs-dismiss="modal"><?= lang('App.close') ?></button>
-                <button type="button" id="generate-chart-btn"
-                    class="btn btn-primary"><?= lang(
-                        'App.chartGenerate',
-                    ) ?></button>
+                <button type="button" id="generate-chart-btn" class="btn btn-primary"><?= lang(
+                    'App.chartGenerate',
+                ) ?></button>
             </div>
         </div>
     </div>
@@ -56,7 +49,7 @@
          * Também salva a preferência no localStorage.
          * @param {string} theme - 'light' ou 'dark'
          */
-        applyTheme: function(theme) {
+        applyTheme: function (theme) {
             const isLight = (theme === 'light');
             document.body.classList.toggle("light-theme", isLight);
 
@@ -75,7 +68,7 @@
          * Inicializa o gerenciador de temas, aplicando o tema salvo
          * ou detectando a preferência do sistema.
          */
-        init: function() {
+        init: function () {
             const savedTheme = localStorage.getItem("querysphere_theme");
 
             if (savedTheme) {
@@ -103,8 +96,9 @@
 <script src="https://unpkg.com/split.js/dist/split.min.js"></script>
 <script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.min.js"></script>
-<script src="https://unpkg.com/vue@3"></script>
-<script src="https://cdn.jsdelivr.net/npm/pev2@2.5.1/dist/js/pev2.min.js"></script>
+<script src="<?= base_url('libs/qp/qp.js') ?>"></script>
+
+
 
 
 <script>
@@ -138,12 +132,14 @@
         result: "<?= lang('App.result') ?>",
         loading_definition_for: "<?= lang('App.loading_definition_for') ?>",
         error_loading_definition: "<?= lang('App.error_loading_definition') ?>",
+        search_placeholder: "<?= lang('App.search_placeholder') ?>",
     };
 
     var lastResultData = null;
     var myChart = null;
     var currentSql = '';
     var resultsDataTable = null;
+    var isTemplateQuery = false;
 
     var editor = CodeMirror.fromTextArea(document.getElementById("query-editor"), {
         lineNumbers: true,
@@ -162,6 +158,10 @@
     });
     editor.setSize("100%", "100%");
     editor.focus();
+
+    editor.on('change', function() {
+        isTemplateQuery = false;
+    });
 
     function exportToCsv(filename, headers, data) {
         const csvRows = [headers.join(',')];
@@ -239,6 +239,35 @@
         });
     }
 
+    function renderSharedScripts() {
+        const list = $('#shared-scripts-list');
+        list.html('<li class="list-group-item text-muted">' + LANG.js_loading + '</li>');
+        
+        $.get('<?= site_url('api/shared-queries') ?>', function(scripts) {
+            list.empty();
+            if (scripts && scripts.length > 0) {
+                scripts.forEach(script => {
+                    const itemDate = new Date(script.timestamp).toLocaleDateString('pt-BR');
+                    const item = `
+                        <li class="list-group-item list-group-item-action p-2">
+                            <div class="d-flex w-100 justify-content-between">
+                                <span class="load-shared-script" data-sql="${script.sql}" style="cursor:pointer; font-weight: 500;">
+                                    ${$('<div>').text(script.name).html()}
+                                </span>
+                                <button class="btn btn-sm btn-outline-danger delete-shared-script" data-id="${script.id}" title="Apagar Script">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </div>
+                            <small class="text-muted">Por: ${$('<div>').text(script.author).html()} em ${itemDate}</small>
+                        </li>`;
+                    list.append(item);
+                });
+            } else {
+                list.append('<li class="list-group-item text-muted">Nenhuma query compartilhada.</li>');
+            }
+        });
+    }
+
     function updateChartButtonAndOptions(resultIndex) {
         if (!lastResultData || !lastResultData.results || !lastResultData.results[resultIndex]) {
             $("#show-chart-btn").prop("disabled", true);
@@ -290,6 +319,10 @@
         resultsTabContainer.find('.nav-link').removeClass('active');
         $('#results-placeholder').hide();
         $('#messages-content').html('');
+        
+        if (isTemplateQuery) {
+           postData.disable_pagination = true;
+        }
 
         $.ajax({
             url: '<?= site_url('api/query/execute') ?>',
@@ -347,12 +380,12 @@
                             data: result.data,
                             columns: result.headers.map(h => ({ data: h })),
                             destroy: true,
-                            language: { url: '//cdn.datatables.net/plug-ins/2.0.8/i18n/pt-BR.json' },
+                            searching: true,
                             initComplete: function () {
                                 this.api().columns().every(function () {
                                     let column = this;
                                     let title = column.footer().textContent;
-                                    $(column.footer()).html(`<input type="text" class="form-control form-control-sm" placeholder="Buscar ${title}" />`)
+                                    $(column.footer()).html(`<input type="text" class="form-control form-control-sm" placeholder="${LANG.search_placeholder.replace('{0}', title)}" />`)
                                         .on('keyup change clear', function () {
                                             if (column.search() !== this.value) {
                                                 column.search(this.value).draw();
@@ -395,6 +428,41 @@
         });
     }
 
+    function renderQueryTemplates() {
+        const accordion = $('#query-templates-accordion');
+        accordion.html('<div class="p-2 text-muted">' + LANG.loading + '</div>');
+
+        $.get('<?= site_url('api/templates') ?>', function (categories) {
+            accordion.empty();
+            if (categories && categories.length > 0) {
+                categories.forEach((cat, index) => {
+                    const categoryId = `category-${index}`;
+                    const categoryHtml = `
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading-${categoryId}">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-${categoryId}">
+                                ${$('<div>').text(cat.category.substring(3)).html()}
+                            </button>
+                        </h2>
+                        <div id="collapse-${categoryId}" class="accordion-collapse collapse" data-bs-parent="#query-templates-accordion">
+                            <div class="list-group list-group-flush">
+                                ${cat.scripts.map(script => `
+                                    <a href="#" class="list-group-item list-group-item-action load-template" data-category="${cat.category}" data-filename="${script.filename}">
+                                        ${$('<div>').text(script.name.substring(3)).html()}
+                                    </a>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                    accordion.append(categoryHtml);
+                });
+            } else {
+                accordion.html('<div class="p-2 text-muted">Nenhum template encontrado.</div>');
+            }
+        });
+    }
+
     $(function () {
         function initializeIntellisense() {
             $.get('<?= site_url('api/intellisense') ?>', (data) => {
@@ -418,7 +486,7 @@
                 gutterSize: 7,
                 direction: 'vertical',
                 cursor: 'row-resize',
-                onDragEnd: function() {
+                onDragEnd: function () {
                     if (editor) editor.refresh();
                 }
             });
@@ -486,10 +554,10 @@
                                 $.get("<?= site_url(
                                     'api/objects/source',
                                 ) ?>", { db: db, schema: schema, object: routine, type: type })
-                                    .done(function(data) {
+                                    .done(function (data) {
                                         editor.setValue(data.sql);
                                     })
-                                    .fail(function() {
+                                    .fail(function () {
                                         editor.setValue(`-- ${LANG.error_loading_definition}`);
                                     });
                             }
@@ -503,8 +571,10 @@
         refreshHistory();
         renderSavedScripts();
         initializeIntellisense();
+        renderQueryTemplates();
+        renderSharedScripts();
 
-        $('#db-selector-list').on('click', 'a', function(e) {
+        $('#db-selector-list').on('click', 'a', function (e) {
             e.preventDefault();
             const dbName = $(this).data('dbname');
             const currentDbName = $('#active-database-name').text().trim();
@@ -527,7 +597,7 @@
         });
 
         let searchTimeout = false;
-        $('#object-search-input').on('keyup', function() {
+        $('#object-search-input').on('keyup', function () {
             if (searchTimeout) clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
                 const searchTerm = $("#object-search-input").val();
@@ -545,18 +615,18 @@
             themeManager.applyTheme(isLight ? "dark" : "light");
         });
 
-        $('#query-history-list').on('click', 'li', function() {
+        $('#query-history-list').on('click', 'li', function () {
             const query = $(this).data("query");
             if (query) editor.setValue(query);
         });
 
-        $('#saved-scripts-list').on('click', '.load-script', function() {
+        $('#saved-scripts-list').on('click', '.load-script', function () {
             const index = $(this).data("index");
             const scripts = getSavedScripts();
             if (scripts[index]) editor.setValue(scripts[index].sql);
         });
 
-        $('#saved-scripts-list').on('click', '.delete-script', function() {
+        $('#saved-scripts-list').on('click', '.delete-script', function () {
             const index = $(this).data("index");
             let scripts = getSavedScripts();
             if (confirm(LANG.confirm_delete_script.replace('{0}', scripts[index].name))) {
@@ -578,7 +648,7 @@
             }
         });
 
-        $('#share-script-btn').on('click', function() {
+        $('#share-script-btn').on('click', function () {
             const sql = editor.getValue();
             if (sql.trim() === '') return alert(LANG.empty_shared_script_alert);
             const name = prompt(LANG.prompt_shared_name, LANG.shared_name_default);
@@ -593,11 +663,11 @@
                 .fail(() => alert(LANG.share_fail));
         });
 
-        $('#shared-scripts-list').on('click', '.load-shared-script', function() {
+        $('#shared-scripts-list').on('click', '.load-shared-script', function () {
             editor.setValue($(this).data('sql'));
         });
 
-        $('#shared-scripts-list').on('click', '.delete-shared-script', function() {
+        $('#shared-scripts-list').on('click', '.delete-shared-script', function () {
             const queryId = $(this).data('id');
             if (confirm(LANG.confirm_delete_shared)) {
                 $.ajax({
@@ -622,12 +692,12 @@
             }
         });
 
-        $('#resultsTab').on('shown.bs.tab', 'button.dynamic-tab', function(event) {
+        $('#resultsTab').on('shown.bs.tab', 'button.dynamic-tab', function (event) {
             const activeTabIndex = parseInt(event.target.id.split("-")[2]);
             updateChartButtonAndOptions(activeTabIndex);
         });
 
-        $('#export-csv-btn').on('click', function() {
+        $('#export-csv-btn').on('click', function () {
             if (!lastResultData) return;
             const activeTabIndex = $('#resultsTab button.dynamic-tab.active').attr('id')?.split('-')[2] || 0;
             const activeResult = lastResultData.results[activeTabIndex];
@@ -636,7 +706,7 @@
             }
         });
 
-        $('#export-json-btn').on('click', function() {
+        $('#export-json-btn').on('click', function () {
             if (!lastResultData) return;
             const activeTabIndex = $('#resultsTab button.dynamic-tab.active').attr('id')?.split('-')[2] || 0;
             const activeResult = lastResultData.results[activeTabIndex];
@@ -712,7 +782,9 @@
                 success: (response) => {
                     const planContainer = $('#execution-plan');
                     planContainer.empty();
-                    Pev2.render(response.plan, planContainer);
+    
+                    QP.showPlan(planContainer.get(0), response.plan);
+
                     new bootstrap.Tab(document.getElementById('plan-tab')).show();
                 },
                 error: (xhr) => {
@@ -733,8 +805,37 @@
                 )
             });
         });
+
+        $('#templates-tab').on('click', '.load-template', function (e) {
+            e.preventDefault();
+            const category = $(this).data('category');
+            const filename = $(this).data('filename');
+
+            $.get(`<?= site_url(
+                'api/templates/get',
+            ) ?>/${category}/${filename}`, function (response) {
+                let finalSql = response.sql;
+
+                const placeholders = finalSql.match(/'NOME_DA_SUA_TABELA'/g) || finalSql.match(/'schema.NomeDoObjeto'/g) || [];
+
+                if (placeholders.length > 0) {
+                    const objectName = prompt("Este script requer um nome de objeto (ex: dbo.MinhaTabela):");
+
+                    if (objectName) {
+                        finalSql = finalSql.replace(/'NOME_DA_SUA_TABELA'/g, objectName);
+                        finalSql = finalSql.replace(/'schema.NomeDoObjeto'/g, objectName);
+                    } else {
+                        return;
+                    }
+                }
+
+                editor.setValue(finalSql);
+                isTemplateQuery = true;
+            });
+        });
     });
 </script>
 
 </body>
+
 </html>
