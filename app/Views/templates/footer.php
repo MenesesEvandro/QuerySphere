@@ -149,6 +149,7 @@
         smartIndent: true,
         extraKeys: {
             "Ctrl-Space": "autocomplete",
+            "Alt-Space": "autocomplete",
             "Ctrl-Enter": (cm) => $("#execute-query-btn").click(),
             "F5": (cm) => $("#execute-query-btn").click(),
         },
