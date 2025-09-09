@@ -46,6 +46,8 @@ class Query extends BaseController
     {
         $sql = $this->request->getPost('sql');
         $page = $this->request->getPost('page') ?: 1;
+        $pageSize = 1000;
+
         $disablePagination =
             $this->request->getPost('disable_pagination') ?? false;
 
@@ -56,7 +58,7 @@ class Query extends BaseController
         $result = $this->model->executeQuery(
             $sql,
             (int) $page,
-            (bool) $disablePagination,
+            (int) $pageSize,
         );
 
         if ($result['status'] === 'error') {

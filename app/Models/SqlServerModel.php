@@ -307,9 +307,11 @@ class SqlServerModel extends Model
     ): array {
         ini_set('memory_limit', '512M');
         set_time_limit(300);
+
         if (!$this->hasConnection()) {
             return ['status' => 'error', 'message' => lang('App.session_lost')];
         }
+
         $startTime = microtime(true);
         $totalRows = 0;
         $allResults = [];
@@ -360,6 +362,11 @@ class SqlServerModel extends Model
                     ($errors[0]['message'] ?? lang('App.unknown_error')),
             ];
         }
+
+        if ($pageSize <= 0) {
+            $pageSize = 1000;
+        }
+
         do {
             $headers = [];
             $data = [];
