@@ -1,0 +1,9 @@
+vendor/
+writable/cache/*
+writable/logs/*
+writable/session/*
+writable/uploads/*
+writable/debugbar/*
+public/assets/
+*.min.js
+*.min.css

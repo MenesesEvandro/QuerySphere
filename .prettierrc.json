@@ -1,0 +1,33 @@
+{
+    "plugins": ["@prettier/plugin-php", "prettier-plugin-sql"],
+    "tabWidth": 4,
+    "useTabs": false,
+    "singleQuote": true,
+    "semi": true,
+    "printWidth": 80,
+    "arrowParens": "avoid",
+    "overrides": [
+        {
+            "files": "*.php",
+            "options": {
+                "phpVersion": "8.0",
+                "trailingCommaPHP": true,
+                "braceStyle": "psr-2"
+            }
+        },
+        {
+            "files": "*.sql",
+            "options": {
+                "language": "transactsql",
+                "parser": "sql",
+                "tabWidth": 4
+            }
+        },
+        {
+            "files": [".prettierrc", ".prettierrc.json"],
+            "options": {
+                "parser": "json"
+            }
+        }
+    ]
+}

@@ -6,24 +6,30 @@ use App\Controllers\BaseController;
 use CodeIgniter\API\ResponseTrait;
 
 /**
- * Controlador responsável pelo histórico de consultas SQL do usuário via API.
+ * Controller responsible for the user's SQL query history via the API.
  *
- * Permite recuperar o histórico de queries executadas na sessão.
+ * Allows retrieving the history of queries that have been successfully
+ * executed within the current user session.
+ *
+ * @package App\Controllers\Api
  */
 class History extends BaseController
 {
     use ResponseTrait;
 
     /**
-     * Retorna o histórico de consultas SQL da sessão do usuário.
+     * Retrieves the SQL query history from the user's session.
      *
-     * Requer que o usuário esteja autenticado/conectado.
+     * This method requires an active user session (i.e., the user must be connected).
+     * If the user is not authenticated, it returns a 401 Unauthorized response.
+     * Otherwise, it returns the query history array as a JSON response.
+     * If no history exists, it returns an empty array.
      *
-     * @return \CodeIgniter\HTTP\ResponseInterface
+     * @return \CodeIgniter\HTTP\ResponseInterface The JSON response containing the history or an error.
      */
     public function get()
     {
-        if (! session()->get('is_connected')) {
+        if (!session()->get('is_connected')) {
             return $this->failUnauthorized();
         }
         return $this->respond(session()->get('query_history') ?? []);

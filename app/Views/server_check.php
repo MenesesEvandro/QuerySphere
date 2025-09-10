@@ -15,23 +15,31 @@
 <div class="container my-5">
     <div class="card shadow-sm">
         <div class="card-header bg-dark text-white">
-            <h3 class="mb-0"><i class="fa fa-server me-2"></i> <?= esc($title) ?></h3>
+            <h3 class="mb-0"><i class="fa fa-server me-2"></i> <?= esc(
+                $title,
+            ) ?></h3>
         </div>
         <div class="card-body p-4">
 
-            <?php if ($overall_status === 'success') : ?>
+            <?php if ($overall_status === 'success'): ?>
                 <div class="alert alert-success">
-                    <h4><i class="fa fa-check-circle me-2"></i><?= lang('App.check_ok_title') ?></h4>
+                    <h4><i class="fa fa-check-circle me-2"></i><?= lang(
+                        'App.check_ok_title',
+                    ) ?></h4>
                     <p class="mb-0"><?= lang('App.check_ok_message') ?></p>
                 </div>
-            <?php elseif ($overall_status === 'warning') : ?>
+            <?php elseif ($overall_status === 'warning'): ?>
                 <div class="alert alert-warning">
-                    <h4><i class="fa fa-exclamation-triangle me-2"></i><?= lang('App.check_warn_title') ?></h4>
+                    <h4><i class="fa fa-exclamation-triangle me-2"></i><?= lang(
+                        'App.check_warn_title',
+                    ) ?></h4>
                     <p class="mb-0"><?= lang('App.check_warn_message') ?></p>
                 </div>
-            <?php else : ?>
+            <?php else: ?>
                 <div class="alert alert-danger">
-                    <h4><i class="fa fa-times-circle me-2"></i><?= lang('App.check_fail_title') ?></h4>
+                    <h4><i class="fa fa-times-circle me-2"></i><?= lang(
+                        'App.check_fail_title',
+                    ) ?></h4>
                     <p class="mb-0"><?= lang('App.check_fail_message') ?></p>
                 </div>
             <?php endif; ?>
@@ -48,19 +56,27 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <?php foreach ($checks as $check) : ?>
+                        <?php foreach ($checks as $check): ?>
                             <tr>
-                                <td class="fw-bold"><?= esc($check['item']) ?></td>
+                                <td class="fw-bold"><?= esc(
+                                    $check['item'],
+                                ) ?></td>
                                 <td class="text-center">
-                                    <?php if ($check['status']) : ?>
-                                        <span class="badge bg-success fs-6"><?= lang('App.check_status_ok') ?></span>
-                                    <?php else : ?>
-                                        <span class="badge bg-danger fs-6"><?= lang('App.check_status_fail') ?></span>
+                                    <?php if ($check['status']): ?>
+                                        <span class="badge bg-success fs-6"><?= lang(
+                                            'App.check_status_ok',
+                                        ) ?></span>
+                                    <?php else: ?>
+                                        <span class="badge bg-danger fs-6"><?= lang(
+                                            'App.check_status_fail',
+                                        ) ?></span>
                                     <?php endif; ?>
                                 </td>
                                 <td><?= esc($check['current']) ?></td>
                                 <td><?= esc($check['required']) ?></td>
-                                <td class="text-muted" style="font-size: 0.9em;"><?= esc($check['notes']) ?></td>
+                                <td class="text-muted" style="font-size: 0.9em;"><?= esc(
+                                    $check['notes'],
+                                ) ?></td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
@@ -68,7 +84,11 @@
             </div>
             
             <div class="text-center mt-4">
-                <a href="<?= site_url('/') ?>" class="btn btn-primary"><i class="fa fa-home me-2"></i><?= lang('App.check_go_to_app') ?></a>
+                <a href="<?= site_url(
+                    '/',
+                ) ?>" class="btn btn-primary"><i class="fa fa-home me-2"></i><?= lang(
+    'App.check_go_to_app',
+) ?></a>
             </div>
 
         </div>

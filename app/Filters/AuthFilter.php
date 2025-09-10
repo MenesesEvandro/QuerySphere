@@ -7,43 +7,63 @@ use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 
 /**
- * Filtro de autenticação para proteger rotas que exigem conexão do usuário.
+ * Authentication filter to protect routes that require a user connection.
  *
- * Redireciona ou retorna erro 401 caso a sessão não esteja conectada.
+ * This 'before' filter checks for an active session flag ('is_connected').
+ * If the user is not authenticated, it either redirects them to the login page
+ * (for standard requests) or returns a 401 Unauthorized error (for AJAX requests).
+ *
+ * @package App\Filters
  */
 class AuthFilter implements FilterInterface
 {
     /**
-     * Executa antes da requisição ser processada.
+     * Runs before the controller is executed to verify user authentication.
      *
-     * Verifica se o usuário está conectado na sessão. Caso contrário, retorna erro ou redireciona.
+     * It checks if the 'is_connected' flag is present in the session. If not, it
+     * inspects the request type. For AJAX requests, it aborts execution and returns
+     * a 401 Unauthorized response. For all other requests, it returns a redirect
+     * response to the main login page, preventing access to the intended route.
      *
      * @param RequestInterface $request
-     * @param array|null $arguments
-     * @return mixed
+     * @param array|null       $arguments
+     *
+     * @return \CodeIgniter\HTTP\RedirectResponse|\CodeIgniter\HTTP\Response|void
      */
     public function before(RequestInterface $request, $arguments = null)
     {
         $session = session();
 
-        if (! $session->get('is_connected')) {
+        if (!$session->get('is_connected')) {
+            // For AJAX requests, return a 401 error instead of redirecting
             if ($request->isAJAX()) {
-                return service('response')->setStatusCode(401)->setBody('Sessão expirada ou inválida.');
+                return service('response')
+                    ->setStatusCode(401)
+                    ->setBody('Session expired or invalid.');
             }
-            return redirect()->to(site_url('/'))->with('error', 'Por favor, conecte-se para acessar esta página.');
+            // For standard page loads, redirect to the login page
+            return redirect()
+                ->to(site_url('/'))
+                ->with('error', 'Please connect to access this page.');
         }
     }
 
     /**
-     * Executa após a resposta ser gerada (não utilizado neste filtro).
+     * Runs after the controller has executed and the response is generated.
      *
-     * @param RequestInterface $request
+     * No action is performed in this filter after the response is created.
+     *
+     * @param RequestInterface  $request
      * @param ResponseInterface $response
-     * @param array|null $arguments
+     * @param array|null        $arguments
+     *
      * @return void
      */
-    public function after(RequestInterface $request, ResponseInterface $response, $arguments = null)
-    {
-        //
+    public function after(
+        RequestInterface $request,
+        ResponseInterface $response,
+        $arguments = null,
+    ) {
+        // No action needed here.
     }
 }

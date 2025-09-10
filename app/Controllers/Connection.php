@@ -7,19 +7,27 @@ use App\Libraries\ConnectionManager;
 use App\Models\SqlServerModel;
 
 /**
- * Controlador responsável pela gestão de conexões com o banco de dados.
+ * Controller responsible for managing database connections.
  *
- * Permite conectar, desconectar e exibir a tela de conexão.
+ * This class handles the connection screen, the connection attempt logic,
+ * and the user logout process.
+ *
+ * @package App\Controllers
  */
 class Connection extends BaseController
 {
     /**
-     * Exibe a tela de conexão e destrói a sessão atual.
+     * Displays the connection screen and cleans up any previous connection data from the session.
      *
-     * @return \CodeIgniter\HTTP\ResponseInterface|string
+     * Instead of destroying the entire session (which would clear language preferences),
+     * it surgically removes only the keys related to an active database connection,
+     * ensuring a clean state for a new login attempt.
+     *
+     * @return string Returns the rendered connection view.
      */
     public function index()
     {
+        // Surgically remove connection-specific keys, preserving language preference.
         session()->remove([
             'is_connected',
             'db_host',
@@ -27,38 +35,47 @@ class Connection extends BaseController
             'db_user',
             'db_password',
             'last_successful_query',
-            'query_history'
+            'query_history',
         ]);
-        
+
         return view('connection/index');
     }
 
     /**
-     * Realiza a tentativa de conexão ao banco de dados com as credenciais informadas.
+     * Attempts to connect to the database with the provided credentials.
      *
-     * Valida os dados, armazena credenciais e redireciona conforme o resultado.
+     * It validates the submitted form data. On success, it stores the credentials
+     * securely in the session and redirects the user to the main application interface.
+     * On failure, it redirects back to the login form with an error message.
      *
      * @return \CodeIgniter\HTTP\RedirectResponse
      */
     public function connect()
     {
         $rules = [
-            'host'     => 'required',
-            'user'     => 'required',
+            'host' => 'required',
+            'user' => 'required',
             'password' => 'permit_empty',
-            'port'     => 'required|integer|greater_than_equal_to[1]|less_than_equal_to[65535]'
+            'port' =>
+                'required|integer|greater_than_equal_to[1]|less_than_equal_to[65535]',
         ];
 
-        if (! $this->validate($rules)) {
-            return redirect()->back()->withInput()->with('errors', $this->validator->getErrors());
+        if (!$this->validate($rules)) {
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('errors', $this->validator->getErrors());
         }
 
         $credentials = [
-            'host'     => $this->request->getPost('host'),
+            'host' => $this->request->getPost('host'),
             'database' => $this->request->getPost('database'),
-            'user'     => $this->request->getPost('user'),
+            'user' => $this->request->getPost('user'),
             'password' => $this->request->getPost('password'),
-            'port'     => $this->request->getPost('port')
+            'port' => $this->request->getPost('port'),
+            'trust_cert' => $this->request->getPost('trust_cert')
+                ? true
+                : false,
         ];
 
         $sqlServerModel = new SqlServerModel();
@@ -67,20 +84,28 @@ class Connection extends BaseController
         if ($connectionResult['status'] === true) {
             $connManager = new ConnectionManager();
             $connManager->storeCredentials($credentials);
-            return redirect()->to('/main')->with('success', lang('connection_success'));
+            return redirect()
+                ->to('/main')
+                ->with('success', lang('App.connection_success'));
         } else {
-            return redirect()->back()->withInput()->with('error', $connectionResult['message']);
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', $connectionResult['message']);
         }
     }
-    
+
     /**
-     * Encerra a sessão do usuário e redireciona para a tela inicial.
+     * Logs the user out by destroying their entire session.
+     *
+     * This action completely clears all session data and redirects the user
+     * back to the initial connection screen.
      *
      * @return \CodeIgniter\HTTP\RedirectResponse
      */
     public function logout()
     {
         session()->destroy();
-        return redirect()->to('/')->with('success', lang('logout_success'));
+        return redirect()->to('/')->with('success', lang('App.logout_success'));
     }
 }

@@ -29,12 +29,13 @@ return [
     'chartValueAxis' => 'Y-Axis (Values)',
     'chartGenerate' => 'Generate Chart',
     'close' => 'Close',
+    'submit' => 'Submit',
     'bar' => 'Bar',
     'line' => 'Line',
     'pie' => 'Pie',
     'formatSQL' => 'Format SQL',
-    'toggletheme'=> 'Toggle Theme',
-    'noquery'=> 'No query to export.',
+    'toggletheme' => 'Toggle Theme',
+    'noquery' => 'No query to export.',
     'tables' => 'Tables',
     'views' => 'Views',
     'stored_procedures' => 'Stored Procedures',
@@ -57,24 +58,30 @@ return [
     'language_not_supported' => 'Language not supported.',
     'php_extension_item' => 'PHP Extension: {0}',
     'php_version_note' => 'The recommended version for the project is 8.0.9.',
-    'sqlsrv_extension_note' => 'Critical: Essential for connecting to SQL Server.',
-    'intl_extension_note'   => 'Critical: Required by CodeIgniter 4 for internationalization.',
-    'mbstring_extension_note' => 'Critical: Essential for multibyte string manipulation.',
-    'json_extension_note'   => 'Critical: Essential for API responses.',
-    'xml_extension_note'    => 'Important: Necessary for the "Execution Plan" functionality.',
+    'sqlsrv_extension_note' =>
+        'Critical: Essential for connecting to SQL Server.',
+    'intl_extension_note' =>
+        'Critical: Required by CodeIgniter 4 for internationalization.',
+    'mbstring_extension_note' =>
+        'Critical: Essential for multibyte string manipulation.',
+    'json_extension_note' => 'Critical: Essential for API responses.',
+    'xml_extension_note' =>
+        'Important: Necessary for the "Execution Plan" functionality.',
     'enabled' => 'Enabled',
     'not_found' => 'Not Found',
     'writable_permission' => 'Writable permission in the "writable" folder',
-    'writable_permission_note' => 'CodeIgniter needs permission to write logs, cache, and sessions.',
+    'writable_permission_note' =>
+        'CodeIgniter needs permission to write logs, cache, and sessions.',
     'env_file' => 'Environment file ".env"',
-    'env_file_note' => 'Recommended to configure the production/development environment.',
+    'env_file_note' =>
+        'Recommended to configure the production/development environment.',
     'server_validation' => 'Server Validation',
     'searchobjects' => 'Search objects',
     'intellisense_error' => 'Failed to load IntelliSense dictionary.',
     'select' => 'Select ...',
     'error_alter_database' => 'Failed to alter database.',
     'changing' => 'Changing ...',
-    'rememberConnection' => 'Remember connection details (except password)',
+    'rememberConnection' => 'Save connection details',
     'previous' => 'Previous',
     'next' => 'Next',
     'shared' => 'Shared',
@@ -84,31 +91,35 @@ return [
     'confirm_delete_script' => 'Are you sure you want to delete this script?',
     'prompt_script_name' => 'Enter the script name:',
     'script_name_default' => 'My Script',
-    'empty_script_alert'=> 'No script to save.',
+    'empty_script_alert' => 'No script to save.',
     'empty_shared_script_alert' => 'No script to share.',
     'prompt_shared_name' => 'Enter a name for this shared query:',
     'shared_name_default' => 'Shared Script',
     'prompt_author' => 'Your name:',
     'author_default' => 'User',
     'share_fail' => 'Failed to share the script.',
-    'confirm_delete_shared' => 'Are you sure you want to delete this shared query for everyone?',
+    'confirm_delete_shared' =>
+        'Are you sure you want to delete this shared query for everyone?',
     'delete_shared_fail' => 'Failed to delete the query.',
     'format_fail' => 'Failed to format the SQL. Check the syntax.',
-    'exec_error'=> 'Execution error.',
+    'exec_error' => 'Execution error.',
     'no_results_found' => 'No results found.',
-    'empty_result'=> 'Empty result.',
-    'page'=> 'Page',
-    'of'=> 'of',
-    'records'=> 'records',
-    'result'=> 'result',
+    'empty_result' => 'Empty result.',
+    'page' => 'Page',
+    'of' => 'of',
+    'records' => 'records',
+    'result' => 'result',
     'server_compatibility_check' => 'Test Server Compatibility',
     'check_title' => 'Server Requirements Check',
     'check_ok_title' => 'All Clear!',
-    'check_ok_message' => 'Your server meets all critical requirements to run the application.',
+    'check_ok_message' =>
+        'Your server meets all critical requirements to run the application.',
     'check_warn_title' => 'Warning!',
-    'check_warn_message' => 'Your server has some warnings, but the critical requirements have been met. The application should work, but please check the points below.',
+    'check_warn_message' =>
+        'Your server has some warnings, but the critical requirements have been met. The application should work, but please check the points below.',
     'check_fail_title' => 'Problems Found!',
-    'check_fail_message' => 'Your server does not meet one or more critical requirements. The application will not work correctly until the items marked as FAIL are fixed.',
+    'check_fail_message' =>
+        'Your server does not meet one or more critical requirements. The application will not work correctly until the items marked as FAIL are fixed.',
     'check_header_item' => 'Requirement',
     'check_header_status' => 'Status',
     'check_header_current' => 'Current Value',
@@ -117,21 +128,248 @@ return [
     'check_status_ok' => 'OK',
     'check_status_fail' => 'FAIL',
     'check_php_version' => 'PHP Version',
-    'check_php_version_note' => 'The minimum recommended version for the project is 8.0.',
+    'check_php_version_note' =>
+        'The minimum recommended version for the project is 8.0.',
     'check_item_extension' => 'PHP Extension: {0}',
     'check_note_sqlsrv' => 'Critical: Essential for connecting to SQL Server.',
-    'check_note_intl' => 'Critical: Required by CodeIgniter 4 for internationalization.',
-    'check_note_mbstring' => 'Critical: Essential for multibyte string manipulation.',
+    'check_note_intl' =>
+        'Critical: Required by CodeIgniter 4 for internationalization.',
+    'check_note_mbstring' =>
+        'Critical: Essential for multibyte string manipulation.',
     'check_note_json' => 'Critical: Essential for API responses.',
-    'check_note_xml' => 'Important: Necessary for the Execution Plan functionality.',
+    'check_note_xml' =>
+        'Important: Necessary for the Execution Plan functionality.',
     'check_enabled' => 'Enabled',
     'check_not_found' => 'Not Found',
     'check_writable_folder' => 'Write permission on "writable" folder',
     'check_writable' => 'Writable',
     'check_not_writable' => 'Not Writable',
-    'check_writable_note' => 'CodeIgniter needs permission to write logs, cache, and sessions.',
+    'check_writable_note' =>
+        'CodeIgniter needs permission to write logs, cache, and sessions.',
     'check_env_file' => 'Environment file ".env"',
     'check_found' => 'Found',
-    'check_env_file_note' => 'Recommended for configuring the production/development environment.',
+    'check_env_file_note' =>
+        'Recommended for configuring the production/development environment.',
     'check_go_to_app' => 'Go to Application',
+    'trust_server_certificate' =>
+        'Trust server certificate (for localhost/self-signed)',
+    'search_placeholder' => 'Search in {0}...',
+    'no_templates' => 'No templates found.',
+    'new_connection' => '-- New Connection --',
+    'manage_connections' => 'Manage Connections',
+    'select_connection' => 'Select an existing connection or create a new one.',
+    'confirm_delete_connection' =>
+        'Are you sure you want to delete the connection {0}?',
+    'invalid_number' => 'Invalid number.',
+    'new_master_password' =>
+        'CREATE a Master Password to protect your saved passwords.\nThis password will NOT be saved and will be requested whenever you need to load a password.',
+    'ask_master_password' =>
+        'Please enter your Master Password to load the password:',
+    'prompt_connection_name' => 'Enter a name for this new connection:',
+    'error_decrypting_password' =>
+        'Error decrypting password. Incorrect Master Password?',
+    'saved_connection' => 'Saved Connection',
+    'saved_connections' => 'Saved Connections',
+    'no_saved_connections' => 'No saved connections to manage.',
+    'connection_deleted' => 'Connection deleted.',
+    'delete' => 'Delete',
+    'connection' => 'Connection',
+    'actions' => 'Actions',
+    'master_password' => 'Master Password',
+    'master_password_hint' =>
+        'Must be at least 8 characters with letters, numbers, and symbols.',
+    'enter_master_password' => 'Enter Master Password',
+    'change_master_password' => 'Change Master Password',
+    'change_master_password_info' =>
+        'You can change your Master Password here. You will need to enter the current password for verification.',
+    'current_master_password' => 'Current Master Password',
+    'new_master_password_text' => 'New Master Password',
+    'confirm_new_master_password' => 'Confirm New Master Password',
+    'master_password_no_match' => 'New Master Passwords do not match.',
+    'master_password_changed' => 'Master Password changed successfully.',
+    'master_password_incorrect' => 'Current Master Password is incorrect.',
+    'no_saved_passwords' => 'No saved passwords.',
+    'saved_passwords' => 'Saved Passwords',
+    'show_password' => 'Show Password',
+    'hide_password' => 'Hide Password',
+    'https_warning' =>
+        'Warning: This page should be accessed over HTTPS to ensure security.',
+    'invalid_master_password' =>
+        'Invalid Master Password. It must be at least 8 characters with letters, numbers, and symbols.',
+    'confirm_clear_connections' =>
+        'Are you sure you want to clear all saved connections?',
+    'clear_saved_connections' => 'Clear Saved Connections',
+    'connections_cleared' => 'All saved connections have been cleared.',
+    'clear_all_connections' => 'Clear all connections',
+    'crypto_warning' =>
+        'Error: This browser does not support the Web Crypto API. Please use a modern browser.',
+    'agent_jobs' => 'SQL Server Agent Jobs',
+    'job_name' => 'Job Name',
+    'status' => 'Status',
+    'last_run' => 'Last Run',
+    'last_run_status' => 'Outcome',
+    'next_run' => 'Next Run',
+    'no_jobs_found' => 'No SQL Server Agent jobs found.',
+    'disabled' => 'Disabled',
+    'running' => 'Running',
+    'success' => 'Success',
+    'failed' => 'Failed',
+    'canceled' => 'Canceled',
+    'unknown' => 'Unknown',
+    'loading' => 'Loading...',
+    'start_job' => 'Start Job',
+    'stop_job' => 'Stop Job',
+    'job_started' => 'Job started successfully.',
+    'job_start_failed' => 'Failed to start the job.',
+    'job_stopped' => 'Job stopped successfully.',
+    'job_stop_failed' => 'Failed to stop the job.',
+
+    // Translations for Query Templates
+    'query_templates' => [
+        '10_performance' => [
+            'title' => 'Performance',
+            'scripts' => [
+                '10_active_queries.sql' => [
+                    'title' => 'Monitor Active Queries',
+                    'description' =>
+                        'Shows all queries currently executing on the server right now.',
+                ],
+                '20_slowest_queries_history.sql' => [
+                    'title' => 'Top 10 Slowest Queries (History)',
+                    'description' =>
+                        'Analyzes the cache to find the queries that have consumed the most CPU time.',
+                ],
+                '30_wait_stats.sql' => [
+                    'title' => 'Wait Stats',
+                    'description' =>
+                        'Shows the main server bottlenecks by indicating what SQL Server is waiting for.',
+                ],
+            ],
+        ],
+        '20_space_usage' => [
+            'title' => 'Space Usage',
+            'scripts' => [
+                '10_largest_tables.sql' => [
+                    'title' => 'List Largest Tables',
+                    'description' =>
+                        'Calculates and lists the tables of the current database, ordered by total space.',
+                ],
+                '20_space_by_database.sql' => [
+                    'title' => 'Space Usage by Database',
+                    'description' =>
+                        'Shows the total size, used space, and free space for all databases.',
+                ],
+            ],
+        ],
+        '30_indexes' => [
+            'title' => 'Indexes',
+            'scripts' => [
+                '10_index_fragmentation.sql' => [
+                    'title' => 'Check Index Fragmentation',
+                    'description' =>
+                        'Analyzes and lists indexes with fragmentation above 10%.',
+                ],
+                '20_unused_indexes.sql' => [
+                    'title' => 'Unused Indexes',
+                    'description' =>
+                        'Finds indexes that are maintained (updates) but rarely or never used in reads.',
+                ],
+                '30_missing_indexes.sql' => [
+                    'title' => 'Missing Indexes (Suggested)',
+                    'description' =>
+                        'Lists index creation suggestions made by SQL Server itself.',
+                ],
+                '40_list_table_constraints.sql' => [
+                    'title' => 'List Table Constraints',
+                    'description' =>
+                        'Displays all constraints (PK, FK, Unique) for a specific table.',
+                ],
+            ],
+        ],
+        '40_current_activity' => [
+            'title' => 'Current Activity',
+            'scripts' => [
+                '10_active_locks.sql' => [
+                    'title' => 'Query Active Locks',
+                    'description' =>
+                        'Shows which processes (sessions) are blocking other processes.',
+                ],
+                '20_active_connections.sql' => [
+                    'title' => 'List Active Connections',
+                    'description' =>
+                        'Lists all active connections to the server, showing user, host, and program.',
+                ],
+            ],
+        ],
+        '50_health_and_config' => [
+            'title' => 'Health and Config',
+            'scripts' => [
+                '10_backup_status.sql' => [
+                    'title' => 'Backup Status',
+                    'description' =>
+                        'Checks and shows the date and type of the last backup for each database.',
+                ],
+                '20_database_configs.sql' => [
+                    'title' => 'Database Configurations',
+                    'description' =>
+                        'Lists important settings (Recovery Model, Compatibility Level) for each database.',
+                ],
+                '30_transaction_log_vlf_analysis.sql' => [
+                    'title' => 'Analyze Transaction Log Usage (VLFs)',
+                    'description' =>
+                        'Checks the health of the Transaction Log, a critical performance factor.',
+                ],
+            ],
+        ],
+        '60_security' => [
+            'title' => 'Security',
+            'scripts' => [
+                '10_list_sysadmin_logins.sql' => [
+                    'title' => 'List Logins with Sysadmin',
+                    'description' =>
+                        'Security audit that lists all logins with full server control.',
+                ],
+                '20_find_orphan_users.sql' => [
+                    'title' => 'Find Orphan Users',
+                    'description' =>
+                        'Finds users in a database that are no longer linked to a valid server login.',
+                ],
+                '30_audit_high_level_permissions.sql' => [
+                    'title' => 'Audit High-Level Permissions (Database)',
+                    'description' =>
+                        'Checks for users with critical permissions (CONTROL, IMPERSONATE) in the current database.',
+                ],
+                '40_audit_server_level_permissions.sql' => [
+                    'title' => 'Audit High-Level Permissions (Server)',
+                    'description' =>
+                        'Checks for logins with critical permissions (CONTROL SERVER) at the server level.',
+                ],
+            ],
+        ],
+        '70_sql_server_agent' => [
+            'title' => 'SQL Server Agent',
+            'scripts' => [
+                '10_failed_jobs_last_24h.sql' => [
+                    'title' => 'Recently Failed Jobs',
+                    'description' =>
+                        'Lists all SQL Server Agent jobs that have failed in the last 24 hours.',
+                ],
+                '20_currently_running_jobs.sql' => [
+                    'title' => 'Currently Running Jobs',
+                    'description' =>
+                        'Shows which SQL Server Agent jobs are executing right now.',
+                ],
+            ],
+        ],
+        '80_object_management' => [
+            'title' => 'Object Management',
+            'scripts' => [
+                '10_check_object_dependencies.sql' => [
+                    'title' => 'Check Object Dependencies',
+                    'description' =>
+                        'Use this script to see which other objects depend on a table or procedure before altering it.',
+                ],
+            ],
+        ],
+    ],
 ];
