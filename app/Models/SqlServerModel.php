@@ -524,4 +524,137 @@ class SqlServerModel extends Model
         }
         return null;
     }
+
+    /**
+     * Retrieves a list of all SQL Server Agent jobs with their status.
+     *
+     * @return array A list of jobs.
+     */
+    public function getAgentJobs(): array
+    {
+        if (!$this->hasConnection()) {
+            return [];
+        }
+        $sql = "
+        WITH LastJobHistory AS (
+            SELECT
+                job_id,
+                MAX(instance_id) AS last_instance_id
+            FROM msdb.dbo.sysjobhistory
+            GROUP BY job_id
+        )
+        SELECT
+            j.name AS job_name,
+            j.enabled,
+            ja.run_requested_date,
+            CASE
+                WHEN ja.start_execution_date IS NOT NULL AND ja.stop_execution_date IS NULL THEN 'Running'
+                ELSE ls.step_name
+            END AS last_run_step,
+            jh.run_status,
+            msdb.dbo.agent_datetime(jh.run_date, jh.run_time) AS last_run_datetime,
+            s.next_run_date,
+            s.next_run_time
+        FROM msdb.dbo.sysjobs j
+        LEFT JOIN msdb.dbo.sysjobactivity ja ON j.job_id = ja.job_id AND ja.session_id = (SELECT MAX(session_id) FROM msdb.dbo.syssessions)
+        LEFT JOIN LastJobHistory ljh ON j.job_id = ljh.job_id
+        LEFT JOIN msdb.dbo.sysjobhistory jh ON ljh.last_instance_id = jh.instance_id
+        LEFT JOIN msdb.dbo.sysjobsteps ls ON j.job_id = ls.job_id AND jh.step_id = ls.step_id
+        LEFT JOIN msdb.dbo.sysjobschedules s ON j.job_id = s.job_id
+        ORDER BY j.name;
+    ";
+        $stmt = sqlsrv_query($this->conn, $sql);
+        $jobs = [];
+        if ($stmt) {
+            while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+                $jobs[] = $row;
+            }
+            sqlsrv_free_stmt($stmt);
+        }
+        return $jobs;
+    }
+
+    /**
+     * Starts a SQL Server Agent job.
+     *
+     * @param string $jobName The name of the job to start.
+     * @return array Status of the operation.
+     */
+    public function startAgentJob(string $jobName): array
+    {
+        if (!$this->hasConnection()) {
+            return ['status' => 'error', 'message' => 'No connection.'];
+        }
+        $sql = 'EXEC msdb.dbo.sp_start_job ?';
+        $params = [$jobName];
+        $stmt = sqlsrv_query($this->conn, $sql, $params);
+        if ($stmt) {
+            sqlsrv_free_stmt($stmt);
+            return ['status' => 'success'];
+        }
+        return [
+            'status' => 'error',
+            'message' => sqlsrv_errors()[0]['message'],
+        ];
+    }
+
+    /**
+     * Stops a SQL Server Agent job.
+     *
+     * @param string $jobName The name of the job to stop.
+     * @return array Status of the operation.
+     */
+    public function stopAgentJob(string $jobName): array
+    {
+        if (!$this->hasConnection()) {
+            return ['status' => 'error', 'message' => 'No connection.'];
+        }
+        $sql = 'EXEC msdb.dbo.sp_stop_job ?';
+        $params = [$jobName];
+        $stmt = sqlsrv_query($this->conn, $sql, $params);
+        if ($stmt) {
+            sqlsrv_free_stmt($stmt);
+            return ['status' => 'success'];
+        }
+        return [
+            'status' => 'error',
+            'message' => sqlsrv_errors()[0]['message'],
+        ];
+    }
+
+    /**
+     * Retrieves the execution history for a specific job.
+     *
+     * @param string $jobName The name of the job.
+     * @return array The job's history.
+     */
+    public function getAgentJobHistory(string $jobName): array
+    {
+        if (!$this->hasConnection()) {
+            return [];
+        }
+        $sql = "
+        SELECT
+            h.instance_id,
+            msdb.dbo.agent_datetime(h.run_date, h.run_time) AS run_datetime,
+            h.step_name,
+            h.run_status,
+            h.run_duration,
+            h.message
+        FROM msdb.dbo.sysjobs j
+        JOIN msdb.dbo.sysjobhistory h ON j.job_id = h.job_id
+        WHERE j.name = ?
+        ORDER BY run_datetime DESC;
+    ";
+        $params = [$jobName];
+        $stmt = sqlsrv_query($this->conn, $sql, $params);
+        $history = [];
+        if ($stmt) {
+            while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+                $history[] = $row;
+            }
+            sqlsrv_free_stmt($stmt);
+        }
+        return $history;
+    }
 }

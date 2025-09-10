@@ -11,6 +11,10 @@
         <ul class="nav nav-tabs nav-fill flex-shrink-0">
             <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab"
                     href="#objects-tab"><?= lang('App.objects') ?></a></li>
+            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#agent-tab"><?= lang(
+                'App.agent_jobs',
+            ) ?></a></li>
+
             <li class="nav-item"><a class="nav-link" data-bs-toggle="tab"
                     href="#history-tab"><?= lang('App.history') ?></a></li>
             <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#saved-tab"><?= lang(
@@ -39,6 +43,9 @@
             </div>
             <div class="tab-pane h-100" id="templates-tab">
                 <div class="accordion" id="query-templates-accordion"></div>
+            </div>
+            <div class="tab-pane h-100" id="agent-tab">
+                <div id="agent-jobs-container" class="p-2"></div>
             </div>
         </div>
     </aside>

@@ -135,6 +135,31 @@
         error_loading_definition: "<?= lang('App.error_loading_definition') ?>",
         search_placeholder: "<?= lang('App.search_placeholder') ?>",
         no_templates: "<?= lang('App.no_templates') ?>",
+        loading: "<?= lang('App.loading') ?>",
+        job_name: "<?= lang('App.job_name') ?>",
+        status: "<?= lang('App.status') ?>",
+        last_run: "<?= lang('App.last_run') ?>",
+        last_run_status: "<?= lang('App.last_run_status') ?>",
+        next_run: "<?= lang('App.next_run') ?>",
+        actions: "<?= lang('App.actions') ?>",
+        start_job: "<?= lang('App.start_job') ?>",
+        stop_job: "<?= lang('App.stop_job') ?>",
+        running: "<?= lang('App.running') ?>",
+        enabled: "<?= lang('App.enabled') ?>",
+        disabled: "<?= lang('App.disabled') ?>",
+        success: "<?= lang('App.success') ?>",
+        failed: "<?= lang('App.failed') ?>",
+        unknown: "<?= lang('App.unknown') ?>",
+        no_jobs_found: "<?= lang('App.no_jobs_found') ?>",
+        view_job_history: "<?= lang('App.view_job_history') ?>",
+        no_history_found: "<?= lang('App.no_history_found') ?>",
+        error_retrieving_history: "<?= lang('App.error_retrieving_history') ?>",
+        retry: "<?= lang('App.retry') ?>",
+        canceled: "<?= lang('App.canceled') ?>",
+        job_started: "<?= lang('App.job_started') ?>",
+        job_start_failed: "<?= lang('App.job_start_failed') ?>",
+        job_stopped: "<?= lang('App.job_stopped') ?>",
+        job_stop_failed: "<?= lang('App.job_stop_failed') ?>",
     };
 
     var lastResultData = null;
@@ -204,6 +229,131 @@
         return JSON.parse(localStorage.getItem('querysphere_scripts')) || [];
     }
 
+    function renderAgentJobs() {
+        const container = $('#agent-jobs-container');
+        container.html('<div class="text-center p-3"><div class="spinner-border" role="status"><span class="visually-hidden">'+ LANG.loading + '</span></div></div>');
+
+        $.get('<?= site_url('api/agent/jobs') ?>', function(jobs) {
+            container.empty();
+            if (jobs && jobs.length > 0) {
+                const table = $('<table class="table table-sm table-hover"></table>');
+                const thead = $('<thead><tr><th>' + LANG.job_name + '</th><th>' + LANG.status + '</th><th>' + LANG.last_run + '</th><th>' + LANG.last_run_status + '</th><th>' + LANG.next_run + '</th><th>' + LANG.actions + '</th></tr></thead>');
+                const tbody = $('<tbody></tbody>');
+
+                jobs.forEach(job => {
+                    const status = job.enabled ? (job.last_run_step === 'Running' ? '<span class="badge bg-primary">' + LANG.running + '</span>' : '<span class="badge bg-success">' + LANG.enabled + '</span>') : '<span class="badge bg-secondary">' + LANG.disabled + '</span>';
+                    const outcome = job.run_status === 1 ? '<span class="text-success">' + LANG.success + '</span>' : (job.run_status === 0 ? '<span class="text-danger">' + LANG.failed + '</span>' : LANG.unknown);
+                    const lastRun = job.last_run_datetime ? new Date(job.last_run_datetime.date).toLocaleString() : 'N/A';
+                    const nextRun = job.next_run_date && job.next_run_date !== '1900-01-01 00:00:00.000' ? new Date(job.next_run_date + ' ' + job.next_run_time).toLocaleString() : 'N/A';
+
+                    const row = `<tr>
+                        <td><a href="#" class="view-job-history" data-job-name="${job.job_name}">${job.job_name}</a></td>
+                        <td>${status}</td>
+                        <td>${lastRun}</td>
+                        <td>${outcome}</td>
+                        <td>${nextRun}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-success start-job" data-job-name="${job.job_name}" title="${LANG.start_job}"><i class="fa fa-play"></i></button>
+                            <button class="btn btn-sm btn-outline-danger stop-job" data-job-name="${job.job_name}" title="${LANG.stop_job}"><i class="fa fa-stop"></i></button>
+                        </td>
+                    </tr>`;
+                    tbody.append(row);
+                });
+
+                table.append(thead).append(tbody);
+                container.append(table);
+            } else {
+                container.html('<p class="text-muted p-2">' + LANG.no_jobs_found + '</p>');
+            }
+        });
+    }
+
+    function displayJobHistory(jobName) {
+        const resultsTabContainer = $('#resultsTab');
+        const resultsContentContainer = $('#resultsTabContent');
+        const tabId = `job-history-tab-${jobName.replace(/\s/g, '-')}`;
+        const paneId = `job-history-pane-${jobName.replace(/\s/g, '-')}`;
+
+        $(`#${tabId}`).closest('.nav-item').remove();
+        $(`#${paneId}`).remove();
+
+        resultsTabContainer.append(
+            `<li class="nav-item dynamic-tab" role="presentation">
+                <button class="nav-link" id="${tabId}" data-bs-toggle="tab" data-bs-target="#${paneId}" type="button" role="tab">
+                    History: ${$('<div>').text(jobName).html()}
+                </button>
+            </li>`
+        );
+
+        const tabPane = $(
+            `<div class="tab-pane fade dynamic-tab-pane" id="${paneId}" role="tabpanel">
+                <div class="p-2">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>`
+        );
+        resultsContentContainer.append(tabPane);
+
+        new bootstrap.Tab(document.getElementById(tabId)).show();
+
+        $.get(`<?= site_url(
+            'api/agent/history',
+        ) ?>/${encodeURIComponent(jobName)}`, function(history) {
+            const container = $(`#${paneId}`);
+            container.empty();
+
+            if (history && history.length > 0) {
+                const table = $('<table class="table table-sm table-bordered table-striped"></table>');
+                const thead = $('<thead><tr><th>Run Datetime</th><th>Step Name</th><th>Duration</th><th>Outcome</th><th>Message</th></tr></thead>');
+                const tbody = $('<tbody></tbody>');
+
+                history.forEach(item => {
+                    const runDateTime = item.run_datetime ? new Date(item.run_datetime.date).toLocaleString() : 'N/A';
+                    const outcome = formatRunStatus(item.run_status);
+                    const duration = formatDuration(item.run_duration);
+
+                    const row = `<tr>
+                        <td>${runDateTime}</td>
+                        <td>${item.step_name}</td>
+                        <td>${duration}</td>
+                        <td>${outcome}</td>
+                        <td><div style="max-height: 100px; overflow-y: auto;">${item.message}</div></td>
+                    </tr>`;
+                    tbody.append(row);
+                });
+
+                table.append(thead).append(tbody);
+                container.append(table);
+            } else {
+                container.html('<p class="text-muted p-2">' + LANG.no_history_found + '</p>');
+            }
+        }).fail(function() {
+            const container = $(`#${paneId}`);
+            container.html('<p class="text-danger p-2">' + LANG.error_retrieving_history + '</p>');
+        });
+    }
+
+    function formatRunStatus(status) {
+        switch (status) {
+            case 0: return '<span class="badge bg-danger">'+ LANG.failed +'</span>';
+            case 1: return '<span class="badge bg-success">'+ LANG.success +'</span>';
+            case 2: return '<span class="badge bg-info">'+ LANG.retry +'</span>';
+            case 3: return '<span class="badge bg-warning text-dark">'+ LANG.canceled +'</span>';
+            default: return '<span class="badge bg-secondary">'+ LANG.unknown +'</span>';
+        }
+    }
+
+    function formatDuration(duration) {
+        if (duration === null) return 'N/A';
+        let str = duration.toString().padStart(6, '0');
+        let h = str.substring(0, 2);
+        let m = str.substring(2, 4);
+        let s = str.substring(4, 6);
+        return `${h}:${m}:${s}`;
+    }
+
     function renderSavedScripts() {
         const scripts = getSavedScripts();
         const list = $("#saved-scripts-list");
@@ -244,7 +394,7 @@
 
     function renderSharedScripts() {
         const list = $('#shared-scripts-list');
-        list.html('<li class="list-group-item text-muted">' + LANG.js_loading + '</li>');
+        list.html('<li class="list-group-item text-muted">' + LANG.loading + '</li>');
         
         $.get('<?= site_url('api/shared-queries') ?>', function(scripts) {
             list.empty();
@@ -433,7 +583,7 @@
 
     function renderQueryTemplates() {
     const accordion = $('#query-templates-accordion');
-    accordion.html('<div class="p-2 text-muted">' + LANG.js_loading + '</div>');
+    accordion.html('<div class="p-2 text-muted">' + LANG.loading + '</div>');
 
     $.get('<?= site_url('api/templates') ?>', function(categories) {
         accordion.empty();
@@ -544,7 +694,7 @@
                                             }
                                         })
                                         .fail(function() {
-                                            editor.setValue(`-- ${LANG.js_error_loading_definition}\n\nSELECT TOP 1000 *\nFROM [${db}].[${schema}].[${table}]`);
+                                            editor.setValue(`-- ${LANG.error_loading_definition}\n\nSELECT TOP 1000 *\nFROM [${db}].[${schema}].[${table}]`);
                                         });
                                 }
                             };
@@ -597,6 +747,37 @@
         initializeIntellisense();
         renderQueryTemplates();
         renderSharedScripts();
+        renderAgentJobs();
+
+        $('#agent-jobs-container').on('click', '.start-job', function() {
+            const jobName = $(this).data('job-name');
+            $.post('<?= site_url(
+                'api/agent/start',
+            ) ?>', { 'job_name': jobName, '<?= csrf_token() ?>': '<?= csrf_hash() ?>' }, function() {
+                alert(jobName + ': ' + LANG.job_started);
+                renderAgentJobs();
+            }).fail(function() {
+                alert(jobName + ': ' + LANG.job_start_failed);
+            });
+        });
+
+        $('#agent-jobs-container').on('click', '.stop-job', function() {
+            const jobName = $(this).data('job-name');
+            $.post('<?= site_url(
+                'api/agent/stop',
+            ) ?>', { 'job_name': jobName, '<?= csrf_token() ?>': '<?= csrf_hash() ?>' }, function() {
+                alert(jobName + ': ' + LANG.job_stopped);
+                renderAgentJobs();
+            }).fail(function() {
+                alert(jobName + ': ' + LANG.job_stop_failed);
+            });
+        });
+
+        $('#agent-jobs-container').on('click', '.view-job-history', function(e) {
+            e.preventDefault();
+            const jobName = $(this).data('job-name');
+            displayJobHistory(jobName);
+        });
 
         $('#db-selector-list').on('click', 'a', function (e) {
             e.preventDefault();

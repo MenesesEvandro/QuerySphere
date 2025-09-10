@@ -216,6 +216,13 @@ return [
     'failed' => 'Failed',
     'canceled' => 'Canceled',
     'unknown' => 'Unknown',
+    'loading' => 'Loading...',
+    'start_job' => 'Start Job',
+    'stop_job' => 'Stop Job',
+    'job_started' => 'Job started successfully.',
+    'job_start_failed' => 'Failed to start the job.',
+    'job_stopped' => 'Job stopped successfully.',
+    'job_stop_failed' => 'Failed to stop the job.',
 
     // Translations for Query Templates
     'query_templates' => [

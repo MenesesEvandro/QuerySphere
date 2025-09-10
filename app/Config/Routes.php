@@ -68,5 +68,11 @@ $routes->group('', ['filter' => 'auth'], static function ($routes) {
             'objects/columns',
             'Api\ObjectExplorer::getColumnsForScripting',
         );
+
+        // SQL Server Agent
+        $routes->get('agent/jobs', 'Api\Agent::jobs');
+        $routes->post('agent/start', 'Api\Agent::startJob');
+        $routes->post('agent/stop', 'Api\Agent::stopJob');
+        $routes->get('agent/history/(:any)', 'Api\Agent::jobHistory/$1');
     });
 });
