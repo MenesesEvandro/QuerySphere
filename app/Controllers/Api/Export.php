@@ -28,7 +28,7 @@ class Export extends BaseController
     {
         $sql = session()->get('last_successful_query');
         if (empty($sql)) {
-            exit(lang('App.noquery'));
+            exit(lang('App.feedback.noquery_to_export'));
         }
 
         $model = new SqlServerModel();
@@ -64,7 +64,7 @@ class Export extends BaseController
     {
         $sql = session()->get('last_successful_query');
         if (empty($sql)) {
-            exit(lang('App.noquery'));
+            exit(lang('App.feedback.noquery_to_export'));
         }
 
         $model = new SqlServerModel();

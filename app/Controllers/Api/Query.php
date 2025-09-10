@@ -52,7 +52,7 @@ class Query extends BaseController
             $this->request->getPost('disable_pagination') ?? false;
 
         if (empty(trim($sql))) {
-            return $this->fail(lang('App.query_empty'), 400);
+            return $this->fail(lang('App.feedback.empty_query'), 400);
         }
 
         $result = $this->model->executeQuery(
@@ -66,24 +66,24 @@ class Query extends BaseController
         }
 
         // Build the localized status message in the controller
-        $message = lang('App.commands_executed_successfully');
+        $message = lang('App.feedback.commands_executed_successfully');
         if ($result['resultSetCount'] > 0) {
             $message .=
                 "\n" .
                 $result['resultSetCount'] .
                 ' ' .
-                lang('App.result_sets_returned');
+                lang('App.feedback.result_sets_returned');
         }
         if ($result['totalRowsAffected'] > 0) {
             $message .=
                 "\n" .
                 $result['totalRowsAffected'] .
                 ' ' .
-                lang('App.rows_affected');
+                lang('App.feedback.rows_affected');
         }
         $message .=
             "\n" .
-            lang('App.execution_time') .
+            lang('App.feedback.execution_time') .
             ': ' .
             $result['executionTime'] .
             's';
@@ -119,7 +119,7 @@ class Query extends BaseController
     {
         $sql = $this->request->getPost('sql');
         if (empty(trim($sql))) {
-            return $this->fail(lang('App.query_empty'), 400);
+            return $this->fail(lang('App.feedback.query_empty'), 400);
         }
         $result = $this->model->getExecutionPlan($sql);
         if ($result['status'] === 'error') {

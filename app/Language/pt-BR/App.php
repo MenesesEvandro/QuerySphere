@@ -1,248 +1,300 @@
 <?php
 return [
-    'connect' => 'Conectar',
-    'connecting' => 'Conectando...',
-    'host' => 'Host (Endereço do Servidor)',
-    'port' => 'Porta',
-    'database' => 'Nome do Banco (Opcional)',
-    'user' => 'Usuário',
-    'password' => 'Senha',
-    'connectionScreenTitle' => 'Conecte-se ao seu SQL Server',
-    'execute' => 'Executar',
-    'executing' => 'Executando...',
-    'explain' => 'Plano de Execução',
-    'exportCSV' => 'Exportar CSV',
-    'exportJSON' => 'Exportar JSON',
-    'chart' => 'Visualizar Gráfico',
-    'objects' => 'Objetos',
-    'history' => 'Histórico',
-    'saved' => 'Salvos',
-    'saveScript' => 'Salvar Script',
-    'results' => 'Resultados',
-    'messages' => 'Mensagens',
-    'connectedTo' => 'Conectado a',
-    'disconnect' => 'Desconectar',
-    'queryResultsPlaceholder' => 'Execute uma consulta para ver os resultados.',
-    'chartModalTitle' => 'Visualização Gráfica',
-    'chartType' => 'Tipo de Gráfico',
-    'chartLabelAxis' => 'Eixo X (Rótulos)',
-    'chartValueAxis' => 'Eixo Y (Valores)',
-    'chartGenerate' => 'Gerar Gráfico',
-    'close' => 'Fechar',
-    'submit' => 'Enviar',
-    'bar' => 'Barras',
-    'line' => 'Linhas',
-    'pie' => 'Pizza',
-    'formatSQL' => 'Formatar SQL',
-    'toggletheme' => 'Alternar Tema',
-    'noquery' => 'Nenhuma consulta para exportar.',
-    'tables' => 'Tabelas',
-    'views' => 'Views',
-    'stored_procedures' => 'Procedures Armazenadas',
-    'functions' => 'Funções',
-    'no_parameters' => 'Sem parâmetros',
-    'query_empty' => 'A consulta SQL não pode estar vazia.',
-    'connection_success' => 'Conexão estabelecida com sucesso!',
-    'logout_success' => 'Você foi desconectado.',
-    'connection_failed' => 'Falha na conexão.',
-    'details' => 'Detalhes',
-    'check_credentials' => 'Verifique o host, a porta e as credenciais.',
-    'session_lost' => 'Sessão de conexão perdida.',
-    'syntax_error' => 'Erro de sintaxe ou execução: ',
-    'unknown_error' => 'Erro desconhecido',
-    'commands_executed_successfully' => 'Comando(s) executado(s) com sucesso.',
-    'result_sets_returned' => 'Conjunto(s) de resultados retornado(s): ',
-    'rows_affected' => 'Linha(s) afetada(s): ',
-    'execution_time' => 'Tempo de execução',
-    'execution_plan_generation_failed' =>
-        'Falha na geração do plano de execução.',
-    'language_not_supported' => 'Idioma não suportado.',
-    'php_extension_item' => 'Extensão PHP: {0}',
-    'php_version_note' => 'A versão recomendada para o projeto é 8.0.9.',
-    'sqlsrv_extension_note' =>
-        'Crítico: Essencial para conectar ao SQL Server.',
-    'intl_extension_note' =>
-        'Crítico: Requerido pelo CodeIgniter 4 para internacionalização.',
-    'mbstring_extension_note' =>
-        'Crítico: Essencial para manipulação de strings multibyte.',
-    'json_extension_note' => 'Crítico: Essencial para as respostas da API.',
-    'xml_extension_note' =>
-        'Importante: Necessário para a funcionalidade de "Plano de Execução".',
-    'enabled' => 'Habilitada',
-    'not_found' => 'Não encontrada',
-    'writable_permission' => 'Permissão de escrita na pasta "writable"',
-    'writable_permission_note' =>
-        'O CodeIgniter precisa de permissão para escrever logs, cache e sessões.',
-    'env_file' => 'Arquivo de ambiente ".env"',
-    'env_file_note' =>
-        'Recomendado para configurar o ambiente de produção/desenvolvimento.',
-    'server_validation' => 'Validação do Servidor',
-    'searchobjects' => 'Buscar objetos',
-    'intellisense_error' => 'Falha ao carregar o dicionário do IntelliSense.',
-    'select' => 'Selecione ...',
-    'error_alter_database' => 'Falha ao alterar o banco de dados.',
-    'changing' => 'Alterando ...',
-    'rememberConnection' => 'Salvar dados de conexão',
-    'previous' => 'Anterior',
-    'next' => 'Próximo',
-    'shared' => 'Compartilhadas',
-    'share' => 'Compartilhar',
-    'loading_definition_for' => 'Carregando definição para {0}...',
-    'error_loading_definition' =>
-        'ERRO: Não foi possível carregar a definição do objeto.',
-    'confirm_delete_script' => 'Tem certeza de que deseja excluir este script?',
-    'prompt_script_name' => 'Digite o nome do script:',
-    'script_name_default' => 'Meu Script',
-    'empty_script_alert' => 'Não há script para salvar.',
-    'empty_shared_script_alert' => 'Não há script para compartilhar.',
-    'prompt_shared_name' => 'Digite um nome para esta query compartilhada:',
-    'shared_name_default' => 'Script Compartilhado',
-    'prompt_author' => 'Seu nome:',
-    'author_default' => 'Usuário',
-    'share_fail' => 'Falha ao compartilhar o script.',
-    'confirm_delete_shared' =>
-        'Tem certeza que deseja apagar esta query compartilhada para todos?',
-    'delete_shared_fail' => 'Falha ao apagar a query.',
-    'format_fail' => 'Falha ao formatar o SQL. Verifique a sintaxe.',
-    'exec_error' => 'Erro na execução.',
-    'no_results_found' => 'Nenhum resultado encontrado.',
-    'empty_result' => 'Resultado vazio.',
-    'page' => 'Página',
-    'of' => 'de',
-    'records' => 'registros',
-    'result' => 'resultado',
-    'server_compatibility_check' => 'Testar Compatibilidade',
-    'check_title' => 'Validação dos Requisitos do Servidor',
-    'check_ok_title' => 'Tudo Certo!',
-    'check_ok_message' =>
-        'Seu servidor atende a todos os requisitos críticos para executar a aplicação.',
-    'check_warn_title' => 'Atenção!',
-    'check_warn_message' =>
-        'Seu servidor possui alguns avisos, mas os requisitos críticos foram atendidos. A aplicação deve funcionar, mas verifique os pontos abaixo.',
-    'check_fail_title' => 'Problemas Encontrados!',
-    'check_fail_message' =>
-        'Seu servidor não atende a um ou mais requisitos críticos. A aplicação não funcionará corretamente até que os itens marcados com FALHA sejam corrigidos.',
-    'check_header_item' => 'Requisito',
-    'check_header_status' => 'Status',
-    'check_header_current' => 'Valor Atual',
-    'check_header_required' => 'Requerido',
-    'check_header_notes' => 'Observações',
-    'check_status_ok' => 'OK',
-    'check_status_fail' => 'FALHA',
-    'check_php_version' => 'Versão do PHP',
-    'check_php_version_note' =>
-        'A versão mínima recomendada para o projeto é 8.0.',
-    'check_item_extension' => 'Extensão PHP: {0}',
-    'check_note_sqlsrv' => 'Crítico: Essencial para conectar ao SQL Server.',
-    'check_note_intl' =>
-        'Crítico: Requerido pelo CodeIgniter 4 para internacionalização.',
-    'check_note_mbstring' =>
-        'Crítico: Essencial para manipulação de strings multibyte.',
-    'check_note_json' => 'Crítico: Essencial para as respostas da API.',
-    'check_note_xml' =>
-        'Importante: Necessário para a funcionalidade de Plano de Execução.',
-    'check_enabled' => 'Habilitada',
-    'check_not_found' => 'Não encontrada',
-    'check_writable_folder' => 'Permissão de escrita na pasta "writable"',
-    'check_writable' => 'Gravável',
-    'check_not_writable' => 'Não gravável',
-    'check_writable_note' =>
-        'O CodeIgniter precisa de permissão para escrever logs, cache e sessões.',
-    'check_env_file' => 'Arquivo de ambiente ".env"',
-    'check_found' => 'Encontrado',
-    'check_env_file_note' =>
-        'Recomendado para configurar o ambiente de produção/desenvolvimento.',
-    'check_go_to_app' => 'Ir para a Aplicação',
-    'trust_server_certificate' =>
-        'Confiar no certificado do servidor (para localhost/autoassinado)',
-    'search_placeholder' => 'Buscar em {0}...',
-    'no_templates' => 'Nenhum template encontrado.',
-    'new_connection' => '-- Nova Conexão --',
-    'manage_connections' => 'Gerenciar Conexões',
-    'select_connection' => 'Selecione uma conexão existente ou crie uma nova.',
-    'confirm_delete_connection' =>
-        'Tem certeza de que deseja apagar a conexão {0}?',
-    'invalid_number' => 'Número inválido.',
-    'new_master_password' =>
-        'CRIE uma Senha Mestra para proteger suas senhas salvas.\nEsta senha NÃO será salva e será solicitada sempre que você precisar carregar uma senha.',
-    'ask_master_password' =>
-        'Por favor, digite sua Senha Mestra para carregar a senha.',
-    'prompt_connection_name' => 'Digite um nome para esta nova conexão:',
-    'error_decrypting_password' =>
-        'Erro ao descriptografar a senha. Senha Mestra incorreta?',
-    'saved_connection' => 'Conexão Salva',
-    'saved_connections' => 'Conexões Salvas',
-    'no_saved_connections' => 'Nenhuma conexão salva para gerenciar.',
-    'connection_deleted' => 'Conexão apagada.',
-    'delete' => 'Apagar',
-    'edit' => 'Editar',
-    'connection' => 'Conexão',
-    'actions' => 'Ações',
-    'master_password' => 'Senha Mestra',
-    'master_password_hint' =>
-        'Deve ter pelo menos 8 caracteres com letras, números e símbolos.',
-    'enter_master_password' => 'Digite a Senha Mestra',
-    'change_master_password' => 'Alterar Senha Mestra',
-    'change_master_password_info' =>
-        'Você pode alterar sua Senha Mestra aqui. Será necessário digitar a senha atual para verificação.',
-    'current_master_password' => 'Senha Mestra Atual',
-    'new_master_password_text' => 'Nova Senha Mestra',
-    'confirm_new_master_password' => 'Confirmar Nova Senha Mestra',
-    'master_password_no_match' =>
-        'Nova Senha Mestra e confirmação não coincidem.',
-    'master_password_changed' => 'Senha Mestra alterada com sucesso.',
-    'master_password_incorrect' => 'Senha Mestra Atual está incorreta.',
-    'no_saved_passwords' => 'Nenhuma senha salva.',
-    'saved_passwords' => 'Senhas Salvas',
-    'show_password' => 'Mostrar Senha',
-    'hide_password' => 'Ocultar Senha',
-    'https_warning' =>
-        'Aviso: Esta página deve ser acessada via HTTPS para garantir a segurança.',
-    'invalid_master_password' =>
-        'Senha Mestra inválida. Deve ter pelo menos 8 caracteres com letras, números e símbolos.',
-    'confirm_clear_connections' =>
-        'Tem certeza de que deseja apagar todas as conexões salvas?',
-    'clear_saved_connections' => 'Apagar Conexões Salvas',
-    'connections_cleared' => 'Todas as conexões salvas foram apagadas.',
-    'clear_all_connections' => 'Apagar todas as conexões',
-    'crypto_warning' =>
-        'Erro: Este navegador não suporta a API Web Crypto. Por favor, use um navegador moderno.',
-    'agent_jobs' => 'Jobs do SQL Server Agent',
-    'job_name' => 'Nome do Job',
-    'status' => 'Status',
-    'last_run' => 'Última Execução',
-    'last_run_status' => 'Resultado',
-    'next_run' => 'Próxima Execução',
-    'no_jobs_found' => 'Nenhum job do SQL Server Agent encontrado.',
-    'disabled' => 'Desabilitado',
-    'running' => 'Executando',
-    'success' => 'Sucesso',
-    'failed' => 'Falhou',
-    'canceled' => 'Cancelado',
-    'retry' => 'Tentar Novamente',
-    'unknown' => 'Desconhecido',
-    'loading' => 'Carregando...',
-    'start_job' => 'Iniciar Job',
-    'stop_job' => 'Parar Job',
-    'job_started' => 'Job iniciado com sucesso.',
-    'job_start_failed' => 'Falha ao iniciar o job.',
-    'job_stopped' => 'Job parado com sucesso.',
-    'job_stop_failed' => 'Falha ao parar o job.',
-    'job_history' => 'Histórico do Job',
-    'no_history_found' => 'Nenhum histórico encontrado para este job.',
-    'step_name' => 'Nome do Passo',
-    'step_id' => 'ID do Passo',
-    'operation' => 'Operação',
-    'status_message' => 'Mensagem de Status',
-    'duration' => 'Duração',
-    'start_time' => 'Hora de Início',
-    'end_time' => 'Hora de Término',
-    'view_details' => 'Ver Detalhes',
-    'hide_details' => 'Ocultar Detalhes',
-    'no_details' => 'Nenhum detalhe disponível.',
-    'error_retrieving_history' => 'Erro ao recuperar o histórico do job.',
+    //--------------------------------------------------------------------
+    // Itens Gerais da UI
+    //--------------------------------------------------------------------
+    'general' => [
+        'submit' => 'Enviar',
+        'close' => 'Fechar',
+        'details' => 'Detalhes',
+        'loading' => 'Carregando...',
+        'page' => 'Página',
+        'of' => 'de',
+        'records' => 'registros',
+        'result' => 'resultado',
+        'actions' => 'Ações',
+        'delete' => 'Apagar',
+        'edit' => 'Editar',
+        'previous' => 'Anterior',
+        'next' => 'Próximo',
+        'language' => 'Idioma',
+        'theme' => 'Tema',
+        'toggleTheme' => 'Alternar Tema',
+        'select' => 'Selecione ...',
+        'status' => 'Status',
+        'unknown' => 'Desconhecido',
+        'enabled' => 'Habilitada',
+        'disabled' => 'Desabilitado',
+        'not_found' => 'Não encontrada',
+        'running' => 'Em execução',
+        'success' => 'Sucesso',
+        'failed' => 'Falhou',
+        'canceled' => 'Cancelado',
+        'retry' => 'Tentar Novamente',
+        'https_warning' =>
+            'Aviso: Esta página deve ser acessada via HTTPS para garantir a segurança.',
+        'crypto_warning' =>
+            'Erro: Este navegador não suporta a API Web Crypto. Por favor, use um navegador moderno.',
+    ],
 
-    // Traduções para Query Templates
+    //--------------------------------------------------------------------
+    // Tela de Conexão e Gerenciamento
+    //--------------------------------------------------------------------
+    'connection' => [
+        'title' => 'Conexão',
+        'screenTitle' => 'Conecte-se ao seu SQL Server',
+        'connect' => 'Conectar',
+        'connecting' => 'Conectando...',
+        'disconnect' => 'Desconectar',
+        'connectedTo' => 'Conectado a',
+        'changing' => 'Alterando ...',
+        'host' => 'Host (Endereço do Servidor)',
+        'port' => 'Porta',
+        'database' => 'Nome do Banco (Opcional)',
+        'user' => 'Usuário',
+        'password' => 'Senha',
+        'show_password' => 'Mostrar Senha',
+        'hide_password' => 'Ocultar Senha',
+        'rememberConnection' => 'Salvar dados de conexão',
+        'trust_cert' =>
+            'Confiar no certificado do servidor (para localhost/autoassinado)',
+        'new_connection' => '-- Nova Conexão --',
+        'manage_connections' => 'Gerenciar Conexões',
+        'select_connection' =>
+            'Selecione uma conexão existente ou crie uma nova.',
+        'saved_connection' => 'Conexão Salva',
+        'saved_connections' => 'Conexões Salvas',
+        'no_saved_connections' => 'Nenhuma conexão salva para gerenciar.',
+        'connection_deleted' => 'Conexão apagada.',
+        'confirm_delete_connection' =>
+            'Tem certeza de que deseja apagar a conexão {0}?',
+        'prompt_connection_name' => 'Digite um nome para esta nova conexão:',
+        'confirm_clear_connections' =>
+            'Tem certeza de que deseja apagar todas as conexões salvas?',
+        'clear_saved_connections' => 'Apagar Conexões Salvas',
+        'connections_cleared' => 'Todas as conexões salvas foram apagadas.',
+        'clear_all_connections' => 'Apagar todas as conexões',
+    ],
+
+    //--------------------------------------------------------------------
+    // Senha Mestra
+    //--------------------------------------------------------------------
+    'master_password' => [
+        'title' => 'Senha Mestra',
+        'hint' =>
+            'Deve ter pelo menos 8 caracteres com letras, números e símbolos.',
+        'enter' => 'Digite a Senha Mestra',
+        'change' => 'Alterar Senha Mestra',
+        'change_info' =>
+            'Você pode alterar sua Senha Mestra aqui. Será necessário digitar a senha atual para verificação.',
+        'current' => 'Senha Mestra Atual',
+        'new' => 'Nova Senha Mestra',
+        'confirm_new' => 'Confirmar Nova Senha Mestra',
+        'no_match' => 'Nova Senha Mestra e confirmação não coincidem.',
+        'changed_success' => 'Senha Mestra alterada com sucesso.',
+        'incorrect' => 'Senha Mestra Atual está incorreta.',
+        'invalid' =>
+            'Senha Mestra inválida. Deve ter pelo menos 8 caracteres com letras, números e símbolos.',
+        'new_prompt' =>
+            'CRIE uma Senha Mestra para proteger suas senhas salvas.\nEsta senha NÃO será salva e será solicitada sempre que você precisar carregar uma senha.',
+        'ask_prompt' =>
+            'Por favor, digite sua Senha Mestra para carregar a senha.',
+        'error_decrypting' =>
+            'Erro ao descriptografar a senha. Senha Mestra incorreta?',
+        'no_saved_passwords' => 'Nenhuma senha salva.',
+        'saved_passwords' => 'Senhas Salvas',
+    ],
+
+    //--------------------------------------------------------------------
+    // Área de Trabalho Principal (Editor, Resultados, Abas)
+    //--------------------------------------------------------------------
+    'workspace' => [
+        'execute' => 'Executar',
+        'executing' => 'Executando...',
+        'explain' => 'Plano de Execução',
+        'formatSQL' => 'Formatar SQL',
+        'exportCSV' => 'Exportar CSV',
+        'exportJSON' => 'Exportar JSON',
+        'objects' => 'Objetos',
+        'history' => 'Histórico',
+        'saved' => 'Salvos',
+        'shared' => 'Compartilhadas',
+        'results' => 'Resultados',
+        'messages' => 'Mensagens',
+        'queryResultsPlaceholder' =>
+            'Execute uma consulta para ver os resultados.',
+        'search_placeholder' => 'Buscar em {0}...',
+        'templates' => 'Templates',
+    ],
+
+    //--------------------------------------------------------------------
+    // Navegador de Objetos
+    //--------------------------------------------------------------------
+    'objects_browser' => [
+        'search' => 'Buscar objetos',
+        'tables' => 'Tabelas',
+        'views' => 'Views',
+        'stored_procedures' => 'Procedures Armazenadas',
+        'functions' => 'Funções',
+        'no_parameters' => 'Sem parâmetros',
+        'loading_definition_for' => 'Carregando definição para {0}...',
+    ],
+
+    //--------------------------------------------------------------------
+    // Gerenciamento de Scripts (Salvar, Compartilhar)
+    //--------------------------------------------------------------------
+    'scripts' => [
+        'save' => 'Salvar Script',
+        'share' => 'Compartilhar',
+        'confirm_delete' => 'Tem certeza de que deseja excluir este script?',
+        'prompt_name' => 'Digite o nome do script:',
+        'default_name' => 'Meu Script',
+        'empty_alert' => 'Não há script para salvar.',
+        'empty_shared_alert' => 'Não há script para compartilhar.',
+        'prompt_shared_name' => 'Digite um nome para esta query compartilhada:',
+        'shared_default_name' => 'Script Compartilhado',
+        'prompt_author' => 'Seu nome:',
+        'author_default' => 'Usuário',
+        'share_fail' => 'Falha ao compartilhar o script.',
+        'confirm_delete_shared' =>
+            'Tem certeza que deseja apagar esta query compartilhada para todos?',
+        'delete_shared_fail' => 'Falha ao apagar a query.',
+    ],
+
+    //--------------------------------------------------------------------
+    // Gráficos e Visualização
+    //--------------------------------------------------------------------
+    'charts' => [
+        'title' => 'Visualizar Gráfico',
+        'modalTitle' => 'Visualização Gráfica',
+        'type' => 'Tipo de Gráfico',
+        'labelAxis' => 'Eixo X (Rótulos)',
+        'valueAxis' => 'Eixo Y (Valores)',
+        'generate' => 'Gerar Gráfico',
+        'bar' => 'Barras',
+        'line' => 'Linhas',
+        'pie' => 'Pizza',
+    ],
+
+    //--------------------------------------------------------------------
+    // Mensagens de Feedback (Sucesso, Erro, Avisos)
+    //--------------------------------------------------------------------
+    'feedback' => [
+        'connection_success' => 'Conexão estabelecida com sucesso!',
+        'connection_failed' => 'Falha na conexão.',
+        'check_credentials' => 'Verifique o host, a porta e as credenciais.',
+        'logout_success' => 'Você foi desconectado.',
+        'session_lost' => 'Sessão de conexão perdida.',
+        'query_empty' => 'A consulta SQL não pode estar vazia.',
+        'noquery_to_export' => 'Nenhuma consulta para exportar.',
+        'no_results_found' => 'Nenhum resultado encontrado.',
+        'empty_result' => 'Resultado vazio.',
+        'commands_executed_successfully' =>
+            'Comando(s) executado(s) com sucesso.',
+        'result_sets_returned' => 'Conjunto(s) de resultados retornado(s): ',
+        'rows_affected' => 'Linha(s) afetada(s): ',
+        'execution_time' => 'Tempo de execução',
+        'syntax_error' => 'Erro de sintaxe ou execução: ',
+        'unknown_error' => 'Erro desconhecido',
+        'exec_error' => 'Erro na execução.',
+        'format_fail' => 'Falha ao formatar o SQL. Verifique a sintaxe.',
+        'execution_plan_generation_failed' =>
+            'Falha na geração do plano de execução.',
+        'intellisense_error' =>
+            'Falha ao carregar o dicionário do IntelliSense.',
+        'error_alter_database' => 'Falha ao alterar o banco de dados.',
+        'error_loading_definition' =>
+            'ERRO: Não foi possível carregar a definição do objeto.',
+        'language_not_supported' => 'Idioma não suportado.',
+        'invalid_number' => 'Número inválido.',
+        'no_templates' => 'Nenhum template encontrado.',
+    ],
+
+    //--------------------------------------------------------------------
+    // Validação de Requisitos do Servidor
+    //--------------------------------------------------------------------
+    'server_check' => [
+        'title' => 'Validação dos Requisitos do Servidor',
+        'trigger_button' => 'Testar Compatibilidade',
+        'header_item' => 'Requisito',
+        'header_status' => 'Status',
+        'header_current' => 'Valor Atual',
+        'header_required' => 'Requerido',
+        'header_notes' => 'Observações',
+        'status_ok' => 'OK',
+        'status_fail' => 'FALHA',
+        'ok_title' => 'Tudo Certo!',
+        'ok_message' =>
+            'Seu servidor atende a todos os requisitos críticos para executar a aplicação.',
+        'warn_title' => 'Atenção!',
+        'warn_message' =>
+            'Seu servidor possui alguns avisos, mas os requisitos críticos foram atendidos. A aplicação deve funcionar, mas verifique os pontos abaixo.',
+        'fail_title' => 'Problemas Encontrados!',
+        'fail_message' =>
+            'Seu servidor não atende a um ou mais requisitos críticos. A aplicação não funcionará corretamente até que os itens marcados com FALHA sejam corrigidos.',
+        'go_to_app' => 'Ir para a Aplicação',
+        'php_version' => 'Versão do PHP',
+        'php_version_note' =>
+            'A versão mínima recomendada para o projeto é 8.0.',
+        'php_extension_item' => 'Extensão PHP: {0}',
+        'note_sqlsrv' => 'Crítico: Essencial para conectar ao SQL Server.',
+        'note_intl' =>
+            'Crítico: Requerido pelo CodeIgniter 4 para internacionalização.',
+        'note_mbstring' =>
+            'Crítico: Essencial para manipulação de strings multibyte.',
+        'note_json' => 'Crítico: Essencial para as respostas da API.',
+        'note_xml' =>
+            'Importante: Necessário para a funcionalidade de Plano de Execução.',
+        'writable_folder' => 'Permissão de escrita na pasta "writable"',
+        'writable' => 'Gravável',
+        'not_writable' => 'Não gravável',
+        'writable_note' =>
+            'O CodeIgniter precisa de permissão para escrever logs, cache e sessões.',
+        'env_file' => 'Arquivo de ambiente ".env"',
+        'found' => 'Encontrado',
+        'env_file_note' =>
+            'Recomendado para configurar o ambiente de produção/desenvolvimento.',
+    ],
+
+    //--------------------------------------------------------------------
+    // SQL Server Agent Jobs
+    //--------------------------------------------------------------------
+    'agent' => [
+        'title' => 'Jobs do SQL Server Agent',
+        'job_name' => 'Nome do Job',
+        'last_run' => 'Última Execução',
+        'last_run_status' => 'Resultado',
+        'next_run' => 'Próxima Execução',
+        'no_jobs_found' => 'Nenhum job do SQL Server Agent encontrado.',
+        'status_success' => 'Sucesso',
+        'status_failed' => 'Falhou',
+        'status_running' => 'Executando',
+        'status_canceled' => 'Cancelado',
+        'status_retry' => 'Tentar Novamente',
+        'start_job' => 'Iniciar Job',
+        'stop_job' => 'Parar Job',
+        'job_started' => 'Job iniciado com sucesso.',
+        'job_start_failed' => 'Falha ao iniciar o job.',
+        'job_stopped' => 'Job parado com sucesso.',
+        'job_stop_failed' => 'Falha ao parar o job.',
+        'history' => 'Histórico do Job',
+        'no_history_found' => 'Nenhum histórico encontrado para este job.',
+        'error_retrieving_history' => 'Erro ao recuperar o histórico do job.',
+        'step_name' => 'Nome do Passo',
+        'step_id' => 'ID do Passo',
+        'operation' => 'Operação',
+        'status_message' => 'Mensagem de Status',
+        'duration' => 'Duração',
+        'start_time' => 'Hora de Início',
+        'end_time' => 'Hora de Término',
+        'view_details' => 'Ver Detalhes',
+        'hide_details' => 'Ocultar Detalhes',
+        'no_details' => 'Nenhum detalhe disponível.',
+    ],
+
+    //--------------------------------------------------------------------
+    // Templates de Consulta
+    //--------------------------------------------------------------------
     'query_templates' => [
         '10_performance' => [
             'title' => 'Performance',

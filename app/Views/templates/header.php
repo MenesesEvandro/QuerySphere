@@ -42,6 +42,9 @@
                             <li><a class="dropdown-item" href="<?= site_url(
                                 'lang/en-US',
                             ) ?>">English (US)</a></li>
+                            <li><a class="dropdown-item" href="<?= site_url(
+                                'lang/es-ES',
+                            ) ?>">Español (ES)</a></li>
                         </ul>
                     </li>
                 </ul>
@@ -50,7 +53,9 @@
                     <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="fa fa-database me-1"></i>
                         <span id="active-database-name">
-                            <?= esc($db_database ?: lang('App.select')) ?>
+                            <?= esc(
+                                $db_database ?: lang('App.general.select'),
+                            ) ?>
                         </span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-dark" id="db-selector-list">
@@ -68,19 +73,21 @@
 
                 <div class="d-flex align-items-center">
                     <button id="theme-toggle-btn" class="btn btn-outline-secondary btn-sm me-3"
-                        title="<?= lang('App.toggletheme') ?>">
+                        title="<?= lang('App.general.toggleTheme') ?>">
                         <i class="fa fa-sun"></i> </button>
 
                     <span class="navbar-text text-white-50 me-3">
-                        <?= lang('App.connectedTo') ?>: <strong><?= esc(
-    $db_host,
-) ?></strong> (<?= esc($db_user) ?>)
+                        <?= lang(
+                            'App.connection.connectedTo',
+                        ) ?>: <strong><?= esc($db_host) ?></strong> (<?= esc(
+    $db_user,
+) ?>)
                     </span>
                     <a href="<?= site_url(
                         'logout',
                     ) ?>" class="btn btn-outline-danger btn-sm">
                         <i class="fa fa-sign-out-alt"></i> <?= lang(
-                            'App.disconnect',
+                            'App.connection.disconnect',
                         ) ?>
                     </a>
                 </div>

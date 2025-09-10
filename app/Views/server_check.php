@@ -24,23 +24,29 @@
             <?php if ($overall_status === 'success'): ?>
                 <div class="alert alert-success">
                     <h4><i class="fa fa-check-circle me-2"></i><?= lang(
-                        'App.check_ok_title',
+                        'App.server_check.title',
                     ) ?></h4>
-                    <p class="mb-0"><?= lang('App.check_ok_message') ?></p>
+                    <p class="mb-0"><?= lang(
+                        'App.server_check.ok_message',
+                    ) ?></p>
                 </div>
             <?php elseif ($overall_status === 'warning'): ?>
                 <div class="alert alert-warning">
                     <h4><i class="fa fa-exclamation-triangle me-2"></i><?= lang(
-                        'App.check_warn_title',
+                        'App.server_check.warn_title',
                     ) ?></h4>
-                    <p class="mb-0"><?= lang('App.check_warn_message') ?></p>
+                    <p class="mb-0"><?= lang(
+                        'App.server_check.warn_message',
+                    ) ?></p>
                 </div>
             <?php else: ?>
                 <div class="alert alert-danger">
                     <h4><i class="fa fa-times-circle me-2"></i><?= lang(
-                        'App.check_fail_title',
+                        'App.server_check.fail_title',
                     ) ?></h4>
-                    <p class="mb-0"><?= lang('App.check_fail_message') ?></p>
+                    <p class="mb-0"><?= lang(
+                        'App.server_check.fail_message',
+                    ) ?></p>
                 </div>
             <?php endif; ?>
 
@@ -48,11 +54,19 @@
                 <table class="table table-bordered table-striped mt-4">
                     <thead class="table-light">
                         <tr>
-                            <th><?= lang('App.check_header_item') ?></th>
-                            <th><?= lang('App.check_header_status') ?></th>
-                            <th><?= lang('App.check_header_current') ?></th>
-                            <th><?= lang('App.check_header_required') ?></th>
-                            <th><?= lang('App.check_header_notes') ?></th>
+                            <th><?= lang('App.server_check.header_item') ?></th>
+                            <th><?= lang(
+                                'App.server_check.header_status',
+                            ) ?></th>
+                            <th><?= lang(
+                                'App.server_check.header_current',
+                            ) ?></th>
+                            <th><?= lang(
+                                'App.server_check.header_required',
+                            ) ?></th>
+                            <th><?= lang(
+                                'App.server_check.header_notes',
+                            ) ?></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -64,11 +78,11 @@
                                 <td class="text-center">
                                     <?php if ($check['status']): ?>
                                         <span class="badge bg-success fs-6"><?= lang(
-                                            'App.check_status_ok',
+                                            'App.server_check.status_ok',
                                         ) ?></span>
                                     <?php else: ?>
                                         <span class="badge bg-danger fs-6"><?= lang(
-                                            'App.check_status_fail',
+                                            'App.server_check.status_fail',
                                         ) ?></span>
                                     <?php endif; ?>
                                 </td>
@@ -87,7 +101,7 @@
                 <a href="<?= site_url(
                     '/',
                 ) ?>" class="btn btn-primary"><i class="fa fa-home me-2"></i><?= lang(
-    'App.check_go_to_app',
+    'App.server_check.go_to_app',
 ) ?></a>
             </div>
 

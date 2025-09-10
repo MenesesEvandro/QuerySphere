@@ -43,20 +43,20 @@ class ServerCheck extends BaseController
             $overall_status = 'danger';
         }
         $checks[] = [
-            'item' => lang('App.check_php_version'),
+            'item' => lang('App.server_check.php_version'),
             'required' => '>= ' . $php_version_required,
             'current' => PHP_VERSION,
             'status' => $php_version_ok,
-            'notes' => lang('App.check_php_version_note'),
+            'notes' => lang('App.server_check.php_version_note'),
         ];
 
         // 2. PHP Extensions Check
         $required_extensions = [
-            'sqlsrv' => lang('App.check_note_sqlsrv'),
-            'intl' => lang('App.check_note_intl'),
-            'mbstring' => lang('App.check_note_mbstring'),
-            'json' => lang('App.check_note_json'),
-            'xml' => lang('App.check_note_xml'),
+            'sqlsrv' => lang('App.server_check.note_sqlsrv'),
+            'intl' => lang('App.server_check.note_intl'),
+            'mbstring' => lang('App.server_check.note_mbstring'),
+            'json' => lang('App.server_check.note_json'),
+            'xml' => lang('App.server_check.note_xml'),
         ];
         foreach ($required_extensions as $ext => $note) {
             $is_loaded = extension_loaded($ext);
@@ -64,11 +64,11 @@ class ServerCheck extends BaseController
                 $overall_status = 'danger';
             }
             $checks[] = [
-                'item' => lang('App.check_item_extension', [$ext]),
-                'required' => lang('App.check_enabled'),
+                'item' => lang('App.server_check.php_extension_item', [$ext]),
+                'required' => lang('App.general.enabled'),
                 'current' => $is_loaded
-                    ? lang('App.check_enabled')
-                    : lang('App.check_not_found'),
+                    ? lang('App.general.enabled')
+                    : lang('App.general.not_found'),
                 'status' => $is_loaded,
                 'notes' => $note,
             ];
@@ -80,13 +80,13 @@ class ServerCheck extends BaseController
             $overall_status = 'danger';
         }
         $checks[] = [
-            'item' => lang('App.check_writable_folder'),
-            'required' => lang('App.check_writable'),
+            'item' => lang('App.server_check.writable_folder'),
+            'required' => lang('App.server_check.writable'),
             'current' => $is_writable
-                ? lang('App.check_writable')
-                : lang('App.check_not_writable'),
+                ? lang('App.server_check.writable')
+                : lang('App.server_check.not_writable'),
             'status' => $is_writable,
-            'notes' => lang('App.check_writable_note'),
+            'notes' => lang('App.server_check.writable_note'),
         ];
 
         // 4. .env File Check
@@ -95,18 +95,18 @@ class ServerCheck extends BaseController
             $overall_status = 'warning';
         }
         $checks[] = [
-            'item' => lang('App.check_env_file'),
-            'required' => lang('App.check_found'),
+            'item' => lang('App.server_check.env_file'),
+            'required' => lang('App.server_check.found'),
             'current' => $env_exists
-                ? lang('App.check_found')
-                : lang('App.check_not_found'),
+                ? lang('App.server_check.found')
+                : lang('App.server_check.not_found'),
             'status' => $env_exists,
-            'notes' => lang('App.check_env_file_note'),
+            'notes' => lang('App.server_check.env_file_note'),
         ];
 
         $data['checks'] = $checks;
         $data['overall_status'] = $overall_status;
-        $data['title'] = lang('App.check_title');
+        $data['title'] = lang('App.server_check.title');
 
         return view('server_check', $data);
     }

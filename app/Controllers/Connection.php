@@ -86,7 +86,7 @@ class Connection extends BaseController
             $connManager->storeCredentials($credentials);
             return redirect()
                 ->to('/main')
-                ->with('success', lang('App.connection_success'));
+                ->with('success', lang('App.feedback.connection_success'));
         } else {
             return redirect()
                 ->back()
@@ -106,6 +106,8 @@ class Connection extends BaseController
     public function logout()
     {
         session()->destroy();
-        return redirect()->to('/')->with('success', lang('App.logout_success'));
+        return redirect()
+            ->to('/')
+            ->with('success', lang('App.feedback.logout_success'));
     }
 }

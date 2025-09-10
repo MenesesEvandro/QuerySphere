@@ -110,28 +110,28 @@ class ObjectExplorer extends BaseController
                 $response = [
                     [
                         'id' => 'folder-tables_' . $dbName,
-                        'text' => lang('App.tables'),
+                        'text' => lang('App.objects_browser.tables'),
                         'icon' => 'fa fa-folder',
                         'children' => true,
                         'data' => ['type' => 'folder_tables'],
                     ],
                     [
                         'id' => 'folder-views_' . $dbName,
-                        'text' => lang('App.views'),
+                        'text' => lang('App.objects_browser.views'),
                         'icon' => 'fa fa-folder',
                         'children' => true,
                         'data' => ['type' => 'folder_views'],
                     ],
                     [
                         'id' => 'folder-procs_' . $dbName,
-                        'text' => lang('App.stored_procedures'),
+                        'text' => lang('App.objects_browser.stored_procedures'),
                         'icon' => 'fa fa-folder',
                         'children' => true,
                         'data' => ['type' => 'folder_procs'],
                     ],
                     [
                         'id' => 'folder-funcs_' . $dbName,
-                        'text' => lang('App.functions'),
+                        'text' => lang('App.objects_browser.functions'),
                         'icon' => 'fa fa-folder',
                         'children' => true,
                         'data' => ['type' => 'folder_funcs'],
@@ -245,7 +245,7 @@ class ObjectExplorer extends BaseController
                         $response[] = [
                             'text' =>
                                 '<em class="text-muted">' .
-                                lang('App.no_parameters') .
+                                lang('App.objects_browser.no_parameters') .
                                 '</em>',
                             'icon' => 'fa fa-ellipsis-h',
                             'children' => false,

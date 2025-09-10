@@ -4,27 +4,31 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="chartModalLabel"><?= lang(
-                    'App.chartModalTitle',
+                    'App.charts.modalTitle',
                 ) ?></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"
-                    aria-label="<?= lang('App.close') ?>"></button>
+                    aria-label="<?= lang('App.general.close') ?>"></button>
             </div>
             <div class="modal-body">
                 <div class="row g-3">
                     <div class="col-md-4"><label for="chart-type" class="form-label"><?= lang(
-                        'App.chartType',
+                        'App.charts.type',
                     ) ?></label><select id="chart-type" class="form-select">
-                            <option value="bar"><?= lang('App.bar') ?></option>
-                            <option value="line"><?= lang(
-                                'App.line',
+                            <option value="bar"><?= lang(
+                                'App.charts.bar',
                             ) ?></option>
-                            <option value="pie"><?= lang('App.pie') ?></option>
+                            <option value="line"><?= lang(
+                                'App.charts.line',
+                            ) ?></option>
+                            <option value="pie"><?= lang(
+                                'App.charts.pie',
+                            ) ?></option>
                         </select></div>
                     <div class="col-md-4"><label for="chart-label-col" class="form-label"><?= lang(
-                        'App.chartLabelAxis',
+                        'App.charts.labelAxis',
                     ) ?></label><select id="chart-label-col" class="form-select"></select></div>
                     <div class="col-md-4"><label for="chart-value-col" class="form-label"><?= lang(
-                        'App.chartValueAxis',
+                        'App.charts.valueAxis',
                     ) ?></label><select id="chart-value-col" class="form-select"></select></div>
                 </div>
                 <div class="mt-3" style="position: relative; height:60vh; width:100%"><canvas id="myChart"></canvas>
@@ -32,9 +36,11 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary"
-                    data-bs-dismiss="modal"><?= lang('App.close') ?></button>
+                    data-bs-dismiss="modal"><?= lang(
+                        'App.general.close',
+                    ) ?></button>
                 <button type="button" id="generate-chart-btn" class="btn btn-primary"><?= lang(
-                    'App.chartGenerate',
+                    'App.charts.generate',
                 ) ?></button>
             </div>
         </div>
@@ -104,62 +110,72 @@
 
 <script>
     const LANG = {
-        executing: "<?= lang('App.executing') ?>",
-        execute: "<?= lang('App.execute') ?>",
-        changing: "<?= lang('App.changing') ?>",
-        error_alter_database: "<?= lang('App.error_alter_database') ?>",
-        intellisense_error: "<?= lang('App.intellisense_error') ?>",
-        confirm_delete_script: "<?= lang('App.confirm_delete_script') ?>",
-        prompt_script_name: "<?= lang('App.prompt_script_name') ?>",
-        script_name_default: "<?= lang('App.script_name_default') ?>",
-        empty_script_alert: "<?= lang('App.empty_script_alert') ?>",
-        empty_shared_script_alert: "<?= lang(
-            'App.empty_shared_script_alert',
+        executing: "<?= lang('App.workspace.workspace') ?>",
+        execute: "<?= lang('App.workspace.execute') ?>",
+        changing: "<?= lang('App.connection.changing') ?>",
+        error_alter_database: "<?= lang(
+            'App.feedback.error_alter_database',
         ) ?>",
-        prompt_shared_name: "<?= lang('App.prompt_shared_name') ?>",
-        shared_name_default: "<?= lang('App.shared_name_default') ?>",
-        prompt_author: "<?= lang('App.prompt_author') ?>",
-        author_default: "<?= lang('App.author_default') ?>",
-        share_fail: "<?= lang('App.share_fail') ?>",
-        confirm_delete_shared: "<?= lang('App.confirm_delete_shared') ?>",
-        delete_shared_fail: "<?= lang('App.delete_shared_fail') ?>",
-        format_fail: "<?= lang('App.format_fail') ?>",
-        exec_error: "<?= lang('App.exec_error') ?>",
-        no_results_found: "<?= lang('App.no_results_found') ?>",
-        empty_result: "<?= lang('App.empty_result') ?>",
-        page: "<?= lang('App.page') ?>",
-        of: "<?= lang('App.of') ?>",
-        records: "<?= lang('App.records') ?>",
-        result: "<?= lang('App.result') ?>",
-        loading_definition_for: "<?= lang('App.loading_definition_for') ?>",
-        error_loading_definition: "<?= lang('App.error_loading_definition') ?>",
-        search_placeholder: "<?= lang('App.search_placeholder') ?>",
-        no_templates: "<?= lang('App.no_templates') ?>",
-        loading: "<?= lang('App.loading') ?>",
-        job_name: "<?= lang('App.job_name') ?>",
-        status: "<?= lang('App.status') ?>",
-        last_run: "<?= lang('App.last_run') ?>",
-        last_run_status: "<?= lang('App.last_run_status') ?>",
-        next_run: "<?= lang('App.next_run') ?>",
-        actions: "<?= lang('App.actions') ?>",
-        start_job: "<?= lang('App.start_job') ?>",
-        stop_job: "<?= lang('App.stop_job') ?>",
-        running: "<?= lang('App.running') ?>",
-        enabled: "<?= lang('App.enabled') ?>",
-        disabled: "<?= lang('App.disabled') ?>",
-        success: "<?= lang('App.success') ?>",
-        failed: "<?= lang('App.failed') ?>",
-        unknown: "<?= lang('App.unknown') ?>",
-        no_jobs_found: "<?= lang('App.no_jobs_found') ?>",
-        view_job_history: "<?= lang('App.view_job_history') ?>",
-        no_history_found: "<?= lang('App.no_history_found') ?>",
-        error_retrieving_history: "<?= lang('App.error_retrieving_history') ?>",
-        retry: "<?= lang('App.retry') ?>",
-        canceled: "<?= lang('App.canceled') ?>",
-        job_started: "<?= lang('App.job_started') ?>",
-        job_start_failed: "<?= lang('App.job_start_failed') ?>",
-        job_stopped: "<?= lang('App.job_stopped') ?>",
-        job_stop_failed: "<?= lang('App.job_stop_failed') ?>",
+        intellisense_error: "<?= lang('App.feedback.intellisense_error') ?>",
+        confirm_delete_script: "<?= lang('App.scripts.confirm_delete') ?>",
+        prompt_script_name: "<?= lang('App.scripts.prompt_name') ?>",
+        script_name_default: "<?= lang('App.scripts.default_name') ?>",
+        empty_script_alert: "<?= lang('App.scripts.empty_alert') ?>",
+        empty_shared_script_alert: "<?= lang(
+            'App.scripts.empty_shared_alert',
+        ) ?>",
+        prompt_shared_name: "<?= lang('App.scripts.prompt_shared_name') ?>",
+        shared_name_default: "<?= lang('App.scripts.shared_default_name') ?>",
+        prompt_author: "<?= lang('App.scripts.prompt_author') ?>",
+        author_default: "<?= lang('App.scripts.author_default') ?>",
+        share_fail: "<?= lang('App.scripts.share_fail') ?>",
+        confirm_delete_shared: "<?= lang(
+            'App.scripts.confirm_delete_shared',
+        ) ?>",
+        delete_shared_fail: "<?= lang('App.scripts.delete_shared_fail') ?>",
+        format_fail: "<?= lang('App.feedback.format_fail') ?>",
+        exec_error: "<?= lang('App.feedback.exec_error') ?>",
+        no_results_found: "<?= lang('App.feedback.no_results_found') ?>",
+        empty_result: "<?= lang('App.feedback.empty_result') ?>",
+        page: "<?= lang('App.general.page') ?>",
+        of: "<?= lang('App.general.of') ?>",
+        records: "<?= lang('App.general.records') ?>",
+        result: "<?= lang('App.general.result') ?>",
+        loading_definition_for: "<?= lang(
+            'App.objects_browser.loading_definition_for',
+        ) ?>",
+        error_loading_definition: "<?= lang(
+            'App.feedback.error_loading_definition',
+        ) ?>",
+        search_placeholder: "<?= lang('App.workspace.search_placeholder') ?>",
+        no_templates: "<?= lang('App.feedback.no_templates') ?>",
+        loading: "<?= lang('App.general.loading') ?>",
+        job_name: "<?= lang('App.agent.job_name') ?>",
+        status: "<?= lang('App.agent.status') ?>",
+        last_run: "<?= lang('App.agent.last_run') ?>",
+        last_run_status: "<?= lang('App.agent.last_run_status') ?>",
+        next_run: "<?= lang('App.agent.next_run') ?>",
+        actions: "<?= lang('App.general.actions') ?>",
+        start_job: "<?= lang('App.agent.start_job') ?>",
+        stop_job: "<?= lang('App.agent.stop_job') ?>",
+        running: "<?= lang('App.general.running') ?>",
+        enabled: "<?= lang('App.general.enabled') ?>",
+        disabled: "<?= lang('App.general.disabled') ?>",
+        success: "<?= lang('App.general.success') ?>",
+        failed: "<?= lang('App.general.failed') ?>",
+        unknown: "<?= lang('App.general.unknown') ?>",
+        no_jobs_found: "<?= lang('App.agent.no_jobs_found') ?>",
+        view_job_history: "<?= lang('App.agent.history') ?>",
+        no_history_found: "<?= lang('App.agent.no_history_found') ?>",
+        error_retrieving_history: "<?= lang(
+            'App.agent.error_retrieving_history',
+        ) ?>",
+        retry: "<?= lang('App.general.retry') ?>",
+        canceled: "<?= lang('App.general.canceled') ?>",
+        job_started: "<?= lang('App.agent.job_started') ?>",
+        job_start_failed: "<?= lang('App.agent.job_start_failed') ?>",
+        job_stopped: "<?= lang('App.agent.job_stopped') ?>",
+        job_stop_failed: "<?= lang('App.agent.job_stop_failed') ?>",
     };
 
     var lastResultData = null;
@@ -1005,7 +1021,7 @@
                 },
                 complete: () => btn.prop('disabled', false).html(
                     `<i class="fa fa-sitemap me-1"></i> <?= lang(
-                        'App.explain',
+                        'App.workspace.explain',
                     ) ?>`
                 )
             });

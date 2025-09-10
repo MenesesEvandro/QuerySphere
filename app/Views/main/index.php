@@ -5,26 +5,32 @@
         <div class="input-group input-group-sm mb-2">
             <span class="input-group-text"><i class="fa fa-search"></i></span>
             <input type="text" id="object-search-input" class="form-control"
-                placeholder="<?= lang('App.searchobjects') ?>">
+                placeholder="<?= lang('App.objects_browser.search') ?>">
         </div>
 
         <ul class="nav nav-tabs nav-fill flex-shrink-0">
             <li class="nav-item"><a class="nav-link active" data-bs-toggle="tab"
-                    href="#objects-tab"><?= lang('App.objects') ?></a></li>
+                    href="#objects-tab"><?= lang(
+                        'App.workspace.objects',
+                    ) ?></a></li>
             <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#agent-tab"><?= lang(
-                'App.agent_jobs',
+                'App.agent.title',
             ) ?></a></li>
 
             <li class="nav-item"><a class="nav-link" data-bs-toggle="tab"
-                    href="#history-tab"><?= lang('App.history') ?></a></li>
+                    href="#history-tab"><?= lang(
+                        'App.workspace.history',
+                    ) ?></a></li>
             <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#saved-tab"><?= lang(
-                'App.saved',
+                'App.workspace.saved',
             ) ?></a>
             </li>
             <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#shared-tab"><?= lang(
-                'App.shared',
+                'App.workspace.shared',
             ) ?></a></li>
-            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#templates-tab">Templates</a></li>
+            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#templates-tab"><?= lang(
+                'App.workspace.templates',
+            ) ?></a></li>
 
         </ul>
 
@@ -55,43 +61,45 @@
             <div class="p-2 bg-light border-bottom d-flex align-items-center flex-wrap">
                 <button id="execute-query-btn" class="btn btn-success btn-sm me-2 mb-1 mb-md-0">
                     <i class="fa fa-play me-1"></i> <?= lang(
-                        'App.execute',
+                        'App.workspace.execute',
                     ) ?> (Ctrl+Enter)
                 </button>
                 <button id="explain-query-btn" class="btn btn-info btn-sm me-2 mb-1 mb-md-0">
                     <i class="fa fa-sitemap me-1"></i> <?= lang(
-                        'App.explain',
+                        'App.workspace.explain',
                     ) ?>
                 </button>
                 <button id="format-sql-btn" class="btn btn-outline-secondary btn-sm me-3 mb-1 mb-md-0"
-                    title="<?= lang('App.formatSQL') ?>">
+                    title="<?= lang('App.workspace.formatSQL') ?>">
                     <i class="fa fa-align-left"></i>
                 </button>
                 <div class="btn-group me-3 mb-1 mb-md-0">
                     <button id="export-csv-btn" class="btn btn-outline-secondary btn-sm" disabled>
                         <i class="fa fa-file-csv me-1"></i> <?= lang(
-                            'App.exportCSV',
+                            'App.workspace.exportCSV',
                         ) ?>
                     </button>
                     <button id="export-json-btn" class="btn btn-outline-secondary btn-sm" disabled>
                         <i class="fa fa-file-code me-1"></i> <?= lang(
-                            'App.exportJSON',
+                            'App.workspace.exportJSON',
                         ) ?>
                     </button>
                 </div>
                 <button id="show-chart-btn" class="btn btn-outline-primary btn-sm mb-1 mb-md-0" disabled
                     data-bs-toggle="modal" data-bs-target="#chartModal">
                     <i class="fa fa-chart-bar me-1"></i> <?= lang(
-                        'App.chart',
+                        'App.charts.title',
                     ) ?>
                 </button>
                 <button id="save-script-btn" class="btn btn-outline-info btn-sm ms-auto mb-1 mb-md-0">
                     <i class="fa fa-save me-1"></i> <?= lang(
-                        'App.saveScript',
+                        'App.scripts.save',
                     ) ?>
                 </button>
                 <button id="share-script-btn" class="btn btn-outline-success btn-sm ms-2 mb-1 mb-md-0">
-                    <i class="fa fa-users me-1"></i> <?= lang('App.share') ?>
+                    <i class="fa fa-users me-1"></i> <?= lang(
+                        'App.scripts.share',
+                    ) ?>
                 </button>
             </div>
             <textarea id="query-editor" class="flex-grow-1"></textarea>
@@ -103,32 +111,32 @@
                 style="display: none;">
                 <div>
                     <button id="pagination-prev" class="btn btn-sm btn-outline-secondary">&laquo; <?= lang(
-                        'App.previous',
+                        'App.general.previous',
                     ) ?></button>
                     <button id="pagination-next" class="btn btn-sm btn-outline-secondary"><?= lang(
-                        'App.next',
+                        'App.general.next',
                     ) ?> &raquo;</button>
                 </div>
-                <div id="pagination-info" class="text-muted" style="font-size: 0.9em;"></div>
+                <div id="pagination-info" class="" style="font-size: 0.9em;"></div>
             </div>
 
             <ul class="nav nav-tabs flex-shrink-0" id="resultsTab" role="tablist">
                 <li class="nav-item static-tab" role="presentation">
                     <button class="nav-link" id="messages-tab" data-bs-toggle="tab" data-bs-target="#messages"
                         type="button" role="tab"><?= lang(
-                            'App.messages',
+                            'App.workspace.messages',
                         ) ?></button>
                 </li>
                 <li class="nav-item static-tab" role="presentation">
                     <button class="nav-link" id="plan-tab" data-bs-toggle="tab" data-bs-target="#execution-plan"
                         type="button" role="tab"><?= lang(
-                            'App.explain',
+                            'App.workspace.explain',
                         ) ?></button>
                 </li>
             </ul>
             <div class="tab-content flex-grow-1" id="resultsTabContent" style="overflow: auto;">
-                <div id="results-placeholder" class="text-muted p-3">
-                    <?= lang('App.queryResultsPlaceholder') ?>
+                <div id="results-placeholder" class="p-3">
+                    <?= lang('App.workspace.queryResultsPlaceholder') ?>
                 </div>
                 <div class="tab-pane fade h-100" id="messages" role="tabpanel">
                     <div id="messages-content" class="text-monospace h-100"></div>

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>QuerySphere - <?= lang('App.connect') ?></title>
+    <title>QuerySphere - <?= lang('App.connection.connect') ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous">
     <style>
@@ -19,14 +19,14 @@
 <div class="card shadow-lg border-0 connection-card">
     <div class="card-body p-5">
         <div class="alert alert-danger https-warning" role="alert">
-            <?= lang('App.https_warning') ?>
+            <?= lang('App.general.https_warning') ?>
         </div>
         <div class="alert alert-danger crypto-warning" role="alert">
-            <?= lang('App.crypto_warning') ?>
+            <?= lang('App.general.crypto_warning') ?>
         </div>
         <h2 class="card-title text-center mb-1"><i class="fa fa-database text-primary" aria-hidden="true"></i> QuerySphere</h2>
         <p class="card-subtitle mb-4 text-center text-muted"><?= lang(
-            'App.connectionScreenTitle',
+            'App.connection.screenTitle',
         ) ?></p>
 
         <?php if (session()->getFlashdata('error')): ?>
@@ -42,22 +42,24 @@
 
         <div class="mb-3">
             <label for="connection-select" class="form-label"><?= lang(
-                'App.saved_connections',
+                'App.connection.saved_connections',
             ) ?></label>
             <div class="input-group">
                 <select class="form-select" id="connection-select" aria-describedby="connection-select-help">
                     <option value="new">-- <?= lang(
-                        'App.new_connection',
+                        'App.connection.new_connection',
                     ) ?> --</option>
                 </select>
                 <button class="btn btn-outline-secondary" type="button" id="manage-connections-btn" title="<?= lang(
-                    'App.manage_connections',
-                ) ?>" aria-label="<?= lang('App.manage_connections') ?>">
+                    'App.connection.manage_connections',
+                ) ?>" aria-label="<?= lang(
+    'App.connection.manage_connections',
+) ?>">
                     <i class="fa fa-cog" aria-hidden="true"></i>
                 </button>
             </div>
             <small id="connection-select-help" class="form-text text-muted"><?= lang(
-                'App.select_connection',
+                'App.connection.select_connection',
             ) ?></small>
         </div>
 
@@ -67,7 +69,7 @@
             <div id="new-connection-form">
                 <div class="mb-3">
                     <label for="host" class="form-label"><?= lang(
-                        'App.host',
+                        'App.connection.host',
                     ) ?></label>
                     <input type="text" class="form-control" id="host" name="host" value="<?= old(
                         'host',
@@ -76,7 +78,7 @@
                 </div>
                 <div class="mb-3">
                     <label for="port" class="form-label"><?= lang(
-                        'App.port',
+                        'App.connection.port',
                     ) ?></label>
                     <input type="number" class="form-control" id="port" name="port" value="<?= old(
                         'port',
@@ -85,7 +87,7 @@
                 </div>
                 <div class="mb-3">
                     <label for="database" class="form-label"><?= lang(
-                        'App.database',
+                        'App.connection.database',
                     ) ?></label>
                     <input type="text" class="form-control" id="database" name="database" value="<?= old(
                         'database',
@@ -93,7 +95,7 @@
                 </div>
                 <div class="mb-3">
                     <label for="user" class="form-label"><?= lang(
-                        'App.user',
+                        'App.connection.user',
                     ) ?></label>
                     <input type="text" class="form-control" id="user" name="user" value="<?= old(
                         'user',
@@ -103,7 +105,7 @@
 
             <div class="mb-3">
                 <label for="password" class="form-label"><?= lang(
-                    'App.password',
+                    'App.connection.password',
                 ) ?></label>
                 <input type="password" class="form-control" id="password" name="password" required>
             </div>
@@ -111,20 +113,20 @@
             <div class="form-check">
                 <input class="form-check-input" type="checkbox" id="trust-cert" name="trust_cert" value="1">
                 <label class="form-check-label" for="trust-cert"><?= lang(
-                    'App.trust_server_certificate',
+                    'App.connection.trust_cert',
                 ) ?></label>
             </div>
             
             <div class="form-check mb-4">
                 <input class="form-check-input" type="checkbox" id="save-connection-checkbox">
                 <label class="form-check-label" for="save-connection-checkbox"><?= lang(
-                    'App.rememberConnection',
+                    'App.connection.rememberConnection',
                 ) ?></label>
             </div>
 
             <div class="d-grid">
                 <button type="submit" class="btn btn-primary btn-lg"><?= lang(
-                    'App.connect',
+                    'App.connection.connect',
                 ) ?></button>
             </div>
         <?= form_close() ?>
@@ -135,17 +137,30 @@
                 'check',
             ) ?>" class="text-decoration-none text-muted" style="font-size: 0.9em;">
                 <i class="fa fa-check-circle me-1" aria-hidden="true"></i> <?= lang(
-                    'App.server_compatibility_check',
+                    'App.server_check.title',
                 ) ?>
             </a>
         </div>
         <div>
-            <a href="<?= site_url(
-                'lang/pt-BR',
-            ) ?>" class="text-decoration-none me-3">Português (BR)</a>
-            <a href="<?= site_url(
-                'lang/en-US',
-            ) ?>" class="text-decoration-none">English (US)</a>
+            <ul class="navbar-nav me-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                            aria-expanded="false">
+                            <i class="fa fa-language"></i>
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="<?= site_url(
+                                'lang/pt-BR',
+                            ) ?>">Português (BR)</a></li>
+                            <li><a class="dropdown-item" href="<?= site_url(
+                                'lang/en-US',
+                            ) ?>">English (US)</a></li>
+                            <li><a class="dropdown-item" href="<?= site_url(
+                                'lang/es-ES',
+                            ) ?>">Español (ES)</a></li>
+                        </ul>
+                    </li>
+                </ul>
         </div>
     </div>
 </div>
@@ -155,21 +170,23 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="manageConnectionsModalLabel"><?= lang(
-                    'App.manage_connections',
+                    'App.connection.manage_connections',
                 ) ?></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?= lang(
-                    'App.close',
+                    'App.general.close',
                 ) ?>"></button>
             </div>
             <div class="modal-body">
                 <div id="connections-list-container"></div>
                 <button class="btn btn-warning mt-3" id="clear-connections-btn" aria-label="<?= lang(
-                    'App.clear_all_connections',
-                ) ?>"><?= lang('App.clear_all_connections') ?></button>
+                    'App.connection.clear_all_connections',
+                ) ?>"><?= lang(
+    'App.connection.clear_all_connections',
+) ?></button>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?= lang(
-                    'App.close',
+                    'App.general.close',
                 ) ?></button>
             </div>
         </div>
@@ -181,29 +198,29 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="masterPasswordModalLabel"><?= lang(
-                    'App.new_master_password_text',
+                    'App.master_password.title',
                 ) ?></h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?= lang(
-                    'App.close',
+                    'App.general.close',
                 ) ?>"></button>
             </div>
             <div class="modal-body">
                 <div class="mb-3">
                     <label for="master-password-input" class="form-label"><?= lang(
-                        'App.master_password',
+                        'App.master_password.title',
                     ) ?></label>
                     <input type="password" class="form-control" id="master-password-input" required>
                     <small class="form-text text-muted"><?= lang(
-                        'App.master_password_hint',
+                        'App.master_password.hint',
                     ) ?></small>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?= lang(
-                    'App.close',
+                    'App.general.close',
                 ) ?></button>
                 <button type="button" class="btn btn-primary" id="master-password-submit"><?= lang(
-                    'App.submit',
+                    'App.general.submit',
                 ) ?></button>
             </div>
         </div>
@@ -214,27 +231,31 @@
 
 <script>
     const LANG = {
-        new_connection: "<?= lang('App.new_connection') ?>",
-        manage_connections: "<?= lang('App.manage_connections') ?>",
-        select_connection: "<?= lang('App.select_connection') ?>",
+        new_connection: "<?= lang('App.connection.new_connection') ?>",
+        manage_connections: "<?= lang('App.connection.manage_connections') ?>",
+        select_connection: "<?= lang('App.connection.select_connection') ?>",
         confirm_delete_connection: "<?= lang(
-            'App.confirm_delete_connection',
+            'App.connection.confirm_delete_connection',
         ) ?>",
-        invalid_number: "<?= lang('App.invalid_number') ?>",
-        new_master_password: "<?= lang('App.new_master_password') ?>",
-        ask_master_password: "<?= lang('App.ask_master_password') ?>",
-        prompt_connection_name: "<?= lang('App.prompt_connection_name') ?>",
+        invalid_number: "<?= lang('App.general.invalid_number') ?>",
+        new_master_password: "<?= lang('App.master_password.new') ?>",
+        ask_master_password: "<?= lang('App.master_password.ask_prompt') ?>",
+        prompt_connection_name: "<?= lang(
+            'App.connection.prompt_connection_name',
+        ) ?>",
         error_decrypting_password: "<?= lang(
-            'App.error_decrypting_password',
+            'App.master_password.error_decrypting',
         ) ?>",
-        no_saved_connections: "<?= lang('App.no_saved_connections') ?>",
-        connection_deleted: "<?= lang('App.connection_deleted') ?>",
-        connection: "<?= lang('App.connection') ?>",
-        actions: "<?= lang('App.actions') ?>",
-        delete: "<?= lang('App.delete') ?>",
-        invalid_master_password: "<?= lang('App.invalid_master_password') ?>",
+        no_saved_connections: "<?= lang(
+            'App.connection.no_saved_connections',
+        ) ?>",
+        connection_deleted: "<?= lang('App.connection.connection_deleted') ?>",
+        connection: "<?= lang('App.connection.title') ?>",
+        actions: "<?= lang('App.general.actions') ?>",
+        delete: "<?= lang('App.general.delete') ?>",
+        invalid_master_password: "<?= lang('App.master_password.invalid') ?>",
         confirm_clear_connections: "<?= lang(
-            'App.confirm_clear_connections',
+            'App.connection.confirm_clear_connections',
         ) ?>"
     };
 
