@@ -157,8 +157,7 @@ return [
     'no_templates' => 'No templates found.',
     'new_connection' => '-- New Connection --',
     'manage_connections' => 'Manage Connections',
-    'select_connection' =>
-        'Enter the NUMBER of the connection you want to delete (or cancel).',
+    'select_connection' => 'Select an existing connection or create a new one.',
     'confirm_delete_connection' =>
         'Are you sure you want to delete the connection {0}?',
     'invalid_number' => 'Invalid number.',
@@ -204,6 +203,19 @@ return [
     'clear_all_connections' => 'Clear all connections',
     'crypto_warning' =>
         'Error: This browser does not support the Web Crypto API. Please use a modern browser.',
+    'agent_jobs' => 'SQL Server Agent Jobs',
+    'job_name' => 'Job Name',
+    'status' => 'Status',
+    'last_run' => 'Last Run',
+    'last_run_status' => 'Outcome',
+    'next_run' => 'Next Run',
+    'no_jobs_found' => 'No SQL Server Agent jobs found.',
+    'disabled' => 'Disabled',
+    'running' => 'Running',
+    'success' => 'Success',
+    'failed' => 'Failed',
+    'canceled' => 'Canceled',
+    'unknown' => 'Unknown',
 
     // Translations for Query Templates
     'query_templates' => [

@@ -159,8 +159,7 @@ return [
     'no_templates' => 'Nenhum template encontrado.',
     'new_connection' => '-- Nova Conexão --',
     'manage_connections' => 'Gerenciar Conexões',
-    'select_connection' =>
-        'Digite o NÚMERO da conexão que deseja apagar (ou cancele).',
+    'select_connection' => 'Selecione uma conexão existente ou crie uma nova.',
     'confirm_delete_connection' =>
         'Tem certeza de que deseja apagar a conexão {0}?',
     'invalid_number' => 'Número inválido.',
@@ -208,6 +207,19 @@ return [
     'clear_all_connections' => 'Apagar todas as conexões',
     'crypto_warning' =>
         'Erro: Este navegador não suporta a API Web Crypto. Por favor, use um navegador moderno.',
+    'agent_jobs' => 'Jobs do SQL Server Agent',
+    'job_name' => 'Nome do Job',
+    'status' => 'Status',
+    'last_run' => 'Última Execução',
+    'last_run_status' => 'Resultado',
+    'next_run' => 'Próxima Execução',
+    'no_jobs_found' => 'Nenhum job do SQL Server Agent encontrado.',
+    'disabled' => 'Desabilitado',
+    'running' => 'Executando',
+    'success' => 'Sucesso',
+    'failed' => 'Falhou',
+    'canceled' => 'Cancelado',
+    'unknown' => 'Desconhecido',
 
     // Traduções para Query Templates
     'query_templates' => [
