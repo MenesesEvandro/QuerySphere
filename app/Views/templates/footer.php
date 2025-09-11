@@ -57,16 +57,21 @@
          */
         applyTheme: function (theme) {
             const isLight = (theme === 'light');
-            document.body.classList.toggle("light-theme", isLight);
 
-            document.getElementById("theme-toggle-btn").innerHTML = isLight ?
+            // Usa o seletor do jQuery para o body e o método .toggleClass()
+            $('body').toggleClass('light-theme', isLight);
+
+            // Usa o seletor de ID do jQuery e o método .html() para definir o conteúdo
+            $('#theme-toggle-btn').html(isLight ?
                 '<i class="fa fa-moon"></i>' :
-                '<i class="fa fa-sun"></i>';
+                '<i class="fa fa-sun"></i>'
+            );
 
-            localStorage.setItem("querysphere_theme", theme);
+            localStorage.setItem('querysphere_theme', theme);
 
-            if (typeof editor !== "undefined" && editor) {
-                editor.setOption("theme", isLight ? "default" : "material-darker");
+            // A interação com a API do editor (ex: CodeMirror) não muda
+            if (typeof editor !== 'undefined' && editor) {
+                editor.setOption('theme', isLight ? 'default' : 'material-darker');
             }
         },
 
@@ -75,14 +80,14 @@
          * ou detectando a preferência do sistema.
          */
         init: function () {
-            const savedTheme = localStorage.getItem("querysphere_theme");
+            const savedTheme = localStorage.getItem('querysphere_theme');
 
             if (savedTheme) {
                 this.applyTheme(savedTheme);
-            } else if (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches) {
-                this.applyTheme("light");
+            } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
+                this.applyTheme('light');
             } else {
-                this.applyTheme("dark");
+                this.applyTheme('dark');
             }
         }
     };
@@ -184,7 +189,7 @@
     var resultsDataTable = null;
     var isTemplateQuery = false;
 
-    var editor = CodeMirror.fromTextArea(document.getElementById("query-editor"), {
+    var editor = CodeMirror.fromTextArea($("#query-editor")[0], {
         lineNumbers: true,
         mode: 'text/x-mssql',
         theme: 'material-darker',
@@ -216,14 +221,15 @@
         const blob = new Blob([csvRows.join('\n')], {
             type: 'text/csv;charset=utf-8;'
         });
-        const link = document.createElement('a');
         const url = URL.createObjectURL(blob);
-        link.setAttribute('href', url);
-        link.setAttribute('download', filename);
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+
+        const link = $('<a>', {
+            href: url,
+            download: filename
+        }).css('visibility', 'hidden').appendTo('body');
+
+        link.get(0).click();
+        link.remove();
     }
 
     function exportToJson(filename, data) {
@@ -231,14 +237,15 @@
         const blob = new Blob([jsonStr], {
             type: 'application/json;charset=utf-8;'
         });
-        const link = document.createElement('a');
         const url = URL.createObjectURL(blob);
-        link.setAttribute('href', url);
-        link.setAttribute('download', filename);
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+
+        const link = $('<a>', {
+            href: url,
+            download: filename
+        }).css('visibility', 'hidden').appendTo('body');
+
+        link.get(0).click();
+        link.remove();
     }
 
     function getSavedScripts() {
@@ -247,7 +254,7 @@
 
     function renderAgentJobs() {
         const container = $('#agent-jobs-container');
-        container.html('<div class="text-center p-3"><div class="spinner-border" role="status"><span class="visually-hidden">'+ LANG.loading + '</span></div></div>');
+        container.html('<div class="text-center p-3"><div class="spinner-border" role="status"><span class="visually-hidden">' + LANG.loading + '</span></div></div>');
 
         $.get('<?= site_url('api/agent/jobs') ?>', function(jobs) {
             container.empty();
@@ -263,16 +270,16 @@
                     const nextRun = job.next_run_date && job.next_run_date !== '1900-01-01 00:00:00.000' ? new Date(job.next_run_date + ' ' + job.next_run_time).toLocaleString() : 'N/A';
 
                     const row = `<tr>
-                        <td><a href="#" class="view-job-history" data-job-name="${job.job_name}">${job.job_name}</a></td>
-                        <td>${status}</td>
-                        <td>${lastRun}</td>
-                        <td>${outcome}</td>
-                        <td>${nextRun}</td>
-                        <td>
-                            <button class="btn btn-sm btn-outline-success start-job" data-job-name="${job.job_name}" title="${LANG.start_job}"><i class="fa fa-play"></i></button>
-                            <button class="btn btn-sm btn-outline-danger stop-job" data-job-name="${job.job_name}" title="${LANG.stop_job}"><i class="fa fa-stop"></i></button>
-                        </td>
-                    </tr>`;
+                            <td><a href="#" class="view-job-history" data-job-name="${job.job_name}">${job.job_name}</a></td>
+                            <td>${status}</td>
+                            <td>${lastRun}</td>
+                            <td>${outcome}</td>
+                            <td>${nextRun}</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-success start-job" data-job-name="${job.job_name}" title="${LANG.start_job}"><i class="fa fa-play"></i></button>
+                                <button class="btn btn-sm btn-outline-danger stop-job" data-job-name="${job.job_name}" title="${LANG.stop_job}"><i class="fa fa-stop"></i></button>
+                            </td>
+                        </tr>`;
                     tbody.append(row);
                 });
 
@@ -295,24 +302,24 @@
 
         resultsTabContainer.append(
             `<li class="nav-item dynamic-tab" role="presentation">
-                <button class="nav-link" id="${tabId}" data-bs-toggle="tab" data-bs-target="#${paneId}" type="button" role="tab">
-                    History: ${$('<div>').text(jobName).html()}
-                </button>
-            </li>`
+                    <button class="nav-link" id="${tabId}" data-bs-toggle="tab" data-bs-target="#${paneId}" type="button" role="tab">
+                        History: ${$('<div>').text(jobName).html()}
+                    </button>
+                </li>`
         );
 
         const tabPane = $(
             `<div class="tab-pane fade dynamic-tab-pane" id="${paneId}" role="tabpanel">
-                <div class="p-2">
-                    <div class="spinner-border" role="status">
-                        <span class="visually-hidden">Loading...</span>
+                    <div class="p-2">
+                        <div class="spinner-border" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
                     </div>
-                </div>
-            </div>`
+                </div>`
         );
         resultsContentContainer.append(tabPane);
 
-        new bootstrap.Tab(document.getElementById(tabId)).show();
+        new bootstrap.Tab($(`#${tabId}`)[0]).show();
 
         $.get(`<?= site_url(
             'api/agent/history',
@@ -331,12 +338,12 @@
                     const duration = formatDuration(item.run_duration);
 
                     const row = `<tr>
-                        <td>${runDateTime}</td>
-                        <td>${item.step_name}</td>
-                        <td>${duration}</td>
-                        <td>${outcome}</td>
-                        <td><div style="max-height: 100px; overflow-y: auto;">${item.message}</div></td>
-                    </tr>`;
+                            <td>${runDateTime}</td>
+                            <td>${item.step_name}</td>
+                            <td>${duration}</td>
+                            <td>${outcome}</td>
+                            <td><div style="max-height: 100px; overflow-y: auto;">${item.message}</div></td>
+                        </tr>`;
                     tbody.append(row);
                 });
 
@@ -353,11 +360,16 @@
 
     function formatRunStatus(status) {
         switch (status) {
-            case 0: return '<span class="badge bg-danger">'+ LANG.failed +'</span>';
-            case 1: return '<span class="badge bg-success">'+ LANG.success +'</span>';
-            case 2: return '<span class="badge bg-info">'+ LANG.retry +'</span>';
-            case 3: return '<span class="badge bg-warning text-dark">'+ LANG.canceled +'</span>';
-            default: return '<span class="badge bg-secondary">'+ LANG.unknown +'</span>';
+            case 0:
+                return '<span class="badge bg-danger">' + LANG.failed + '</span>';
+            case 1:
+                return '<span class="badge bg-success">' + LANG.success + '</span>';
+            case 2:
+                return '<span class="badge bg-info">' + LANG.retry + '</span>';
+            case 3:
+                return '<span class="badge bg-warning text-dark">' + LANG.canceled + '</span>';
+            default:
+                return '<span class="badge bg-secondary">' + LANG.unknown + '</span>';
         }
     }
 
@@ -378,13 +390,13 @@
             scripts.forEach((script, index) => {
                 list.append(
                     `<li class="list-group-item list-group-item-action p-2 d-flex justify-content-between align-items-center">
-                        <span class="load-script" data-index="${index}" title="${script.sql}" style="cursor:pointer; font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                            ${script.name}
-                        </span>
-                        <button class="btn btn-sm btn-outline-danger delete-script" data-index="${index}" title="Apagar Script">
-                            <i class="fa fa-trash"></i>
-                        </button>
-                    </li>`
+                            <span class="load-script" data-index="${index}" title="${script.sql}" style="cursor:pointer; font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                ${script.name}
+                            </span>
+                            <button class="btn btn-sm btn-outline-danger delete-script" data-index="${index}" title="Apagar Script">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </li>`
                 );
             });
         } else {
@@ -400,8 +412,8 @@
                 history.forEach(query => {
                     list.append(
                         `<li class="list-group-item list-group-item-action p-2" style="cursor:pointer; font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${query}" data-query="${query}">
-                            ${query}
-                        </li>`
+                                ${query}
+                            </li>`
                     );
                 });
             }
@@ -411,24 +423,24 @@
     function renderSharedScripts() {
         const list = $('#shared-scripts-list');
         list.html('<li class="list-group-item text-muted">' + LANG.loading + '</li>');
-        
+
         $.get('<?= site_url('api/shared-queries') ?>', function(scripts) {
             list.empty();
             if (scripts && scripts.length > 0) {
                 scripts.forEach(script => {
                     const itemDate = new Date(script.timestamp).toLocaleDateString('pt-BR');
                     const item = `
-                        <li class="list-group-item list-group-item-action p-2">
-                            <div class="d-flex w-100 justify-content-between">
-                                <span class="load-shared-script" data-sql="${script.sql}" style="cursor:pointer; font-weight: 500;">
-                                    ${$('<div>').text(script.name).html()}
-                                </span>
-                                <button class="btn btn-sm btn-outline-danger delete-shared-script" data-id="${script.id}" title="Apagar Script">
-                                    <i class="fa fa-trash"></i>
-                                </button>
-                            </div>
-                            <small class="text-muted">Por: ${$('<div>').text(script.author).html()} em ${itemDate}</small>
-                        </li>`;
+                            <li class="list-group-item list-group-item-action p-2">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <span class="load-shared-script" data-sql="${script.sql}" style="cursor:pointer; font-weight: 500;">
+                                        ${$('<div>').text(script.name).html()}
+                                    </span>
+                                    <button class="btn btn-sm btn-outline-danger delete-shared-script" data-id="${script.id}" title="Apagar Script">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </div>
+                                <small class="text-muted">Por: ${$('<div>').text(script.author).html()} em ${itemDate}</small>
+                            </li>`;
                     list.append(item);
                 });
             } else {
@@ -488,9 +500,9 @@
         resultsTabContainer.find('.nav-link').removeClass('active');
         $('#results-placeholder').hide();
         $('#messages-content').html('');
-        
+
         if (isTemplateQuery) {
-           postData.disable_pagination = true;
+            postData.disable_pagination = true;
         }
 
         $.ajax({
@@ -507,7 +519,7 @@
 
                 if (!response.results || response.results.length === 0) {
                     $('#results-placeholder').html(LANG.no_results_found).show();
-                    new bootstrap.Tab(document.getElementById('messages-tab')).show();
+                    new bootstrap.Tab($('#messages-tab')[0]).show();
                     return;
                 }
 
@@ -521,16 +533,16 @@
 
                     resultsTabContainer.prepend(
                         `<li class="nav-item dynamic-tab" role="presentation">
-                            <button class="nav-link" id="${tabId}" data-bs-toggle="tab" data-bs-target="#${paneId}" type="button" role="tab">
-                                ${LANG.result} ${index + 1} <span class="badge bg-secondary ms-1">${result.rowCount}</span>
-                            </button>
-                        </li>`
+                                <button class="nav-link" id="${tabId}" data-bs-toggle="tab" data-bs-target="#${paneId}" type="button" role="tab">
+                                    ${LANG.result} ${index + 1} <span class="badge bg-secondary ms-1">${result.rowCount}</span>
+                                </button>
+                            </li>`
                     );
 
                     const tabPane = $(
                         `<div class="tab-pane fade dynamic-tab-pane" id="${paneId}" role="tabpanel">
-                            <div id="results-table-container-${index}" class="table-responsive h-100"></div>
-                        </div>`
+                                <div id="results-table-container-${index}" class="table-responsive h-100"></div>
+                            </div>`
                     );
                     resultsContentContainer.append(tabPane);
 
@@ -547,15 +559,17 @@
 
                         resultsDataTable = new DataTable(`#${tableId}`, {
                             data: result.data,
-                            columns: result.headers.map(h => ({ data: h })),
+                            columns: result.headers.map(h => ({
+                                data: h
+                            })),
                             destroy: true,
                             searching: true,
-                            initComplete: function () {
-                                this.api().columns().every(function () {
+                            initComplete: function() {
+                                this.api().columns().every(function() {
                                     let column = this;
                                     let title = column.footer().textContent;
                                     $(column.footer()).html(`<input type="text" class="form-control form-control-sm" placeholder="${LANG.search_placeholder.replace('{0}', title)}" />`)
-                                        .on('keyup change clear', function () {
+                                        .on('keyup change clear', function() {
                                             if (column.search() !== this.value) {
                                                 column.search(this.value).draw();
                                             }
@@ -576,7 +590,7 @@
                     $('#pagination-next').prop('disabled', firstResult.currentPage >= firstResult.totalPages);
                 }
 
-                const firstTabButton = document.getElementById('result-tab-0');
+                const firstTabButton = $('#result-tab-0')[0];
                 if (firstTabButton) {
                     new bootstrap.Tab(firstTabButton).show();
                 }
@@ -586,60 +600,62 @@
                 const errorMsg = xhr.responseJSON?.messages?.error?.message || xhr.responseText || "Ocorreu um erro.";
                 $('#messages-content').html(
                     `<div class="alert alert-danger m-2">
-                        <h5 class="alert-heading">${LANG.exec_error}</h5>
-                        <hr>
-                        <p class="mb-0">${$('<div>').text(errorMsg).html()}</p>
-                    </div>`
+                            <h5 class="alert-heading">${LANG.exec_error}</h5>
+                            <hr>
+                            <p class="mb-0">${$('<div>').text(errorMsg).html()}</p>
+                        </div>`
                 );
-                new bootstrap.Tab(document.getElementById('messages-tab')).show();
+                new bootstrap.Tab($('#messages-tab')[0]).show();
             },
             complete: () => btn.prop('disabled', false).html(`<i class="fa fa-play me-1"></i> ${LANG.execute} (Ctrl+Enter)`)
         });
     }
 
     function renderQueryTemplates() {
-    const accordion = $('#query-templates-accordion');
-    accordion.html('<div class="p-2 text-muted">' + LANG.loading + '</div>');
+        const accordion = $('#query-templates-accordion');
+        accordion.html('<div class="p-2 text-muted">' + LANG.loading + '</div>');
 
-    $.get('<?= site_url('api/templates') ?>', function(categories) {
-        accordion.empty();
-        if (categories && categories.length > 0) {
-            categories.forEach((cat, index) => {
-                const categoryId = `category-${index}`;
-                const categoryHtml = `
-                    <div class="accordion-item">
-                        <h2 class="accordion-header" id="heading-${categoryId}">
-                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-${categoryId}">
-                                ${$('<div>').text(cat.category).html()}
-                            </button>
-                        </h2>
-                        <div id="collapse-${categoryId}" class="accordion-collapse collapse" data-bs-parent="#query-templates-accordion">
-                            <div class="list-group list-group-flush">
-                                ${cat.scripts.map(script => `
-                                    <a href="#" class="list-group-item list-group-item-action load-template" 
-                                       data-category="${script.category_key}" 
-                                       data-filename="${script.filename}" 
-                                       title="${$('<div>').text(script.description).html()}">
-                                        ${$('<div>').text(script.name).html()}
-                                    </a>
-                                `).join('')}
+        $.get('<?= site_url('api/templates') ?>', function(categories) {
+            accordion.empty();
+            if (categories && categories.length > 0) {
+                categories.forEach((cat, index) => {
+                    const categoryId = `category-${index}`;
+                    const categoryHtml = `
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="heading-${categoryId}">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-${categoryId}">
+                                    ${$('<div>').text(cat.category).html()}
+                                </button>
+                            </h2>
+                            <div id="collapse-${categoryId}" class="accordion-collapse collapse" data-bs-parent="#query-templates-accordion">
+                                <div class="list-group list-group-flush">
+                                    ${cat.scripts.map(script => `
+                                        <a href="#" class="list-group-item list-group-item-action load-template" 
+                                        data-category="${script.category_key}" 
+                                        data-filename="${script.filename}" 
+                                        title="${$('<div>').text(script.description).html()}">
+                                            ${$('<div>').text(script.name).html()}
+                                        </a>
+                                    `).join('')}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                `;
-                accordion.append(categoryHtml);
-            });
-        } else {
-            accordion.html('<div class="p-2 text-muted">${LANG.no_templates}</div>');
-        }
-    });
-}
+                    `;
+                    accordion.append(categoryHtml);
+                });
+            } else {
+                accordion.html('<div class="p-2 text-muted">${LANG.no_templates}</div>');
+            }
+        });
+    }
 
-    $(function () {
+    $(function() {
         function initializeIntellisense() {
             $.get('<?= site_url('api/intellisense') ?>', (data) => {
                 if (Object.keys(data).length > 0) {
-                    editor.setOption("hintOptions", { tables: data });
+                    editor.setOption("hintOptions", {
+                        tables: data
+                    });
                 }
             }).fail(() => console.error(LANG.intellisense_error));
         }
@@ -658,7 +674,7 @@
                 gutterSize: 7,
                 direction: 'vertical',
                 cursor: 'row-resize',
-                onDragEnd: function () {
+                onDragEnd: function() {
                     if (editor) editor.refresh();
                 }
             });
@@ -670,14 +686,18 @@
                     'url': (node) => "#" === node.id ? '<?= site_url(
                         'api/objects/databases',
                     ) ?>' : '<?= site_url('api/objects/children') ?>',
-                    'data': (node) => ({ id: node.id })
+                    'data': (node) => ({
+                        id: node.id
+                    })
                 }
             },
             'plugins': ["contextmenu", "search"],
             'search': {
                 'ajax': {
                     'url': '<?= site_url('api/objects/search') ?>',
-                    'data': (str) => ({ str: str })
+                    'data': (str) => ({
+                        str: str
+                    })
                 },
                 'show_only_matches': true,
                 'close_opened_onclear': true
@@ -693,16 +713,13 @@
                                 icon: "fa fa-bolt",
                                 action: () => {
                                     const { db, schema, table } = nodeData;
-                                    
                                     editor.setValue(`-- ${LANG.loading}`);
-
                                     $.get('<?= site_url(
                                         'api/objects/columns',
                                     ) ?>', { db, table })
                                         .done(function(columns) {
                                             if (columns && columns.length > 0) {
                                                 const columnList = columns.map(col => `    [${col}]`).join(',\n');
-                                                
                                                 const sql = `SELECT TOP 1000\n${columnList}\nFROM [${db}].[${schema}].[${table}]`;
                                                 editor.setValue(sql);
                                             } else {
@@ -744,10 +761,10 @@
                                 $.get("<?= site_url(
                                     'api/objects/source',
                                 ) ?>", { db: db, schema: schema, object: routine, type: type })
-                                    .done(function (data) {
+                                    .done(function(data) {
                                         editor.setValue(data.sql);
                                     })
-                                    .fail(function () {
+                                    .fail(function() {
                                         editor.setValue(`-- ${LANG.error_loading_definition}`);
                                     });
                             }
@@ -767,9 +784,10 @@
 
         $('#agent-jobs-container').on('click', '.start-job', function() {
             const jobName = $(this).data('job-name');
-            $.post('<?= site_url(
-                'api/agent/start',
-            ) ?>', { 'job_name': jobName, '<?= csrf_token() ?>': '<?= csrf_hash() ?>' }, function() {
+            $.post('<?= site_url('api/agent/start') ?>', {
+                'job_name': jobName,
+                '<?= csrf_token() ?>': '<?= csrf_hash() ?>'
+            }, function() {
                 alert(jobName + ': ' + LANG.job_started);
                 renderAgentJobs();
             }).fail(function() {
@@ -779,9 +797,10 @@
 
         $('#agent-jobs-container').on('click', '.stop-job', function() {
             const jobName = $(this).data('job-name');
-            $.post('<?= site_url(
-                'api/agent/stop',
-            ) ?>', { 'job_name': jobName, '<?= csrf_token() ?>': '<?= csrf_hash() ?>' }, function() {
+            $.post('<?= site_url('api/agent/stop') ?>', {
+                'job_name': jobName,
+                '<?= csrf_token() ?>': '<?= csrf_hash() ?>'
+            }, function() {
                 alert(jobName + ': ' + LANG.job_stopped);
                 renderAgentJobs();
             }).fail(function() {
@@ -795,7 +814,7 @@
             displayJobHistory(jobName);
         });
 
-        $('#db-selector-list').on('click', 'a', function (e) {
+        $('#db-selector-list').on('click', 'a', function(e) {
             e.preventDefault();
             const dbName = $(this).data('dbname');
             const currentDbName = $('#active-database-name').text().trim();
@@ -818,7 +837,7 @@
         });
 
         let searchTimeout = false;
-        $('#object-search-input').on('keyup', function () {
+        $('#object-search-input').on('keyup', function() {
             if (searchTimeout) clearTimeout(searchTimeout);
             searchTimeout = setTimeout(() => {
                 const searchTerm = $("#object-search-input").val();
@@ -832,22 +851,22 @@
         });
 
         $('#theme-toggle-btn').on('click', () => {
-            const isLight = document.body.classList.contains("light-theme");
+            const isLight = $('body').hasClass("light-theme");
             themeManager.applyTheme(isLight ? "dark" : "light");
         });
 
-        $('#query-history-list').on('click', 'li', function () {
+        $('#query-history-list').on('click', 'li', function() {
             const query = $(this).data("query");
             if (query) editor.setValue(query);
         });
 
-        $('#saved-scripts-list').on('click', '.load-script', function () {
+        $('#saved-scripts-list').on('click', '.load-script', function() {
             const index = $(this).data("index");
             const scripts = getSavedScripts();
             if (scripts[index]) editor.setValue(scripts[index].sql);
         });
 
-        $('#saved-scripts-list').on('click', '.delete-script', function () {
+        $('#saved-scripts-list').on('click', '.delete-script', function() {
             const index = $(this).data("index");
             let scripts = getSavedScripts();
             if (confirm(LANG.confirm_delete_script.replace('{0}', scripts[index].name))) {
@@ -863,13 +882,16 @@
             const name = prompt(LANG.prompt_script_name, LANG.script_name_default);
             if (name) {
                 const scripts = getSavedScripts();
-                scripts.unshift({ name: name, sql: sql });
+                scripts.unshift({
+                    name: name,
+                    sql: sql
+                });
                 localStorage.setItem("querysphere_scripts", JSON.stringify(scripts));
                 renderSavedScripts();
             }
         });
 
-        $('#share-script-btn').on('click', function () {
+        $('#share-script-btn').on('click', function() {
             const sql = editor.getValue();
             if (sql.trim() === '') return alert(LANG.empty_shared_script_alert);
             const name = prompt(LANG.prompt_shared_name, LANG.shared_name_default);
@@ -877,24 +899,29 @@
             const author = prompt(LANG.prompt_author, LANG.author_default);
             if (!author) return;
 
-            $.post('<?= site_url(
-                'api/shared-queries',
-            ) ?>', { name, author, sql, '<?= csrf_token() ?>': '<?= csrf_hash() ?>' })
+            $.post('<?= site_url('api/shared-queries') ?>', {
+                    name,
+                    author,
+                    sql,
+                    '<?= csrf_token() ?>': '<?= csrf_hash() ?>'
+                })
                 .done(() => renderSharedScripts())
                 .fail(() => alert(LANG.share_fail));
         });
 
-        $('#shared-scripts-list').on('click', '.load-shared-script', function () {
+        $('#shared-scripts-list').on('click', '.load-shared-script', function() {
             editor.setValue($(this).data('sql'));
         });
 
-        $('#shared-scripts-list').on('click', '.delete-shared-script', function () {
+        $('#shared-scripts-list').on('click', '.delete-shared-script', function() {
             const queryId = $(this).data('id');
             if (confirm(LANG.confirm_delete_shared)) {
                 $.ajax({
                     url: `<?= site_url('api/shared-queries') ?>/${queryId}`,
                     method: 'DELETE',
-                    headers: { 'X-CSRF-TOKEN': '<?= csrf_hash() ?>' },
+                    headers: {
+                        'X-CSRF-TOKEN': '<?= csrf_hash() ?>'
+                    },
                     success: () => renderSharedScripts(),
                     error: () => alert(LANG.delete_shared_fail)
                 });
@@ -913,12 +940,12 @@
             }
         });
 
-        $('#resultsTab').on('shown.bs.tab', 'button.dynamic-tab', function (event) {
+        $('#resultsTab').on('shown.bs.tab', 'button.dynamic-tab', function(event) {
             const activeTabIndex = parseInt(event.target.id.split("-")[2]);
             updateChartButtonAndOptions(activeTabIndex);
         });
 
-        $('#export-csv-btn').on('click', function () {
+        $('#export-csv-btn').on('click', function() {
             if (!lastResultData) return;
             const activeTabIndex = $('#resultsTab button.dynamic-tab.active').attr('id')?.split('-')[2] || 0;
             const activeResult = lastResultData.results[activeTabIndex];
@@ -927,7 +954,7 @@
             }
         });
 
-        $('#export-json-btn').on('click', function () {
+        $('#export-json-btn').on('click', function() {
             if (!lastResultData) return;
             const activeTabIndex = $('#resultsTab button.dynamic-tab.active').attr('id')?.split('-')[2] || 0;
             const activeResult = lastResultData.results[activeTabIndex];
@@ -965,7 +992,8 @@
 
             const labels = activeResult.data.map(row => row[labelCol]);
             const values = activeResult.data.map(row => parseFloat(row[valueCol]));
-            const ctx = document.getElementById('myChart').getContext('2d');
+
+            const ctx = $('#myChart').get(0).getContext('2d');
 
             if (myChart) myChart.destroy();
 
@@ -1003,21 +1031,21 @@
                 success: (response) => {
                     const planContainer = $('#execution-plan');
                     planContainer.empty();
-    
-                    QP.showPlan(planContainer.get(0), response.plan);
 
-                    new bootstrap.Tab(document.getElementById('plan-tab')).show();
+                    QP.showPlan(planContainer.get(0), response.plan);
+                    
+                    new bootstrap.Tab($('#plan-tab')[0]).show();
                 },
                 error: (xhr) => {
                     const errorMsg = xhr.responseJSON?.messages?.error?.message || xhr.responseText || "Ocorreu um erro.";
                     $('#messages-content').html(
                         `<div class="alert alert-danger m-2">
-                            <h5 class="alert-heading">${LANG.exec_error}</h5>
-                            <hr>
-                            <p class="mb-0">${$('<div>').text(errorMsg).html()}</p>
-                        </div>`
+                                <h5 class="alert-heading">${LANG.exec_error}</h5>
+                                <hr>
+                                <p class="mb-0">${$('<div>').text(errorMsg).html()}</p>
+                            </div>`
                     );
-                    new bootstrap.Tab(document.getElementById('messages-tab')).show();
+                    new bootstrap.Tab($('#messages-tab')[0]).show();
                 },
                 complete: () => btn.prop('disabled', false).html(
                     `<i class="fa fa-sitemap me-1"></i> <?= lang(
@@ -1027,7 +1055,7 @@
             });
         });
 
-        $('#templates-tab').on('click', '.load-template', function (e) {
+        $('#templates-tab').on('click', '.load-template', function(e) {
             e.preventDefault();
             const categoryKey = $(this).data('category');
             const filename = $(this).data('filename');
@@ -1046,7 +1074,7 @@
                         finalSql = finalSql.replace(/'NOME_DA_SUA_TABELA'/g, objectName);
                         finalSql = finalSql.replace(/'schema.NomeDoObjeto'/g, objectName);
                     } else {
-                        return; // Usuário cancelou
+                        return;
                     }
                 }
 
