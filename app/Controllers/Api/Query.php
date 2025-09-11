@@ -3,8 +3,8 @@
 namespace App\Controllers\Api;
 
 use App\Controllers\BaseController;
-use App\Models\SqlServerModel;
 use CodeIgniter\API\ResponseTrait;
+use App\Factories\DatabaseModelFactory;
 
 /**
  * Controller responsible for executing SQL queries and explaining execution plans via the API.
@@ -20,16 +20,16 @@ class Query extends BaseController
 
     /**
      * Instance of the model for accessing the SQL Server.
-     * @var SqlServerModel
+     * @var nDatabaseModelFactory
      */
     private $model;
 
     /**
-     * Constructor: initializes the SqlServerModel.
+     * Constructor: initializes the nDatabaseModelFactory.
      */
     public function __construct()
     {
-        $this->model = new SqlServerModel();
+        $this->model = DatabaseModelFactory::create();
     }
 
     /**

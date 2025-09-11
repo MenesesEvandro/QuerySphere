@@ -68,6 +68,22 @@
         <?= form_open('connect') ?>
             <div id="new-connection-form">
                 <div class="mb-3">
+                    <label for="db_type" class="form-label"><?= lang(
+                        'App.connection.db_type',
+                    ) ?></label>
+                    <select class="form-select" id="db_type" name="db_type">
+                        <option value="sqlsrv" selected><?= lang(
+                            'App.connection.sql_server',
+                        ) ?></option>
+                        <option value="mysql" disabled><?= lang(
+                            'App.connection.mysql',
+                        ) ?></option>
+                        <option value="pgsql" disabled><?= lang(
+                            'App.connection.postgresql',
+                        ) ?></option>
+                    </select>
+                </div>
+                <div class="mb-3">
                     <label for="host" class="form-label"><?= lang(
                         'App.connection.host',
                     ) ?></label>

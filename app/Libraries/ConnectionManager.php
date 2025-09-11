@@ -25,6 +25,7 @@ class ConnectionManager
     public function storeCredentials(array $credentials): void
     {
         $sessionData = [
+            'db_type' => $credentials['db_type'],
             'db_host' => $credentials['host'],
             'db_database' => $credentials['database'],
             'db_user' => $credentials['user'],
@@ -53,6 +54,7 @@ class ConnectionManager
         }
 
         return [
+            'db_type' => session()->get('db_type'),
             'host' => session()->get('db_host'),
             'database' => session()->get('db_database'),
             'user' => session()->get('db_user'),

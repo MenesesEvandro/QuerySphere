@@ -3,8 +3,9 @@
 namespace App\Controllers\Api;
 
 use App\Controllers\BaseController;
-use App\Models\SqlServerModel;
 use CodeIgniter\API\ResponseTrait;
+use App\Factories\DatabaseModelFactory;
+
 
 /**
  * Controller responsible for managing SQL Server Agent jobs via the API.
@@ -22,7 +23,7 @@ class Agent extends BaseController
 
     public function __construct()
     {
-        $this->model = new SqlServerModel();
+        $this->model = DatabaseModelFactory::create();
     }
 
     /**

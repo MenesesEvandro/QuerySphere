@@ -3,8 +3,8 @@
 namespace App\Controllers\Api;
 
 use App\Controllers\BaseController;
-use App\Models\SqlServerModel;
 use CodeIgniter\API\ResponseTrait;
+use App\Factories\DatabaseModelFactory;
 
 /**
  * Controller responsible for providing SQL autocompletion (Intellisense) data via the API.
@@ -22,7 +22,7 @@ class Intellisense extends BaseController
     /**
      * Retrieves the database schema for SQL autocompletion.
      *
-     * This method instantiates the SqlServerModel and calls the method responsible
+     * This method instantiates the nDatabaseModelFactory and calls the method responsible
      * for querying the database metadata. It then returns the structured schema
      * as a JSON response, which the frontend uses to power the Intellisense feature.
      *
@@ -30,7 +30,7 @@ class Intellisense extends BaseController
      */
     public function index()
     {
-        $model = new SqlServerModel();
+        $model = nDatabaseModelFactory::create();
         $schema = $model->getAutocompletionSchema();
         return $this->respond($schema);
     }

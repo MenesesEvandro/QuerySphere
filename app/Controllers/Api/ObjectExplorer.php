@@ -3,8 +3,8 @@
 namespace App\Controllers\Api;
 
 use App\Controllers\BaseController;
-use App\Models\SqlServerModel;
 use CodeIgniter\API\ResponseTrait;
+use App\Factories\DatabaseModelFactory;
 
 /**
  * Controller for exploring database objects via the API.
@@ -25,11 +25,11 @@ class ObjectExplorer extends BaseController
     private $model;
 
     /**
-     * Constructor: initializes the SqlServerModel.
+     * Constructor: initializes the nDatabaseModelFactory.
      */
     public function __construct()
     {
-        $this->model = new SqlServerModel();
+        $this->model = DatabaseModelFactory::create();
     }
 
     /**

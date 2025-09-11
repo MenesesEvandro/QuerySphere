@@ -4,7 +4,8 @@ namespace App\Controllers;
 
 use App\Controllers\BaseController;
 use App\Libraries\ConnectionManager;
-use App\Models\SqlServerModel;
+use App\Factories\DatabaseModelFactory;
+
 
 /**
  * Controller responsible for managing database connections.
@@ -30,6 +31,7 @@ class Connection extends BaseController
         // Surgically remove connection-specific keys, preserving language preference.
         session()->remove([
             'is_connected',
+            'db_type',
             'db_host',
             'db_database',
             'db_user',
@@ -68,6 +70,7 @@ class Connection extends BaseController
         }
 
         $credentials = [
+            'db_type' => $this->request->getPost('db_type'),
             'host' => $this->request->getPost('host'),
             'database' => $this->request->getPost('database'),
             'user' => $this->request->getPost('user'),
@@ -78,8 +81,10 @@ class Connection extends BaseController
                 : false,
         ];
 
-        $sqlServerModel = new SqlServerModel();
-        $connectionResult = $sqlServerModel->tryConnect($credentials);
+        $model = \App\Factories\DatabaseModelFactory::create(
+            $credentials['db_type'],
+        );
+        $connectionResult = $model->tryConnect($credentials);
 
         if ($connectionResult['status'] === true) {
             $connManager = new ConnectionManager();

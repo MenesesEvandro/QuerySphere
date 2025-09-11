@@ -4,6 +4,7 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 use App\Libraries\DatabaseConnector;
+use App\Interfaces\DatabaseModelInterface;
 
 /**
  * The primary data access layer for interacting with a Microsoft SQL Server database.
@@ -14,7 +15,7 @@ use App\Libraries\DatabaseConnector;
  *
  * @package App\Models
  */
-class SqlServerModel extends Model
+class SqlServerModel extends Model implements DatabaseModelInterface
 {
     /**
      * The active SQL Server connection resource, obtained from the shared connector.

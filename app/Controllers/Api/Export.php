@@ -3,7 +3,7 @@
 namespace App\Controllers\Api;
 
 use App\Controllers\BaseController;
-use App\Models\SqlServerModel;
+use App\Factories\DatabaseModelFactory;
 
 /**
  * Controller responsible for exporting data in different formats via the API.
@@ -31,7 +31,7 @@ class Export extends BaseController
             exit(lang('App.feedback.noquery_to_export'));
         }
 
-        $model = new SqlServerModel();
+        $model = DatabaseModelFactory::create();
         $result = $model->executeQuery($sql);
 
         if ($result['status'] === 'success' && !empty($result['data'])) {
@@ -67,7 +67,7 @@ class Export extends BaseController
             exit(lang('App.feedback.noquery_to_export'));
         }
 
-        $model = new SqlServerModel();
+        $model = DatabaseModelFactory::create();
         $result = $model->executeQuery($sql);
 
         if ($result['status'] === 'success' && !empty($result['data'])) {
