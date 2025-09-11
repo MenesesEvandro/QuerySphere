@@ -319,10 +319,20 @@
         const $trustCertCheckbox = $('#trust-cert');
         const $manageModalElement = $('#manageConnectionsModal');
         const $newConnectionForm = $('#new-connection-form');
-        // Note: Bootstrap constructors expect a DOM element, not a jQuery object. Use [0] or .get(0).
         const manageModal = new bootstrap.Modal($manageModalElement[0]);
         const masterPasswordModal = new bootstrap.Modal($('#masterPasswordModal')[0]);
         let masterPassword = null;
+        const portInput = $('#port');
+
+         $('#db_type').on('change', function() {
+            let selectedValue = $(this).val();
+
+            if (selectedValue === 'mysql') {
+                portInput.val('3306');
+            } else if (selectedValue === 'sqlsrv') {
+                portInput.val('1433');
+            }
+        });
 
         // Validate master password
         function validateMasterPassword(password) {
@@ -479,7 +489,6 @@
         // Prompt for master password
         function promptMasterPassword(callback) {
             const $input = $('#master-password-input').val('');
-            // Use .off().on() to avoid attaching multiple click handlers
             $('#master-password-submit').off('click').on('click', async () => {
                 const password = $input.val();
                 if (!validateMasterPassword(password)) {

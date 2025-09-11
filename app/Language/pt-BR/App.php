@@ -50,7 +50,7 @@ return [
         'changing' => 'Alterando ...',
         'db_type' => 'Tipo de Banco de Dados',
         'sql_server' => 'SQL Server',
-        'mysql' => 'MySQL (em breve)',
+        'mysql' => 'MySQL',
         'postgresql' => 'PostgreSQL (em breve)',
         'host' => 'Host (Endereço do Servidor)',
         'port' => 'Porta',

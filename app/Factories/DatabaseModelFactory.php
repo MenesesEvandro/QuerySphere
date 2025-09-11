@@ -24,7 +24,8 @@ class DatabaseModelFactory
         switch ($dbType) {
             case 'sqlsrv':
                 return new SqlServerModel();
-
+            case 'mysql':
+                return new MySqlModel();
             default:
                 throw new RuntimeException(
                     "Unsupported database type: {$dbType}",
