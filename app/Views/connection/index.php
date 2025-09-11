@@ -75,7 +75,7 @@
                         <option value="sqlsrv" selected><?= lang(
                             'App.connection.sql_server',
                         ) ?></option>
-                        <option value="mysql" disabled><?= lang(
+                        <option value="mysql"><?= lang(
                             'App.connection.mysql',
                         ) ?></option>
                         <option value="pgsql" disabled><?= lang(
@@ -243,6 +243,7 @@
     </div>
 </div>
 
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 
 <script>
@@ -275,13 +276,13 @@
         ) ?>"
     };
 
-    document.addEventListener('DOMContentLoaded', async function () {
+    $(async function () {
         // Check for HTTPS and Web Crypto API support
         if (window.location.protocol !== 'https:') {
-            document.querySelector('.https-warning').style.display = 'block';
+            $('.https-warning').show();
         }
         if (!window.crypto || !window.crypto.subtle) {
-            document.querySelector('.crypto-warning').style.display = 'block';
+            $('.crypto-warning').show();
             return;
         }
 
@@ -307,19 +308,20 @@
         }
 
         const STORAGE_KEY = 'querysphere_connections';
-        const form = document.querySelector('form');
-        const connectionSelect = document.getElementById('connection-select');
-        const saveCheckbox = document.getElementById('save-connection-checkbox');
-        const hostInput = document.getElementById('host');
-        const portInput = document.getElementById('port');
-        const databaseInput = document.getElementById('database');
-        const userInput = document.getElementById('user');
-        const passwordInput = document.getElementById('password');
-        const trustCertCheckbox = document.getElementById('trust-cert');
-        const manageModalElement = document.getElementById('manageConnectionsModal');
-        const newConnectionForm = document.getElementById('new-connection-form');
-        const manageModal = new bootstrap.Modal(manageModalElement);
-        const masterPasswordModal = new bootstrap.Modal(document.getElementById('masterPasswordModal'));
+        const $form = $('form');
+        const $connectionSelect = $('#connection-select');
+        const $saveCheckbox = $('#save-connection-checkbox');
+        const $hostInput = $('#host');
+        const $portInput = $('#port');
+        const $databaseInput = $('#database');
+        const $userInput = $('#user');
+        const $passwordInput = $('#password');
+        const $trustCertCheckbox = $('#trust-cert');
+        const $manageModalElement = $('#manageConnectionsModal');
+        const $newConnectionForm = $('#new-connection-form');
+        // Note: Bootstrap constructors expect a DOM element, not a jQuery object. Use [0] or .get(0).
+        const manageModal = new bootstrap.Modal($manageModalElement[0]);
+        const masterPasswordModal = new bootstrap.Modal($('#masterPasswordModal')[0]);
         let masterPassword = null;
 
         // Validate master password
@@ -341,18 +343,12 @@
                 false,
                 ['deriveKey']
             );
-            return window.crypto.subtle.deriveKey(
-                {
-                    name: 'PBKDF2',
-                    salt: salt,
-                    iterations: 100000,
-                    hash: 'SHA-256'
-                },
-                keyMaterial,
-                { name: 'AES-GCM', length: 256 },
-                false,
-                ['encrypt', 'decrypt']
-            );
+            return window.crypto.subtle.deriveKey({
+                name: 'PBKDF2',
+                salt: salt,
+                iterations: 100000,
+                hash: 'SHA-256'
+            }, keyMaterial, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
         }
 
         // Encrypt data with AES-GCM
@@ -361,11 +357,7 @@
             const salt = window.crypto.getRandomValues(new Uint8Array(16));
             const iv = window.crypto.getRandomValues(new Uint8Array(12));
             const key = await deriveKey(masterPassword, salt);
-            const encrypted = await window.crypto.subtle.encrypt(
-                { name: 'AES-GCM', iv: iv },
-                key,
-                enc.encode(JSON.stringify(data))
-            );
+            const encrypted = await window.crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, key, enc.encode(JSON.stringify(data)));
             return {
                 ct: arrayBufferToBase64(encrypted),
                 iv: arrayBufferToBase64(iv),
@@ -380,11 +372,7 @@
                 const iv = base64ToArrayBuffer(encryptedData.iv);
                 const ct = base64ToArrayBuffer(encryptedData.ct);
                 const key = await deriveKey(masterPassword, salt);
-                const decrypted = await window.crypto.subtle.decrypt(
-                    { name: 'AES-GCM', iv: iv },
-                    key,
-                    ct
-                );
+                const decrypted = await window.crypto.subtle.decrypt({ name: 'AES-GCM', iv: iv }, key, ct);
                 return JSON.parse(new TextDecoder().decode(decrypted));
             } catch (e) {
                 return null;
@@ -431,68 +419,69 @@
 
         // Load connections into select
         function loadConnectionsIntoSelect() {
-            connectionSelect.innerHTML = `<option value="new">-- ${LANG.new_connection} --</option>`;
+            $connectionSelect.empty().append($('<option>', {
+                value: 'new',
+                text: `-- ${LANG.new_connection} --`
+            }));
             const names = getSavedConnectionNames();
-            names.forEach((name, index) => {
-                const option = new Option(escapeHtml(name), index);
-                connectionSelect.add(option);
+            $.each(names, function (index, name) {
+                const $option = $('<option>', {
+                    value: index,
+                    text: escapeHtml(name)
+                });
+                $connectionSelect.append($option);
             });
         }
 
         // Fill form with connection data
         function fillFormWithConnectionData(connection, includePassword = true) {
-            hostInput.value = escapeHtml(connection.host || '');
-            portInput.value = connection.port || '';
-            databaseInput.value = escapeHtml(connection.db_database || '');
-            userInput.value = escapeHtml(connection.user || '');
-            trustCertCheckbox.checked = connection.trust_cert || false;
-            passwordInput.value = includePassword ? escapeHtml(connection.password || '') : '';
-            passwordInput.focus();
+            $hostInput.val(escapeHtml(connection.host || ''));
+            $portInput.val(connection.port || '');
+            $databaseInput.val(escapeHtml(connection.db_database || ''));
+            $userInput.val(escapeHtml(connection.user || ''));
+            $trustCertCheckbox.prop('checked', connection.trust_cert || false);
+            $passwordInput.val(includePassword ? escapeHtml(connection.password || '') : '');
+            $passwordInput.focus();
         }
 
         // Render connections in modal
         async function renderConnectionsInModal() {
             const connections = await getSavedConnections(masterPassword);
-            const container = document.getElementById('connections-list-container');
-            container.innerHTML = '';
+            const $container = $('#connections-list-container').empty();
+
             if (connections.length === 0) {
-                const p = document.createElement('p');
-                p.className = 'text-muted';
-                p.textContent = LANG.no_saved_connections;
-                container.appendChild(p);
+                $container.append(`<p class="text-muted">${LANG.no_saved_connections}</p>`);
                 return;
             }
-            const table = document.createElement('table');
-            table.className = 'table table-hover';
-            const thead = document.createElement('thead');
-            thead.innerHTML = `<tr><th>${escapeHtml(LANG.connection)}</th><th class="text-end">${escapeHtml(LANG.actions)}</th></tr>`;
-            const tbody = document.createElement('tbody');
-            connections.forEach((conn, index) => {
-                const tr = document.createElement('tr');
-                const tdName = document.createElement('td');
-                tdName.textContent = conn.name;
-                const tdActions = document.createElement('td');
-                tdActions.className = 'text-end';
-                const button = document.createElement('button');
-                button.className = 'btn btn-sm btn-danger delete-connection-btn';
-                button.dataset.index = index;
-                button.title = LANG.delete;
-                button.setAttribute('aria-label', `Delete ${escapeHtml(conn.name)}`);
-                button.innerHTML = '<i class="fa fa-trash" aria-hidden="true"></i>';
-                tdActions.appendChild(button);
-                tr.append(tdName, tdActions);
-                tbody.appendChild(tr);
+
+            const $table = $('<table>').addClass('table table-hover');
+            const $thead = $('<thead>').html(`<tr><th>${escapeHtml(LANG.connection)}</th><th class="text-end">${escapeHtml(LANG.actions)}</th></tr>`);
+            const $tbody = $('<tbody>');
+
+            $.each(connections, function (index, conn) {
+                const $button = $('<button>').addClass('btn btn-sm btn-danger delete-connection-btn')
+                    .data('index', index)
+                    .attr('title', LANG.delete)
+                    .attr('aria-label', `Delete ${escapeHtml(conn.name)}`)
+                    .html('<i class="fa fa-trash" aria-hidden="true"></i>');
+                
+                const $tr = $('<tr>').append(
+                    $('<td>').text(conn.name),
+                    $('<td>').addClass('text-end').append($button)
+                );
+                $tbody.append($tr);
             });
-            table.append(thead, tbody);
-            container.appendChild(table);
+
+            $table.append($thead, $tbody);
+            $container.append($table);
         }
 
         // Prompt for master password
         function promptMasterPassword(callback) {
-            const input = document.getElementById('master-password-input');
-            input.value = '';
-            document.getElementById('master-password-submit').onclick = async () => {
-                const password = input.value;
+            const $input = $('#master-password-input').val('');
+            // Use .off().on() to avoid attaching multiple click handlers
+            $('#master-password-submit').off('click').on('click', async () => {
+                const password = $input.val();
                 if (!validateMasterPassword(password)) {
                     alert(LANG.invalid_master_password);
                     masterPasswordModal.hide();
@@ -502,41 +491,32 @@
                 masterPassword = password;
                 masterPasswordModal.hide();
                 callback(true, password);
-            };
+            });
             masterPasswordModal.show();
-            input.focus();
+            $input.focus();
         }
 
         // Handle connection select change
-        connectionSelect.addEventListener('change', async function () {
-            const selectedIndex = this.value;
+        $connectionSelect.on('change', async function () {
+            const selectedIndex = $(this).val();
             if (selectedIndex === 'new') {
-                newConnectionForm.style.display = 'block';
-                saveCheckbox.disabled = false;
-                saveCheckbox.checked = false;
-                form.reset();
+                $newConnectionForm.show();
+                $saveCheckbox.prop('disabled', false).prop('checked', false);
+                $form[0].reset();
             } else {
-                newConnectionForm.style.display = 'block';
-                saveCheckbox.disabled = true;
-                saveCheckbox.checked = false;
+                $newConnectionForm.show();
+                $saveCheckbox.prop('disabled', true).prop('checked', false);
                 promptMasterPassword(async (isValid, password) => {
                     const connections = await getSavedConnections(password);
                     const names = getSavedConnectionNames();
                     if (!names[selectedIndex]) return;
                     const connection = {
                         name: names[selectedIndex],
-                        host: '',
-                        port: '',
-                        db_database: '',
-                        user: '',
-                        trust_cert: false,
-                        password: ''
+                        host: '', port: '', db_database: '', user: '', trust_cert: false, password: ''
                     };
                     if (isValid && connections[selectedIndex]) {
-                        // Correct password: fill all fields
                         fillFormWithConnectionData(connections[selectedIndex], true);
                     } else {
-                        // Incorrect password: fill all fields except password
                         if (connections[selectedIndex]) {
                             fillFormWithConnectionData(connections[selectedIndex], false);
                         } else {
@@ -551,42 +531,42 @@
         });
 
         // Form submission with validation
-        form.addEventListener('submit', async function (e) {
-            const host = hostInput.value.trim();
-            const port = parseInt(portInput.value);
-            const database = databaseInput.value.trim();
-            const user = userInput.value.trim();
-            const password = passwordInput.value;
+        $form.on('submit', async function (e) {
+            const host = $hostInput.val().trim();
+            const port = parseInt($portInput.val());
+            const database = $databaseInput.val().trim();
+            const user = $userInput.val().trim();
+            const password = $passwordInput.val();
 
             // Validate inputs
-            if (!host || host.length > 255) {
-                e.preventDefault();
-                alert('Invalid host');
-                return;
-            }
-            if (isNaN(port) || port < 1 || port > 65535) {
-                e.preventDefault();
-                alert(LANG.invalid_number);
-                return;
-            }
-            if (database && database.length > 255) {
-                e.preventDefault();
-                alert('Invalid database name');
-                return;
-            }
-            if (!user || user.length > 255) {
-                e.preventDefault();
-                alert('Invalid user');
-                return;
-            }
+            if (!host || host.length > 255) { e.preventDefault(); alert('Invalid host'); return; }
+            if (isNaN(port) || port < 1 || port > 65535) { e.preventDefault(); alert(LANG.invalid_number); return; }
+            if (database && database.length > 255) { e.preventDefault(); alert('Invalid database name'); return; }
+            if (!user || user.length > 255) { e.preventDefault(); alert('Invalid user'); return; }
 
-            if (saveCheckbox.checked && connectionSelect.value === 'new') {
+            if ($saveCheckbox.prop('checked') && $connectionSelect.val() === 'new') {
                 e.preventDefault();
-                const connectionName = prompt(LANG.prompt_connection_name, hostInput.value);
+                const connectionName = prompt(LANG.prompt_connection_name, $hostInput.val());
                 if (!connectionName || connectionName.length > 255) {
                     alert('Invalid connection name');
                     return;
                 }
+
+                const saveAndSubmit = async (password) => {
+                    const newConnection = {
+                        name: connectionName,
+                        host: $hostInput.val(),
+                        port: $portInput.val(),
+                        db_database: $databaseInput.val(),
+                        user: $userInput.val(),
+                        trust_cert: $trustCertCheckbox.prop('checked'),
+                        password: $passwordInput.val()
+                    };
+                    const connections = await getSavedConnections(password);
+                    connections.push(newConnection);
+                    await saveConnections(connections, password);
+                    $form[0].submit();
+                };
 
                 if (!masterPassword) {
                     promptMasterPassword(async (isValid, password) => {
@@ -594,40 +574,16 @@
                             alert(LANG.invalid_master_password);
                             return;
                         }
-                        const newConnection = {
-                            name: connectionName,
-                            host: hostInput.value,
-                            port: portInput.value,
-                            db_database: databaseInput.value,
-                            user: userInput.value,
-                            trust_cert: trustCertCheckbox.checked,
-                            password: passwordInput.value
-                        };
-                        const connections = await getSavedConnections(password);
-                        connections.push(newConnection);
-                        await saveConnections(connections, password);
-                        form.submit();
+                        await saveAndSubmit(password);
                     });
                 } else {
-                    const newConnection = {
-                        name: connectionName,
-                        host: hostInput.value,
-                        port: portInput.value,
-                        db_database: databaseInput.value,
-                        user: userInput.value,
-                        trust_cert: trustCertCheckbox.checked,
-                        password: passwordInput.value
-                    };
-                    const connections = await getSavedConnections(masterPassword);
-                    connections.push(newConnection);
-                    await saveConnections(connections, masterPassword);
-                    form.submit();
+                    await saveAndSubmit(masterPassword);
                 }
             }
         });
 
         // Manage connections modal
-        document.getElementById('manage-connections-btn').addEventListener('click', function () {
+        $('#manage-connections-btn').on('click', function () {
             if (!masterPassword) {
                 promptMasterPassword(async (isValid, password) => {
                     if (!isValid) {
@@ -643,31 +599,29 @@
             }
         });
 
-        // Handle delete connection
-        manageModalElement.addEventListener('click', async function (e) {
-            if (e.target.classList.contains('delete-connection-btn') || e.target.parentElement.classList.contains('delete-connection-btn')) {
-                const button = e.target.classList.contains('delete-connection-btn') ? e.target : e.target.parentElement;
-                const index = parseInt(button.dataset.index);
-                const connections = await getSavedConnections(masterPassword);
-                if (confirm(LANG.confirm_delete_connection.replace('{0}', escapeHtml(connections[index].name)))) {
-                    connections.splice(index, 1);
-                    await saveConnections(connections, masterPassword);
-                    await renderConnectionsInModal();
-                    if (connectionSelect.value == index) {
-                        connectionSelect.value = 'new';
-                        form.reset();
-                    }
+        // Handle delete connection using event delegation
+        $manageModalElement.on('click', '.delete-connection-btn', async function () {
+            const $button = $(this);
+            const index = parseInt($button.data('index'));
+            const connections = await getSavedConnections(masterPassword);
+            if (confirm(LANG.confirm_delete_connection.replace('{0}', escapeHtml(connections[index].name)))) {
+                connections.splice(index, 1);
+                await saveConnections(connections, masterPassword);
+                await renderConnectionsInModal();
+                if ($connectionSelect.val() == index) {
+                    $connectionSelect.val('new');
+                    $form[0].reset();
                 }
             }
         });
 
         // Clear all connections
-        document.getElementById('clear-connections-btn').addEventListener('click', async function () {
+        $('#clear-connections-btn').on('click', async function () {
             if (confirm(LANG.confirm_clear_connections)) {
                 localStorage.removeItem(STORAGE_KEY);
                 await renderConnectionsInModal();
-                connectionSelect.value = 'new';
-                form.reset();
+                $connectionSelect.val('new');
+                $form[0].reset();
                 loadConnectionsIntoSelect();
             }
         });
