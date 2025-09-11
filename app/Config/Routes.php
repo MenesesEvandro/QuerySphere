@@ -74,5 +74,13 @@ $routes->group('', ['filter' => 'auth'], static function ($routes) {
         $routes->post('agent/start', 'Api\Agent::startJob');
         $routes->post('agent/stop', 'Api\Agent::stopJob');
         $routes->get('agent/history/(:any)', 'Api\Agent::jobHistory/$1');
+
+        // MySQL Events
+        $routes->get('mysql/events', 'Api\MySqlEvents::index');
+        $routes->post('mysql/events/toggle', 'Api\MySqlEvents::toggleStatus');
+        $routes->get(
+            'mysql/events/definition/(:any)',
+            'Api\MySqlEvents::definition/$1',
+        );
     });
 });

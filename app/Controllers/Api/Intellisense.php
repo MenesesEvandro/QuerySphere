@@ -30,7 +30,7 @@ class Intellisense extends BaseController
      */
     public function index()
     {
-        $model = nDatabaseModelFactory::create();
+        $model = DatabaseModelFactory::create();
         $schema = $model->getAutocompletionSchema();
         return $this->respond($schema);
     }

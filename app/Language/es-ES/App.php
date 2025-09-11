@@ -23,7 +23,9 @@ return [
         'select' => 'Seleccione...',
         'status' => 'Estado',
         'unknown' => 'Desconocido',
+        'enable' => 'Habilitar',
         'enabled' => 'Habilitado',
+        'disable' => 'Deshabilitar',
         'disabled' => 'Deshabilitado',
         'not_found' => 'No encontrado',
         'running' => 'En ejecución',
@@ -218,6 +220,15 @@ return [
         'language_not_supported' => 'Idioma no soportado.',
         'invalid_number' => 'Número no válido.',
         'no_templates' => 'No se encontraron plantillas.',
+        'db_unsupported_feature' =>
+            'Esta característica no es compatible con la base de datos conectada.',
+        'db_invalid_operation' => 'Operación inválida.',
+        'db_object_type_not_supported' =>
+            'El tipo de objeto \'{0}\' no es compatible para la búsqueda de definiciones.',
+        'db_could_not_retrieve_definition' =>
+            'No se pudo recuperar la definición para el objeto `{0}`.',
+        'db_event_not_found' =>
+            'No se pudo recuperar la definición para el evento `{0}`.',
     ],
 
     //--------------------------------------------------------------------
@@ -301,6 +312,17 @@ return [
         'view_details' => 'Ver Detalles',
         'hide_details' => 'Ocultar Detalles',
         'no_details' => 'No hay detalles disponibles.',
+    ],
+
+    //--------------------------------------------------------------------
+    // MySQL Events
+    //--------------------------------------------------------------------
+    'event' => [
+        'title' => 'Eventos do MySQL',
+        'event_name' => 'Nombre del Evento',
+        'disable_event' => 'Deshabilitar Evento',
+        'enable_event' => 'Habilitar Evento',
+        'no_events_found' => 'No se encontraron eventos del MySQL.',
     ],
 
     //--------------------------------------------------------------------

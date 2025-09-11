@@ -23,7 +23,9 @@ return [
         'select' => 'Select...',
         'status' => 'Status',
         'unknown' => 'Unknown',
+        'enable' => 'Enable',
         'enabled' => 'Enabled',
+        'disable' => 'Disable',
         'disabled' => 'Disabled',
         'not_found' => 'Not found',
         'running' => 'Running',
@@ -208,6 +210,15 @@ return [
         'language_not_supported' => 'Language not supported.',
         'invalid_number' => 'Invalid number.',
         'no_templates' => 'No templates found.',
+        'db_unsupported_feature' =>
+            'This feature is not supported for the connected database.',
+        'db_invalid_operation' => 'Invalid operation.',
+        'db_object_type_not_supported' =>
+            'Object type \'{0}\' is not supported for definition lookup.',
+        'db_could_not_retrieve_definition' =>
+            'Could not retrieve definition for object `{0}`.',
+        'db_event_not_found' =>
+            'Could not retrieve definition for event `{0}`.',
     ],
 
     //--------------------------------------------------------------------
@@ -290,6 +301,17 @@ return [
         'view_details' => 'View Details',
         'hide_details' => 'Hide Details',
         'no_details' => 'No details available.',
+    ],
+
+    //--------------------------------------------------------------------
+    // MySQL Events
+    //--------------------------------------------------------------------
+    'event' => [
+        'title' => 'MySQL Events',
+        'event_name' => 'Event Name',
+        'disable_event' => 'Disable Event',
+        'enable_event' => 'Enable Event',
+        'no_events_found' => 'No MySQL Events found.',
     ],
 
     //--------------------------------------------------------------------

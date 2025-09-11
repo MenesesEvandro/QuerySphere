@@ -31,6 +31,7 @@ class Main extends BaseController
         $model = DatabaseModelFactory::create();
 
         $data = [
+            'db_type' => $this->session->get('db_type'),
             'db_host' => $this->session->get('db_host'),
             'db_user' => $this->session->get('db_user'),
             'db_database' => $this->session->get('db_database'),

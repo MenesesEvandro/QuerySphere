@@ -13,9 +13,18 @@
                     href="#objects-tab"><?= lang(
                         'App.workspace.objects',
                     ) ?></a></li>
-            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#agent-tab"><?= lang(
-                'App.agent.title',
-            ) ?></a></li>
+
+            <?php if ($db_type === 'sqlsrv'): ?>
+            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#agent-tab">
+                <?= lang('App.agent.title') ?></a></li>
+            <?php endif; ?>
+
+            <?php if ($db_type === 'mysql'): ?>
+                <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#events-tab">
+                <?= lang('App.event.title') ?>    
+                </a></li>
+            <?php endif; ?>
+
 
             <li class="nav-item"><a class="nav-link" data-bs-toggle="tab"
                     href="#history-tab"><?= lang(
@@ -50,9 +59,16 @@
             <div class="tab-pane h-100" id="templates-tab">
                 <div class="accordion" id="query-templates-accordion"></div>
             </div>
-            <div class="tab-pane h-100" id="agent-tab">
+            <?php if ($db_type === 'sqlsrv'): ?>
+                <div class="tab-pane h-100" id="agent-tab">
                 <div id="agent-jobs-container" class="p-2"></div>
             </div>
+            <?php endif; ?>
+            <?php if ($db_type === 'mysql'): ?>
+                <div class="tab-pane h-100" id="events-tab">
+                    <div id="mysql-events-container" class="p-2"></div>
+                </div>
+            <?php endif; ?>
         </div>
     </aside>
 

@@ -4,6 +4,7 @@ namespace App\Factories;
 
 use App\Interfaces\DatabaseModelInterface;
 use App\Models\SqlServerModel;
+use App\Models\MySqlModel;
 use RuntimeException;
 
 class DatabaseModelFactory

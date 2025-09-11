@@ -75,16 +75,16 @@ class SqlServerModel extends Model implements DatabaseModelInterface
             sqlsrv_close($conn);
             return [
                 'status' => true,
-                'message' => lang('App.connection_success'),
+                'message' => lang('App.feedback.connection_success'),
             ];
         } else {
             $errors = sqlsrv_errors();
-            $errorMessage = lang('App.connection_failed') . ' ';
+            $errorMessage = lang('App.feedback.connection_failed') . ' ';
             if (is_array($errors) && !empty($errors)) {
                 $errorMessage .=
-                    lang('App.details') . ': ' . $errors[0]['message'];
+                    lang('App.general.details') . ': ' . $errors[0]['message'];
             } else {
-                $errorMessage .= lang('App.check_credentials');
+                $errorMessage .= lang('App.feedback.check_credentials');
             }
             return ['status' => false, 'message' => $errorMessage];
         }
@@ -310,7 +310,10 @@ class SqlServerModel extends Model implements DatabaseModelInterface
         set_time_limit(300);
 
         if (!$this->hasConnection()) {
-            return ['status' => 'error', 'message' => lang('App.session_lost')];
+            return [
+                'status' => 'error',
+                'message' => lang('App.feedback.session_lost'),
+            ];
         }
 
         $startTime = microtime(true);
@@ -359,8 +362,9 @@ class SqlServerModel extends Model implements DatabaseModelInterface
             return [
                 'status' => 'error',
                 'message' =>
-                    lang('App.syntax_error') .
-                    ($errors[0]['message'] ?? lang('App.unknown_error')),
+                    lang('App.feedback.syntax_error') .
+                    ($errors[0]['message'] ??
+                        lang('App.feedback.unknown_error')),
             ];
         }
 
@@ -426,7 +430,10 @@ class SqlServerModel extends Model implements DatabaseModelInterface
     public function getExecutionPlan(string $sql): array
     {
         if (!$this->hasConnection()) {
-            return ['status' => 'error', 'message' => lang('App.session_lost')];
+            return [
+                'status' => 'error',
+                'message' => lang('App.feedback.session_lost'),
+            ];
         }
 
         sqlsrv_query($this->conn, 'SET SHOWPLAN_XML ON;');
@@ -451,7 +458,9 @@ class SqlServerModel extends Model implements DatabaseModelInterface
         if (empty($xmlPlan)) {
             return [
                 'status' => 'error',
-                'message' => lang('App.execution_plan_generation_failed'),
+                'message' => lang(
+                    'App.feedback.execution_plan_generation_failed',
+                ),
             ];
         }
 
@@ -504,6 +513,7 @@ class SqlServerModel extends Model implements DatabaseModelInterface
         string $database,
         string $schema,
         string $objectName,
+        string $type,
     ): ?string {
         if (!$this->hasConnection()) {
             return null;

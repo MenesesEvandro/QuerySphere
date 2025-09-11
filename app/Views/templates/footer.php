@@ -57,21 +57,16 @@
          */
         applyTheme: function (theme) {
             const isLight = (theme === 'light');
+            document.body.classList.toggle("light-theme", isLight);
 
-            // Usa o seletor do jQuery para o body e o método .toggleClass()
-            $('body').toggleClass('light-theme', isLight);
-
-            // Usa o seletor de ID do jQuery e o método .html() para definir o conteúdo
-            $('#theme-toggle-btn').html(isLight ?
+            document.getElementById("theme-toggle-btn").innerHTML = isLight ?
                 '<i class="fa fa-moon"></i>' :
-                '<i class="fa fa-sun"></i>'
-            );
+                '<i class="fa fa-sun"></i>';
 
-            localStorage.setItem('querysphere_theme', theme);
+            localStorage.setItem("querysphere_theme", theme);
 
-            // A interação com a API do editor (ex: CodeMirror) não muda
-            if (typeof editor !== 'undefined' && editor) {
-                editor.setOption('theme', isLight ? 'default' : 'material-darker');
+            if (typeof editor !== "undefined" && editor) {
+                editor.setOption("theme", isLight ? "default" : "material-darker");
             }
         },
 
@@ -80,14 +75,14 @@
          * ou detectando a preferência do sistema.
          */
         init: function () {
-            const savedTheme = localStorage.getItem('querysphere_theme');
+            const savedTheme = localStorage.getItem("querysphere_theme");
 
             if (savedTheme) {
                 this.applyTheme(savedTheme);
-            } else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) {
-                this.applyTheme('light');
+            } else if (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches) {
+                this.applyTheme("light");
             } else {
-                this.applyTheme('dark');
+                this.applyTheme("dark");
             }
         }
     };
@@ -164,7 +159,9 @@
         start_job: "<?= lang('App.agent.start_job') ?>",
         stop_job: "<?= lang('App.agent.stop_job') ?>",
         running: "<?= lang('App.general.running') ?>",
+        enable: "<?= lang('App.general.enable') ?>",
         enabled: "<?= lang('App.general.enabled') ?>",
+        disable: "<?= lang('App.general.disable') ?>",
         disabled: "<?= lang('App.general.disabled') ?>",
         success: "<?= lang('App.general.success') ?>",
         failed: "<?= lang('App.general.failed') ?>",
@@ -181,6 +178,10 @@
         job_start_failed: "<?= lang('App.agent.job_start_failed') ?>",
         job_stopped: "<?= lang('App.agent.job_stopped') ?>",
         job_stop_failed: "<?= lang('App.agent.job_stop_failed') ?>",
+        event_name: "<?= lang('App.event.event_name') ?>",
+        disable_event: "<?= lang('App.event.disable_event') ?>",
+        enable_event: "<?= lang('App.event.enable_event') ?>",
+
     };
 
     var lastResultData = null;
@@ -188,8 +189,11 @@
     var currentSql = '';
     var resultsDataTable = null;
     var isTemplateQuery = false;
+    const DB_TYPE = '<?= $db_type ?? '' ?>';
 
-    var editor = CodeMirror.fromTextArea($("#query-editor")[0], {
+    $(function() {
+    // Initialize CodeMirror editor
+    const editor = CodeMirror.fromTextArea($('#query-editor')[0], {
         lineNumbers: true,
         mode: 'text/x-mssql',
         theme: 'material-darker',
@@ -198,78 +202,183 @@
         extraKeys: {
             "Ctrl-Space": "autocomplete",
             "Alt-Space": "autocomplete",
-            "Ctrl-Enter": (cm) => $("#execute-query-btn").click(),
-            "F5": (cm) => $("#execute-query-btn").click(),
+            "Ctrl-Enter": () => $('#execute-query-btn').trigger('click'),
+            "F5": () => $('#execute-query-btn').trigger('click')
         },
-        hintOptions: {
-            tables: {}
-        }
+        hintOptions: { tables: {} }
     });
     editor.setSize("100%", "100%");
     editor.focus();
 
-    editor.on('change', function() {
+    // Editor change event
+    editor.on('change', () => {
         isTemplateQuery = false;
     });
 
+    // Export functions
     function exportToCsv(filename, headers, data) {
         const csvRows = [headers.join(',')];
-        for (const row of data) {
-            const values = headers.map(header => `"${('' + row[header]).replace(/"/g, '""')}"`);
+        $.each(data, (i, row) => {
+            const values = $.map(headers, header => `"${('' + row[header]).replace(/"/g, '""')}"`);
             csvRows.push(values.join(','));
-        }
-        const blob = new Blob([csvRows.join('\n')], {
-            type: 'text/csv;charset=utf-8;'
         });
+        const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
-
-        const link = $('<a>', {
-            href: url,
-            download: filename
-        }).css('visibility', 'hidden').appendTo('body');
-
-        link.get(0).click();
-        link.remove();
+        
+        $('<a>', { href: url, download: filename })
+            .css('visibility', 'hidden')
+            .appendTo('body')
+            .trigger('click')
+            .remove();
     }
 
     function exportToJson(filename, data) {
-        const jsonStr = JSON.stringify(data, null, 2);
-        const blob = new Blob([jsonStr], {
-            type: 'application/json;charset=utf-8;'
-        });
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
-
-        const link = $('<a>', {
-            href: url,
-            download: filename
-        }).css('visibility', 'hidden').appendTo('body');
-
-        link.get(0).click();
-        link.remove();
+        
+        $('<a>', { href: url, download: filename })
+            .css('visibility', 'hidden')
+            .appendTo('body')
+            .trigger('click')
+            .remove();
     }
 
+    // Utility functions
     function getSavedScripts() {
         return JSON.parse(localStorage.getItem('querysphere_scripts')) || [];
     }
 
+    function formatRunStatus(status) {
+        const statusMap = {
+            0: `<span class="badge bg-danger">${LANG.failed}</span>`,
+            1: `<span class="badge bg-success">${LANG.success}</span>`,
+            2: `<span class="badge bg-info">${LANG.retry}</span>`,
+            3: `<span class="badge bg-warning text-dark">${LANG.canceled}</span>`
+        };
+        return statusMap[status] || `<span class="badge bg-secondary">${LANG.unknown}</span>`;
+    }
+
+    function formatDuration(duration) {
+        if (!duration) return 'N/A';
+        const str = duration.toString().padStart(6, '0');
+        return `${str.substring(0, 2)}:${str.substring(2, 4)}:${str.substring(4, 6)}`;
+    }
+
+    const scriptGenerator = {
+        /**
+         * Gera um script SELECT TOP 1000 (SQL Server) ou LIMIT 1000 (MySQL).
+         * @param {object} nodeData - Os dados do nó da árvore.
+         */
+        selectTop1000: function(nodeData) {
+            const { db, schema, table } = nodeData;
+            editor.setValue(`-- ${LANG.loading}...`);
+
+            $.get('<?= site_url('api/objects/columns') ?>', { db, table })
+                .done(columns => {
+                    let sql;
+                    const columnList = columns?.length 
+                        ? `\n${$.map(columns, col => `    ${this._quoteIdentifier(col)}`).join(',\n')}\n` 
+                        : ' * ';
+
+                    if (DB_TYPE === 'mysql') {
+                        sql = `SELECT${columnList}FROM ${this._quoteIdentifier(db)}.${this._quoteIdentifier(table)}\nLIMIT 1000;`;
+                    } else { // Padrão para sqlsrv
+                        sql = `SELECT TOP 1000${columnList}FROM ${this._quoteIdentifier(db)}.${this._quoteIdentifier(schema)}.${this._quoteIdentifier(table)}`;
+                    }
+                    editor.setValue(sql);
+                })
+                .fail(() => {
+                    const tableName = DB_TYPE === 'mysql' ? `${this._quoteIdentifier(db)}.${this._quoteIdentifier(table)}` : `${this._quoteIdentifier(db)}.${this._quoteIdentifier(schema)}.${this._quoteIdentifier(table)}`;
+                    editor.setValue(`-- ${LANG.error_loading_definition}\n\nSELECT * FROM ${tableName} LIMIT 1000;`);
+                });
+        },
+
+        /**
+         * Gera um script EXEC para uma procedure ou function.
+         * @param {object} node - O nó completo da árvore (necessário para o ID).
+         */
+        execute: function(node) {
+            const { db, schema, routine } = node.data;
+            const routineName = `${this._quoteIdentifier(db)}.${this._quoteIdentifier(schema)}.${this._quoteIdentifier(routine)}`;
+            
+            $.get('<?= site_url(
+                'api/objects/children',
+            ) ?>', { id: node.id }, params => {
+                let script = `EXEC ${routineName}\n`;
+                if (params?.length && params[0].id) {
+                    script += $.map(params, p => `    ${p.text.split(" ")[0]} = ?`).join(",\n");
+                }
+                editor.setValue(script);
+            });
+        },
+
+        /**
+         * Obtém o script ALTER para um objeto.
+         * @param {object} nodeData - Os dados do nó da árvore.
+         */
+        alter: function(nodeData) {
+            const { db, schema, routine, type, table } = nodeData;
+            const objectName = routine || table; // Pega o nome do objeto (seja rotina ou tabela)
+            const objectFullName = DB_TYPE === 'mysql' ? `${objectName}` : `${schema}.${objectName}`;
+
+            editor.setValue(`-- ${LANG.loading_definition_for.replace("{0}", objectFullName)}`);
+            
+            $.get('<?= site_url(
+                'api/objects/source',
+            ) ?>', { db, schema, object: objectName, type })
+                .done(data => {
+                    let script = data.sql;
+                    // A API já retorna o script ALTER, mas podemos garantir aqui
+                    if (DB_TYPE !== 'mysql' && script.trim().toUpperCase().startsWith('CREATE')) {
+                        script = script.replace(/CREATE/i, 'ALTER');
+                    }
+                    editor.setValue(script);
+                })
+                .fail(() => editor.setValue(`-- ${LANG.error_loading_definition}`));
+        },
+
+        /**
+         * Coloca o identificador entre aspas corretas para o SGBD.
+         * @param {string} identifier - O nome do objeto (tabela, coluna, etc.).
+         */
+        _quoteIdentifier: function(identifier) {
+            if (!identifier) return '';
+            if (DB_TYPE === 'mysql') {
+                return `\`${identifier}\``;
+            }
+            // Padrão para sqlsrv
+            return `[${identifier}]`;
+        }
+    };
+
+    // Render functions
     function renderAgentJobs() {
-        const container = $('#agent-jobs-container');
-        container.html('<div class="text-center p-3"><div class="spinner-border" role="status"><span class="visually-hidden">' + LANG.loading + '</span></div></div>');
+        const $container = $('#agent-jobs-container').html(
+            `<div class="text-center p-3"><div class="spinner-border" role="status"><span class="visually-hidden">${LANG.loading}</span></div></div>`
+        );
 
-        $.get('<?= site_url('api/agent/jobs') ?>', function(jobs) {
-            container.empty();
-            if (jobs && jobs.length > 0) {
-                const table = $('<table class="table table-sm table-hover"></table>');
-                const thead = $('<thead><tr><th>' + LANG.job_name + '</th><th>' + LANG.status + '</th><th>' + LANG.last_run + '</th><th>' + LANG.last_run_status + '</th><th>' + LANG.next_run + '</th><th>' + LANG.actions + '</th></tr></thead>');
-                const tbody = $('<tbody></tbody>');
+        $.get('<?= site_url('api/agent/jobs') ?>', jobs => {
+            $container.empty();
+            if (jobs?.length) {
+                const $table = $('<table class="table table-sm table-hover"></table>')
+                    .append(`<thead><tr><th>${LANG.job_name}</th><th>${LANG.status}</th><th>${LANG.last_run}</th><th>${LANG.last_run_status}</th><th>${LANG.next_run}</th><th>${LANG.actions}</th></tr></thead>`)
+                    .append('<tbody></tbody>');
 
-                jobs.forEach(job => {
-                    const status = job.enabled ? (job.last_run_step === 'Running' ? '<span class="badge bg-primary">' + LANG.running + '</span>' : '<span class="badge bg-success">' + LANG.enabled + '</span>') : '<span class="badge bg-secondary">' + LANG.disabled + '</span>';
-                    const outcome = job.run_status === 1 ? '<span class="text-success">' + LANG.success + '</span>' : (job.run_status === 0 ? '<span class="text-danger">' + LANG.failed + '</span>' : LANG.unknown);
+                $.each(jobs, (i, job) => {
+                    const status = job.enabled ? 
+                        (job.last_run_step === 'Running' ? 
+                            `<span class="badge bg-primary">${LANG.running}</span>` : 
+                            `<span class="badge bg-success">${LANG.enabled}</span>`) : 
+                        `<span class="badge bg-secondary">${LANG.disabled}</span>`;
+                    const outcome = job.run_status === 1 ? 
+                        `<span class="text-success">${LANG.success}</span>` : 
+                        (job.run_status === 0 ? `<span class="text-danger">${LANG.failed}</span>` : LANG.unknown);
                     const lastRun = job.last_run_datetime ? new Date(job.last_run_datetime.date).toLocaleString() : 'N/A';
-                    const nextRun = job.next_run_date && job.next_run_date !== '1900-01-01 00:00:00.000' ? new Date(job.next_run_date + ' ' + job.next_run_time).toLocaleString() : 'N/A';
+                    const nextRun = job.next_run_date && job.next_run_date !== '1900-01-01 00:00:00.000' ? 
+                        new Date(job.next_run_date + ' ' + job.next_run_time).toLocaleString() : 'N/A';
 
-                    const row = `<tr>
+                    $table.find('tbody').append(`
+                        <tr>
                             <td><a href="#" class="view-job-history" data-job-name="${job.job_name}">${job.job_name}</a></td>
                             <td>${status}</td>
                             <td>${lastRun}</td>
@@ -279,178 +388,187 @@
                                 <button class="btn btn-sm btn-outline-success start-job" data-job-name="${job.job_name}" title="${LANG.start_job}"><i class="fa fa-play"></i></button>
                                 <button class="btn btn-sm btn-outline-danger stop-job" data-job-name="${job.job_name}" title="${LANG.stop_job}"><i class="fa fa-stop"></i></button>
                             </td>
-                        </tr>`;
-                    tbody.append(row);
+                        </tr>
+                    `);
                 });
-
-                table.append(thead).append(tbody);
-                container.append(table);
+                $container.append($table);
             } else {
-                container.html('<p class="text-muted p-2">' + LANG.no_jobs_found + '</p>');
+                $container.html(`<p class="text-muted p-2">${LANG.no_jobs_found}</p>`);
             }
         });
     }
 
     function displayJobHistory(jobName) {
-        const resultsTabContainer = $('#resultsTab');
-        const resultsContentContainer = $('#resultsTabContent');
+        const $tabContainer = $('#resultsTab');
+        const $contentContainer = $('#resultsTabContent');
         const tabId = `job-history-tab-${jobName.replace(/\s/g, '-')}`;
         const paneId = `job-history-pane-${jobName.replace(/\s/g, '-')}`;
 
         $(`#${tabId}`).closest('.nav-item').remove();
         $(`#${paneId}`).remove();
 
-        resultsTabContainer.append(
-            `<li class="nav-item dynamic-tab" role="presentation">
-                    <button class="nav-link" id="${tabId}" data-bs-toggle="tab" data-bs-target="#${paneId}" type="button" role="tab">
-                        History: ${$('<div>').text(jobName).html()}
-                    </button>
-                </li>`
-        );
+        $tabContainer.append(`
+            <li class="nav-item dynamic-tab" role="presentation">
+                <button class="nav-link" id="${tabId}" data-bs-toggle="tab" data-bs-target="#${paneId}" type="button" role="tab">
+                    History: ${$('<div>').text(jobName).html()}
+                </button>
+            </li>
+        `);
 
-        const tabPane = $(
-            `<div class="tab-pane fade dynamic-tab-pane" id="${paneId}" role="tabpanel">
-                    <div class="p-2">
-                        <div class="spinner-border" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
+        $contentContainer.append(`
+            <div class="tab-pane fade dynamic-tab-pane" id="${paneId}" role="tabpanel">
+                <div class="p-2">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
                     </div>
-                </div>`
-        );
-        resultsContentContainer.append(tabPane);
+                </div>
+            </div>
+        `);
 
         new bootstrap.Tab($(`#${tabId}`)[0]).show();
 
         $.get(`<?= site_url(
             'api/agent/history',
-        ) ?>/${encodeURIComponent(jobName)}`, function(history) {
-            const container = $(`#${paneId}`);
-            container.empty();
+        ) ?>/${encodeURIComponent(jobName)}`, history => {
+            const $container = $(`#${paneId}`).empty();
+            if (history?.length) {
+                const $table = $('<table class="table table-sm table-bordered table-striped"></table>')
+                    .append(`<thead><tr><th>Run Datetime</th><th>Step Name</th><th>Duration</th><th>Outcome</th><th>Message</th></tr></thead>`)
+                    .append('<tbody></tbody>');
 
-            if (history && history.length > 0) {
-                const table = $('<table class="table table-sm table-bordered table-striped"></table>');
-                const thead = $('<thead><tr><th>Run Datetime</th><th>Step Name</th><th>Duration</th><th>Outcome</th><th>Message</th></tr></thead>');
-                const tbody = $('<tbody></tbody>');
-
-                history.forEach(item => {
+                $.each(history, (i, item) => {
                     const runDateTime = item.run_datetime ? new Date(item.run_datetime.date).toLocaleString() : 'N/A';
-                    const outcome = formatRunStatus(item.run_status);
-                    const duration = formatDuration(item.run_duration);
-
-                    const row = `<tr>
+                    $table.find('tbody').append(`
+                        <tr>
                             <td>${runDateTime}</td>
                             <td>${item.step_name}</td>
-                            <td>${duration}</td>
-                            <td>${outcome}</td>
+                            <td>${formatDuration(item.run_duration)}</td>
+                            <td>${formatRunStatus(item.run_status)}</td>
                             <td><div style="max-height: 100px; overflow-y: auto;">${item.message}</div></td>
-                        </tr>`;
-                    tbody.append(row);
+                        </tr>
+                    `);
                 });
-
-                table.append(thead).append(tbody);
-                container.append(table);
+                $container.append($table);
             } else {
-                container.html('<p class="text-muted p-2">' + LANG.no_history_found + '</p>');
+                $container.html(`<p class="text-muted p-2">${LANG.no_history_found}</p>`);
             }
-        }).fail(function() {
-            const container = $(`#${paneId}`);
-            container.html('<p class="text-danger p-2">' + LANG.error_retrieving_history + '</p>');
+        }).fail(() => {
+            $(`#${paneId}`).html(`<p class="text-danger p-2">${LANG.error_retrieving_history}</p>`);
         });
     }
 
-    function formatRunStatus(status) {
-        switch (status) {
-            case 0:
-                return '<span class="badge bg-danger">' + LANG.failed + '</span>';
-            case 1:
-                return '<span class="badge bg-success">' + LANG.success + '</span>';
-            case 2:
-                return '<span class="badge bg-info">' + LANG.retry + '</span>';
-            case 3:
-                return '<span class="badge bg-warning text-dark">' + LANG.canceled + '</span>';
-            default:
-                return '<span class="badge bg-secondary">' + LANG.unknown + '</span>';
-        }
-    }
+    function renderMySqlEvents() {
+        const $container = $('#mysql-events-container').html(
+            `<div class="text-center p-3"><div class="spinner-border" role="status"><span class="visually-hidden">${LANG.loading}</span></div></div>`
+        );
 
-    function formatDuration(duration) {
-        if (duration === null) return 'N/A';
-        let str = duration.toString().padStart(6, '0');
-        let h = str.substring(0, 2);
-        let m = str.substring(2, 4);
-        let s = str.substring(4, 6);
-        return `${h}:${m}:${s}`;
+        $.get('<?= site_url('api/mysql/events') ?>', events => {
+            $container.empty();
+            if (events?.length) {
+                const $table = $('<table class="table table-sm table-hover"></table>')
+                    .append(`<thead><tr><th>${LANG.event_name}</th><th>${LANG.status}</th><th>${LANG.next_run}</th><th>${LANG.actions}</th></tr></thead>`)
+                    .append('<tbody></tbody>');
+
+                $.each(events, (i, event) => {
+                    const status = event.status === 'ENABLED' ? 
+                        `<span class="badge bg-success">${LANG.enabled}</span>` : 
+                        `<span class="badge bg-secondary">${LANG.general.disabled}</span>`;
+                    const nextRun = event.next_execution ? new Date(event.next_execution).toLocaleString() : 'N/A';
+                    const toggleAction = event.status === 'ENABLED' ? LANG.disable : LANG.enable;
+                    const toggleIcon = event.status === 'ENABLED' ? 'fa-stop-circle' : 'fa-play-circle';
+                    const toggleTitle = event.status === 'ENABLED' ? LANG.disable_event : LANG.enable_event;
+
+                    $table.find('tbody').append(`
+                        <tr>
+                            <td><a href="#" class="view-event-definition" data-event-name="${event.name}">${event.name}</a></td>
+                            <td>${status}</td>
+                            <td>${nextRun}</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-secondary toggle-event-status" 
+                                    data-event-name="${event.name}" 
+                                    data-status="${toggleAction}" 
+                                    title="${toggleTitle}">
+                                    <i class="fa ${toggleIcon}"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `);
+                });
+                $container.append($table);
+            } else {
+                $container.html(`<p class="text-muted p-2">${LANG.event.no_events_found}</p>`);
+            }
+        });
     }
 
     function renderSavedScripts() {
         const scripts = getSavedScripts();
-        const list = $("#saved-scripts-list");
-        list.empty();
-        if (scripts && scripts.length > 0) {
-            scripts.forEach((script, index) => {
-                list.append(
-                    `<li class="list-group-item list-group-item-action p-2 d-flex justify-content-between align-items-center">
-                            <span class="load-script" data-index="${index}" title="${script.sql}" style="cursor:pointer; font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                ${script.name}
-                            </span>
-                            <button class="btn btn-sm btn-outline-danger delete-script" data-index="${index}" title="Apagar Script">
-                                <i class="fa fa-trash"></i>
-                            </button>
-                        </li>`
-                );
+        const $list = $("#saved-scripts-list").empty();
+        if (scripts?.length) {
+            $.each(scripts, (index, script) => {
+                $list.append(`
+                    <li class="list-group-item list-group-item-action p-2 d-flex justify-content-between align-items-center">
+                        <span class="load-script" data-index="${index}" title="${script.sql}" style="cursor:pointer; font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            ${script.name}
+                        </span>
+                        <button class="btn btn-sm btn-outline-danger delete-script" data-index="${index}" title="Apagar Script">
+                            <i class="fa fa-trash"></i>
+                        </button>
+                    </li>
+                `);
             });
         } else {
-            list.append('<li class="list-group-item text-muted">Nenhum script salvo.</li>');
+            $list.append('<li class="list-group-item text-muted">Nenhum script salvo.</li>');
         }
     }
 
     function refreshHistory() {
-        $.get('<?= site_url('api/history/get') ?>', (history) => {
-            const list = $("#query-history-list");
-            list.empty();
-            if (history && history.length > 0) {
-                history.forEach(query => {
-                    list.append(
-                        `<li class="list-group-item list-group-item-action p-2" style="cursor:pointer; font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${query}" data-query="${query}">
-                                ${query}
-                            </li>`
-                    );
+        $.get('<?= site_url('api/history/get') ?>', history => {
+            const $list = $("#query-history-list").empty();
+            if (history?.length) {
+                $.each(history, (i, query) => {
+                    $list.append(`
+                        <li class="list-group-item list-group-item-action p-2" 
+                            style="cursor:pointer; font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" 
+                            title="${query}" 
+                            data-query="${query}">
+                            ${query}
+                        </li>
+                    `);
                 });
             }
         });
     }
 
     function renderSharedScripts() {
-        const list = $('#shared-scripts-list');
-        list.html('<li class="list-group-item text-muted">' + LANG.loading + '</li>');
-
-        $.get('<?= site_url('api/shared-queries') ?>', function(scripts) {
-            list.empty();
-            if (scripts && scripts.length > 0) {
-                scripts.forEach(script => {
+        const $list = $('#shared-scripts-list').html(`<li class="list-group-item text-muted">${LANG.loading}</li>`);
+        $.get('<?= site_url('api/shared-queries') ?>', scripts => {
+            $list.empty();
+            if (scripts?.length) {
+                $.each(scripts, (i, script) => {
                     const itemDate = new Date(script.timestamp).toLocaleDateString('pt-BR');
-                    const item = `
-                            <li class="list-group-item list-group-item-action p-2">
-                                <div class="d-flex w-100 justify-content-between">
-                                    <span class="load-shared-script" data-sql="${script.sql}" style="cursor:pointer; font-weight: 500;">
-                                        ${$('<div>').text(script.name).html()}
-                                    </span>
-                                    <button class="btn btn-sm btn-outline-danger delete-shared-script" data-id="${script.id}" title="Apagar Script">
-                                        <i class="fa fa-trash"></i>
-                                    </button>
-                                </div>
-                                <small class="text-muted">Por: ${$('<div>').text(script.author).html()} em ${itemDate}</small>
-                            </li>`;
-                    list.append(item);
+                    $list.append(`
+                        <li class="list-group-item list-group-item-action p-2">
+                            <div class="d-flex w-100 justify-content-between">
+                                <span class="load-shared-script" data-sql="${script.sql}" style="cursor:pointer; font-weight: 500;">
+                                    ${$('<div>').text(script.name).html()}
+                                </span>
+                                <button class="btn btn-sm btn-outline-danger delete-shared-script" data-id="${script.id}" title="Apagar Script">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            </div>
+                            <small class="text-muted">Por: ${$('<div>').text(script.author).html()} em ${itemDate}</small>
+                        </li>
+                    `);
                 });
             } else {
-                list.append('<li class="list-group-item text-muted">Nenhuma query compartilhada.</li>');
+                $list.append('<li class="list-group-item text-muted">Nenhuma query compartilhada.</li>');
             }
         });
     }
 
     function updateChartButtonAndOptions(resultIndex) {
-        if (!lastResultData || !lastResultData.results || !lastResultData.results[resultIndex]) {
+        if (!lastResultData?.results?.[resultIndex]) {
             $("#show-chart-btn").prop("disabled", true);
             return;
         }
@@ -459,10 +577,9 @@
         let numericCols = [];
         let categoryCols = [];
 
-        if (result.data && result.data.length > 0) {
-            const firstRow = result.data[0];
-            result.headers.forEach(header => {
-                const value = firstRow[header];
+        if (result.data?.length) {
+            $.each(result.headers, (i, header) => {
+                const value = result.data[0][header];
                 if (value !== null && !isNaN(parseFloat(value)) && isFinite(value)) {
                     numericCols.push(header);
                 } else {
@@ -471,39 +588,25 @@
             });
         }
 
-        if (numericCols.length > 0 && categoryCols.length > 0) {
-            $("#show-chart-btn").prop("disabled", false);
-            $("#chart-label-col").html(categoryCols.map(col => `<option>${col}</option>`).join(""));
-            $("#chart-value-col").html(numericCols.map(col => `<option>${col}</option>`).join(""));
-        } else {
-            $("#show-chart-btn").prop("disabled", true);
-        }
+        $("#show-chart-btn").prop("disabled", !(numericCols.length && categoryCols.length));
+        $("#chart-label-col").html($.map(categoryCols, col => `<option>${col}</option>`).join(""));
+        $("#chart-value-col").html($.map(numericCols, col => `<option>${col}</option>`).join(""));
     }
 
     function executeQuery(sql, page = 1) {
         currentSql = sql;
-        const btn = $('#execute-query-btn');
-        btn.prop('disabled', true).html(`<span class="spinner-border spinner-border-sm"></span> ${LANG.executing}`);
+        const $btn = $('#execute-query-btn')
+            .prop('disabled', true)
+            .html(`<span class="spinner-border spinner-border-sm"></span> ${LANG.executing}`);
+        
         $('#export-csv-btn, #export-json-btn, #show-chart-btn').prop('disabled', true);
         $('#pagination-controls').hide();
 
-        const resultsTabContainer = $('#resultsTab');
-        const resultsContentContainer = $('#resultsTabContent');
-
-        if (resultsDataTable) {
-            resultsDataTable.destroy();
-        }
+        if (resultsDataTable) resultsDataTable.destroy();
         $('.dynamic-tab-pane').find('.table-responsive').empty();
-        resultsTabContainer.find('.dynamic-tab').remove();
-        resultsContentContainer.find('.dynamic-tab-pane').remove();
-        resultsContentContainer.children('.tab-pane').removeClass('show active');
-        resultsTabContainer.find('.nav-link').removeClass('active');
+        $('#resultsTab .dynamic-tab, #resultsTabContent .dynamic-tab-pane').remove();
         $('#results-placeholder').hide();
-        $('#messages-content').html('');
-
-        if (isTemplateQuery) {
-            postData.disable_pagination = true;
-        }
+        $('#messages-content').empty();
 
         $.ajax({
             url: '<?= site_url('api/query/execute') ?>',
@@ -513,11 +616,11 @@
                 page: page,
                 '<?= csrf_token() ?>': '<?= csrf_hash() ?>'
             },
-            success: (response) => {
+            success: response => {
                 $('#messages-content').html(`<pre class="p-2 m-0">${response.message}</pre>`);
                 refreshHistory();
 
-                if (!response.results || response.results.length === 0) {
+                if (!response.results?.length) {
                     $('#results-placeholder').html(LANG.no_results_found).show();
                     new bootstrap.Tab($('#messages-tab')[0]).show();
                     return;
@@ -526,54 +629,52 @@
                 lastResultData = response;
                 $('#export-csv-btn, #export-json-btn').prop('disabled', false);
 
-                response.results.forEach((result, index) => {
+                $.each(response.results, (index, result) => {
                     const tabId = `result-tab-${index}`;
                     const paneId = `result-pane-${index}`;
                     const tableId = `result-table-${index}`;
 
-                    resultsTabContainer.prepend(
-                        `<li class="nav-item dynamic-tab" role="presentation">
-                                <button class="nav-link" id="${tabId}" data-bs-toggle="tab" data-bs-target="#${paneId}" type="button" role="tab">
-                                    ${LANG.result} ${index + 1} <span class="badge bg-secondary ms-1">${result.rowCount}</span>
-                                </button>
-                            </li>`
-                    );
+                    $('#resultsTab').prepend(`
+                        <li class="nav-item dynamic-tab" role="presentation">
+                            <button class="nav-link" id="${tabId}" data-bs-toggle="tab" data-bs-target="#${paneId}" type="button" role="tab">
+                                ${LANG.result} ${index + 1} <span class="badge bg-secondary ms-1">${result.rowCount}</span>
+                            </button>
+                        </li>
+                    `);
 
-                    const tabPane = $(
-                        `<div class="tab-pane fade dynamic-tab-pane" id="${paneId}" role="tabpanel">
-                                <div id="results-table-container-${index}" class="table-responsive h-100"></div>
-                            </div>`
-                    );
-                    resultsContentContainer.append(tabPane);
+                    $('#resultsTabContent').append(`
+                        <div class="tab-pane fade dynamic-tab-pane" id="${paneId}" role="tabpanel">
+                            <div id="results-table-container-${index}" class="table-responsive h-100"></div>
+                        </div>
+                    `);
 
-                    if (result.data && result.data.length > 0) {
-                        let table = $(`<table id="${tableId}" class="table table-sm table-bordered table-striped table-hover" style="width:100%"></table>`);
-                        let thead = $('<thead></thead>').append($('<tr></tr>'));
-                        let tfoot = $('<tfoot></tfoot>').append($('<tr></tr>'));
-                        result.headers.forEach(h => {
-                            thead.find('tr').append($('<th></th>').text(h));
-                            tfoot.find('tr').append($('<th></th>').text(h));
+                    if (result.data?.length) {
+                        const $table = $(`<table id="${tableId}" class="table table-sm table-bordered table-striped table-hover" style="width:100%"></table>`);
+                        const $thead = $('<thead><tr></tr></thead>');
+                        const $tfoot = $('<tfoot><tr></tr></tfoot>');
+                        $.each(result.headers, (i, h) => {
+                            $thead.find('tr').append(`<th>${h}</th>`);
+                            $tfoot.find('tr').append(`<th>${h}</th>`);
                         });
-                        table.append(thead).append(tfoot);
-                        $(`#results-table-container-${index}`).append(table);
+                        $table.append($thead).append($tfoot);
+                        $(`#results-table-container-${index}`).append($table);
 
                         resultsDataTable = new DataTable(`#${tableId}`, {
                             data: result.data,
-                            columns: result.headers.map(h => ({
-                                data: h
-                            })),
+                            columns: $.map(result.headers, h => ({ data: h })),
                             destroy: true,
                             searching: true,
                             initComplete: function() {
                                 this.api().columns().every(function() {
-                                    let column = this;
-                                    let title = column.footer().textContent;
-                                    $(column.footer()).html(`<input type="text" class="form-control form-control-sm" placeholder="${LANG.search_placeholder.replace('{0}', title)}" />`)
-                                        .on('keyup change clear', function() {
-                                            if (column.search() !== this.value) {
-                                                column.search(this.value).draw();
-                                            }
-                                        });
+                                    const column = this;
+                                    const title = column.footer().textContent;
+                                    $(column.footer()).html(
+                                        `<input type="text" class="form-control form-control-sm" placeholder="${LANG.search_placeholder.replace('{0}', title)}" />`
+                                    ).on('keyup change clear', function() {
+                                        if (column.search() !== this.value) {
+                                            column.search(this.value).draw();
+                                        }
+                                    });
                                 });
                             }
                         });
@@ -590,37 +691,32 @@
                     $('#pagination-next').prop('disabled', firstResult.currentPage >= firstResult.totalPages);
                 }
 
-                const firstTabButton = $('#result-tab-0')[0];
-                if (firstTabButton) {
-                    new bootstrap.Tab(firstTabButton).show();
-                }
+                new bootstrap.Tab($('#result-tab-0')[0]).show();
                 updateChartButtonAndOptions(0);
             },
-            error: (xhr) => {
+            error: xhr => {
                 const errorMsg = xhr.responseJSON?.messages?.error?.message || xhr.responseText || "Ocorreu um erro.";
-                $('#messages-content').html(
-                    `<div class="alert alert-danger m-2">
-                            <h5 class="alert-heading">${LANG.exec_error}</h5>
-                            <hr>
-                            <p class="mb-0">${$('<div>').text(errorMsg).html()}</p>
-                        </div>`
-                );
+                $('#messages-content').html(`
+                    <div class="alert alert-danger m-2">
+                        <h5 class="alert-heading">${LANG.exec_error}</h5>
+                        <hr>
+                        <p class="mb-0">${$('<div>').text(errorMsg).html()}</p>
+                    </div>
+                `);
                 new bootstrap.Tab($('#messages-tab')[0]).show();
             },
-            complete: () => btn.prop('disabled', false).html(`<i class="fa fa-play me-1"></i> ${LANG.execute} (Ctrl+Enter)`)
+            complete: () => $btn.prop('disabled', false).html(`<i class="fa fa-play me-1"></i> ${LANG.execute} (Ctrl+Enter)`)
         });
     }
 
     function renderQueryTemplates() {
-        const accordion = $('#query-templates-accordion');
-        accordion.html('<div class="p-2 text-muted">' + LANG.loading + '</div>');
-
-        $.get('<?= site_url('api/templates') ?>', function(categories) {
-            accordion.empty();
-            if (categories && categories.length > 0) {
-                categories.forEach((cat, index) => {
+        const $accordion = $('#query-templates-accordion').html(`<div class="p-2 text-muted">${LANG.loading}</div>`);
+        $.get('<?= site_url('api/templates') ?>', categories => {
+            $accordion.empty();
+            if (categories?.length) {
+                $.each(categories, (index, cat) => {
                     const categoryId = `category-${index}`;
-                    const categoryHtml = `
+                    $accordion.append(`
                         <div class="accordion-item">
                             <h2 class="accordion-header" id="heading-${categoryId}">
                                 <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-${categoryId}">
@@ -629,460 +725,426 @@
                             </h2>
                             <div id="collapse-${categoryId}" class="accordion-collapse collapse" data-bs-parent="#query-templates-accordion">
                                 <div class="list-group list-group-flush">
-                                    ${cat.scripts.map(script => `
+                                    ${$.map(cat.scripts, script => `
                                         <a href="#" class="list-group-item list-group-item-action load-template" 
-                                        data-category="${script.category_key}" 
-                                        data-filename="${script.filename}" 
-                                        title="${$('<div>').text(script.description).html()}">
+                                            data-category="${script.category_key}" 
+                                            data-filename="${script.filename}" 
+                                            title="${$('<div>').text(script.description).html()}">
                                             ${$('<div>').text(script.name).html()}
                                         </a>
                                     `).join('')}
                                 </div>
                             </div>
                         </div>
-                    `;
-                    accordion.append(categoryHtml);
+                    `);
                 });
             } else {
-                accordion.html('<div class="p-2 text-muted">${LANG.no_templates}</div>');
+                $accordion.html(`<div class="p-2 text-muted">${LANG.no_templates}</div>`);
             }
         });
     }
 
-    $(function() {
-        function initializeIntellisense() {
-            $.get('<?= site_url('api/intellisense') ?>', (data) => {
-                if (Object.keys(data).length > 0) {
-                    editor.setOption("hintOptions", {
-                        tables: data
-                    });
-                }
-            }).fail(() => console.error(LANG.intellisense_error));
-        }
+    function initializeIntellisense() {
+        $.get('<?= site_url('api/intellisense') ?>', data => {
+            if (Object.keys(data).length) {
+                editor.setOption("hintOptions", { tables: data });
+            }
+        }).fail(() => console.error(LANG.intellisense_error));
+    }
 
-        if (document.getElementById('object-explorer-panel')) {
-            Split(['#object-explorer-panel', '.main-panel'], {
-                sizes: [20, 80],
-                minSize: 280,
-                gutterSize: 7,
-                direction: 'horizontal',
-                cursor: 'col-resize'
-            });
-            Split(['#query-editor-panel', '#results-panel'], {
-                sizes: [65, 35],
-                minSize: 100,
-                gutterSize: 7,
-                direction: 'vertical',
-                cursor: 'row-resize',
-                onDragEnd: function() {
-                    if (editor) editor.refresh();
-                }
-            });
-        }
+    // Initialize UI components
+    if ($('#object-explorer-panel').length) {
+        Split(['#object-explorer-panel', '.main-panel'], {
+            sizes: [20, 80],
+            minSize: 280,
+            gutterSize: 7,
+            direction: 'horizontal',
+            cursor: 'col-resize'
+        });
+        Split(['#query-editor-panel', '#results-panel'], {
+            sizes: [65, 35],
+            minSize: 100,
+            gutterSize: 7,
+            direction: 'vertical',
+            cursor: 'row-resize',
+            onDragEnd: () => editor.refresh()
+        });
+    }
 
-        $('#object-explorer-tree').jstree({
-            'core': {
-                'data': {
-                    'url': (node) => "#" === node.id ? '<?= site_url(
-                        'api/objects/databases',
-                    ) ?>' : '<?= site_url('api/objects/children') ?>',
-                    'data': (node) => ({
-                        id: node.id
-                    })
+    $('#object-explorer-tree').jstree({
+        core: {
+            data: {
+                url: node => node.id === '#' ? '<?= site_url(
+                    'api/objects/databases',
+                ) ?>' : '<?= site_url('api/objects/children') ?>',
+                data: node => ({ id: node.id })
+            }
+        },
+        plugins: ["contextmenu", "search"],
+        search: {
+            ajax: {
+                url: '<?= site_url('api/objects/search') ?>',
+                data: str => ({ str })
+            },
+            show_only_matches: true,
+            close_opened_onclear: true
+        },
+        contextmenu: {
+            items: node => {
+                const menu = {};
+                const nodeData = node.data;
+                if (!nodeData) return menu;
+
+                if (nodeData.type === "table" || nodeData.type === "view") {
+                    menu.selectTop1000 = {
+                        label: "SELECT TOP 1000 Rows",
+                        icon: "fa fa-bolt",
+                        action: () => scriptGenerator.selectTop1000(nodeData)
+                    };
                 }
-            },
-            'plugins': ["contextmenu", "search"],
-            'search': {
-                'ajax': {
-                    'url': '<?= site_url('api/objects/search') ?>',
-                    'data': (str) => ({
-                        str: str
-                    })
-                },
-                'show_only_matches': true,
-                'close_opened_onclear': true
-            },
-            'contextmenu': {
-                'items': (node) => {
-                    let menu = {};
-                    const nodeData = node.data;
-                    if (nodeData) {
-                        if (nodeData && (nodeData.type === "table" || nodeData.type === "view")) {
-                            menu.selectTop1000 = {
-                                label: "SELECT TOP 1000 Rows",
-                                icon: "fa fa-bolt",
-                                action: () => {
-                                    const { db, schema, table } = nodeData;
-                                    editor.setValue(`-- ${LANG.loading}`);
-                                    $.get('<?= site_url(
-                                        'api/objects/columns',
-                                    ) ?>', { db, table })
-                                        .done(function(columns) {
-                                            if (columns && columns.length > 0) {
-                                                const columnList = columns.map(col => `    [${col}]`).join(',\n');
-                                                const sql = `SELECT TOP 1000\n${columnList}\nFROM [${db}].[${schema}].[${table}]`;
-                                                editor.setValue(sql);
-                                            } else {
-                                                editor.setValue(`SELECT TOP 1000 *\nFROM [${db}].[${schema}].[${table}]`);
-                                            }
-                                        })
-                                        .fail(function() {
-                                            editor.setValue(`-- ${LANG.error_loading_definition}\n\nSELECT TOP 1000 *\nFROM [${db}].[${schema}].[${table}]`);
-                                        });
-                                }
-                            };
-                        }
-                        if (nodeData.type === "procedure" || nodeData.type === "function") {
-                            menu.scriptAsExecute = {
-                                label: "Script as EXECUTE",
-                                icon: "fa fa-play-circle",
-                                action: () => {
-                                    const { db, schema, routine } = nodeData;
-                                    $.get('<?= site_url(
-                                        'api/objects/children',
-                                    ) ?>', { id: node.id }, params => {
-                                        let script = `EXEC [${db}].[${schema}].[${routine}]\n`;
-                                        if (params && params.length > 0 && params[0].id) {
-                                            script += params.map(p => `    ${p.text.split(" ")[0]} = ?`).join(",\n");
-                                        }
-                                        editor.setValue(script);
-                                    });
-                                }
-                            };
-                        }
-                        menu.scriptAsAlter = {
-                            label: "Script as ALTER",
-                            icon: "fa fa-pencil-alt",
-                            _separator_before: true,
-                            action: () => {
-                                const { db, schema, routine, type } = nodeData;
-                                const objectName = `${schema}.${routine}`;
-                                editor.setValue(`-- ${LANG.loading_definition_for.replace("{0}", objectName)}`);
-                                $.get("<?= site_url(
-                                    'api/objects/source',
-                                ) ?>", { db: db, schema: schema, object: routine, type: type })
-                                    .done(function(data) {
-                                        editor.setValue(data.sql);
-                                    })
-                                    .fail(function() {
-                                        editor.setValue(`-- ${LANG.error_loading_definition}`);
-                                    });
-                            }
+
+                if (nodeData.type === "procedure" || nodeData.type === "function") {
+                    if (DB_TYPE === 'sqlsrv') {
+                        menu.scriptAsExecute = {
+                            label: "Script as EXECUTE",
+                            icon: "fa fa-play-circle",
+                            action: () => scriptGenerator.execute(node)
                         };
                     }
-                    return menu;
                 }
+                
+                menu.scriptAsAlter = {
+                    label: DB_TYPE === 'mysql' ? "Show CREATE Statement" : "Script as ALTER",
+                    icon: "fa fa-pencil-alt",
+                    _separator_before: true,
+                    action: () => scriptGenerator.alter(nodeData)
+                };
+
+                return menu;
             }
-        });
+        }
+    });
 
-        refreshHistory();
-        renderSavedScripts();
-        initializeIntellisense();
-        renderQueryTemplates();
-        renderSharedScripts();
-        renderAgentJobs();
+    // Event handlers
+    $('#agent-jobs-container').on('click', '.start-job', function() {
+        const jobName = $(this).data('job-name');
+        $.post('<?= site_url('api/agent/start') ?>', {
+            job_name: jobName,
+            '<?= csrf_token() ?>': '<?= csrf_hash() ?>'
+        }).done(() => {
+            alert(`${jobName}: ${LANG.job_started}`);
+            renderAgentJobs();
+        }).fail(() => alert(`${jobName}: ${LANG.job_start_failed}`));
+    });
 
-        $('#agent-jobs-container').on('click', '.start-job', function() {
-            const jobName = $(this).data('job-name');
-            $.post('<?= site_url('api/agent/start') ?>', {
-                'job_name': jobName,
-                '<?= csrf_token() ?>': '<?= csrf_hash() ?>'
-            }, function() {
-                alert(jobName + ': ' + LANG.job_started);
-                renderAgentJobs();
-            }).fail(function() {
-                alert(jobName + ': ' + LANG.job_start_failed);
-            });
-        });
+    $('#agent-jobs-container').on('click', '.stop-job', function() {
+        const jobName = $(this).data('job-name');
+        $.post('<?= site_url('api/agent/stop') ?>', {
+            job_name: jobName,
+            '<?= csrf_token() ?>': '<?= csrf_hash() ?>'
+        }).done(() => {
+            alert(`${jobName}: ${LANG.job_stopped}`);
+            renderAgentJobs();
+        }).fail(() => alert(`${jobName}: ${LANG.job_stop_failed}`));
+    });
 
-        $('#agent-jobs-container').on('click', '.stop-job', function() {
-            const jobName = $(this).data('job-name');
-            $.post('<?= site_url('api/agent/stop') ?>', {
-                'job_name': jobName,
-                '<?= csrf_token() ?>': '<?= csrf_hash() ?>'
-            }, function() {
-                alert(jobName + ': ' + LANG.job_stopped);
-                renderAgentJobs();
-            }).fail(function() {
-                alert(jobName + ': ' + LANG.job_stop_failed);
-            });
-        });
+    $('#agent-jobs-container').on('click', '.view-job-history', function(e) {
+        e.preventDefault();
+        displayJobHistory($(this).data('job-name'));
+    });
 
-        $('#agent-jobs-container').on('click', '.view-job-history', function(e) {
-            e.preventDefault();
-            const jobName = $(this).data('job-name');
-            displayJobHistory(jobName);
-        });
-
-        $('#db-selector-list').on('click', 'a', function(e) {
-            e.preventDefault();
-            const dbName = $(this).data('dbname');
-            const currentDbName = $('#active-database-name').text().trim();
-            if (dbName && dbName !== currentDbName) {
-                $('#active-database-name').text(LANG.changing);
-                $.ajax({
-                    url: '<?= site_url('api/session/database') ?>',
-                    method: 'POST',
-                    data: {
-                        database: dbName,
-                        '<?= csrf_token() ?>': '<?= csrf_hash() ?>'
-                    },
-                    success: () => window.location.reload(),
-                    error: () => {
-                        alert(LANG.error_alter_database);
-                        $('#active-database-name').text(currentDbName);
-                    }
-                });
-            }
-        });
-
-        let searchTimeout = false;
-        $('#object-search-input').on('keyup', function() {
-            if (searchTimeout) clearTimeout(searchTimeout);
-            searchTimeout = setTimeout(() => {
-                const searchTerm = $("#object-search-input").val();
-                const tree = $("#object-explorer-tree").jstree(true);
-                if (searchTerm.length >= 3) {
-                    tree.search(searchTerm);
-                } else {
-                    tree.clear_search();
-                }
-            }, 300);
-        });
-
-        $('#theme-toggle-btn').on('click', () => {
-            const isLight = $('body').hasClass("light-theme");
-            themeManager.applyTheme(isLight ? "dark" : "light");
-        });
-
-        $('#query-history-list').on('click', 'li', function() {
-            const query = $(this).data("query");
-            if (query) editor.setValue(query);
-        });
-
-        $('#saved-scripts-list').on('click', '.load-script', function() {
-            const index = $(this).data("index");
-            const scripts = getSavedScripts();
-            if (scripts[index]) editor.setValue(scripts[index].sql);
-        });
-
-        $('#saved-scripts-list').on('click', '.delete-script', function() {
-            const index = $(this).data("index");
-            let scripts = getSavedScripts();
-            if (confirm(LANG.confirm_delete_script.replace('{0}', scripts[index].name))) {
-                scripts.splice(index, 1);
-                localStorage.setItem("querysphere_scripts", JSON.stringify(scripts));
-                renderSavedScripts();
-            }
-        });
-
-        $('#save-script-btn').on('click', () => {
-            const sql = editor.getValue();
-            if (sql.trim() === "") return alert(LANG.empty_script_alert);
-            const name = prompt(LANG.prompt_script_name, LANG.script_name_default);
-            if (name) {
-                const scripts = getSavedScripts();
-                scripts.unshift({
-                    name: name,
-                    sql: sql
-                });
-                localStorage.setItem("querysphere_scripts", JSON.stringify(scripts));
-                renderSavedScripts();
-            }
-        });
-
-        $('#share-script-btn').on('click', function() {
-            const sql = editor.getValue();
-            if (sql.trim() === '') return alert(LANG.empty_shared_script_alert);
-            const name = prompt(LANG.prompt_shared_name, LANG.shared_name_default);
-            if (!name) return;
-            const author = prompt(LANG.prompt_author, LANG.author_default);
-            if (!author) return;
-
-            $.post('<?= site_url('api/shared-queries') ?>', {
-                    name,
-                    author,
-                    sql,
-                    '<?= csrf_token() ?>': '<?= csrf_hash() ?>'
-                })
-                .done(() => renderSharedScripts())
-                .fail(() => alert(LANG.share_fail));
-        });
-
-        $('#shared-scripts-list').on('click', '.load-shared-script', function() {
-            editor.setValue($(this).data('sql'));
-        });
-
-        $('#shared-scripts-list').on('click', '.delete-shared-script', function() {
-            const queryId = $(this).data('id');
-            if (confirm(LANG.confirm_delete_shared)) {
-                $.ajax({
-                    url: `<?= site_url('api/shared-queries') ?>/${queryId}`,
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': '<?= csrf_hash() ?>'
-                    },
-                    success: () => renderSharedScripts(),
-                    error: () => alert(LANG.delete_shared_fail)
-                });
-            }
-        });
-
-        $('#format-sql-btn').on('click', () => {
-            try {
-                editor.setValue(sqlFormatter.format(editor.getValue(), {
-                    language: "tsql",
-                    tabWidth: 4,
-                    keywordCase: "upper"
-                }));
-            } catch (e) {
-                alert(LANG.format_fail);
-            }
-        });
-
-        $('#resultsTab').on('shown.bs.tab', 'button.dynamic-tab', function(event) {
-            const activeTabIndex = parseInt(event.target.id.split("-")[2]);
-            updateChartButtonAndOptions(activeTabIndex);
-        });
-
-        $('#export-csv-btn').on('click', function() {
-            if (!lastResultData) return;
-            const activeTabIndex = $('#resultsTab button.dynamic-tab.active').attr('id')?.split('-')[2] || 0;
-            const activeResult = lastResultData.results[activeTabIndex];
-            if (activeResult) {
-                exportToCsv(`export_result_${parseInt(activeTabIndex) + 1}.csv`, activeResult.headers, activeResult.data);
-            }
-        });
-
-        $('#export-json-btn').on('click', function() {
-            if (!lastResultData) return;
-            const activeTabIndex = $('#resultsTab button.dynamic-tab.active').attr('id')?.split('-')[2] || 0;
-            const activeResult = lastResultData.results[activeTabIndex];
-            if (activeResult) {
-                exportToJson(`export_result_${parseInt(activeTabIndex) + 1}.json`, activeResult.data);
-            }
-        });
-
-        $('#execute-query-btn').on('click', () => {
-            executeQuery(editor.getSelection() || editor.getValue(), 1);
-        });
-
-        $('#pagination-prev').on('click', () => {
-            const result = lastResultData.results[0];
-            if (result && result.currentPage > 1) {
-                executeQuery(currentSql, result.currentPage - 1);
-            }
-        });
-
-        $('#pagination-next').on('click', () => {
-            const result = lastResultData.results[0];
-            if (result && result.currentPage < result.totalPages) {
-                executeQuery(currentSql, result.currentPage + 1);
-            }
-        });
-
-        $('#generate-chart-btn').on('click', () => {
-            const activeTabIndex = $('#resultsTab button.dynamic-tab.active').attr('id')?.split('-')[2] || 0;
-            const activeResult = lastResultData?.results[activeTabIndex];
-            if (!activeResult) return;
-
-            const type = $('#chart-type').val();
-            const labelCol = $('#chart-label-col').val();
-            const valueCol = $('#chart-value-col').val();
-
-            const labels = activeResult.data.map(row => row[labelCol]);
-            const values = activeResult.data.map(row => parseFloat(row[valueCol]));
-
-            const ctx = $('#myChart').get(0).getContext('2d');
-
-            if (myChart) myChart.destroy();
-
-            myChart = new Chart(ctx, {
-                type: type,
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: valueCol,
-                        data: values,
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false
-                }
-            });
-        });
-
-        $('#explain-query-btn').on('click', function() {
-            const sql = editor.getSelection() || editor.getValue();
-            if (sql.trim() === '') return;
-
-            const btn = $(this);
-            btn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span>');
-
+    $('#db-selector-list').on('click', 'a', function(e) {
+        e.preventDefault();
+        const dbName = $(this).data('dbname');
+        const currentDbName = $('#active-database-name').text().trim();
+        if (dbName && dbName !== currentDbName) {
+            $('#active-database-name').text(LANG.changing);
             $.ajax({
-                url: '<?= site_url('api/query/explain') ?>',
+                url: '<?= site_url('api/session/database') ?>',
                 method: 'POST',
                 data: {
-                    sql: sql,
+                    database: dbName,
                     '<?= csrf_token() ?>': '<?= csrf_hash() ?>'
                 },
-                success: (response) => {
-                    const planContainer = $('#execution-plan');
-                    planContainer.empty();
-
-                    QP.showPlan(planContainer.get(0), response.plan);
-                    
-                    new bootstrap.Tab($('#plan-tab')[0]).show();
-                },
-                error: (xhr) => {
-                    const errorMsg = xhr.responseJSON?.messages?.error?.message || xhr.responseText || "Ocorreu um erro.";
-                    $('#messages-content').html(
-                        `<div class="alert alert-danger m-2">
-                                <h5 class="alert-heading">${LANG.exec_error}</h5>
-                                <hr>
-                                <p class="mb-0">${$('<div>').text(errorMsg).html()}</p>
-                            </div>`
-                    );
-                    new bootstrap.Tab($('#messages-tab')[0]).show();
-                },
-                complete: () => btn.prop('disabled', false).html(
-                    `<i class="fa fa-sitemap me-1"></i> <?= lang(
-                        'App.workspace.explain',
-                    ) ?>`
-                )
-            });
-        });
-
-        $('#templates-tab').on('click', '.load-template', function(e) {
-            e.preventDefault();
-            const categoryKey = $(this).data('category');
-            const filename = $(this).data('filename');
-
-            $.get(`<?= site_url(
-                'api/templates/get',
-            ) ?>/${categoryKey}/${filename}`, function(response) {
-                let finalSql = response.sql;
-
-                const placeholders = finalSql.match(/'NOME_DA_SUA_TABELA'/g) || finalSql.match(/'schema.NomeDoObjeto'/g) || [];
-
-                if (placeholders.length > 0) {
-                    const objectName = prompt("Este script requer um nome de objeto (ex: dbo.MinhaTabela):");
-
-                    if (objectName) {
-                        finalSql = finalSql.replace(/'NOME_DA_SUA_TABELA'/g, objectName);
-                        finalSql = finalSql.replace(/'schema.NomeDoObjeto'/g, objectName);
-                    } else {
-                        return;
-                    }
+                success: () => window.location.reload(),
+                error: () => {
+                    alert(LANG.error_alter_database);
+                    $('#active-database-name').text(currentDbName);
                 }
-
-                editor.setValue(finalSql);
-                isTemplateQuery = true;
             });
+        }
+    });
+
+    let searchTimeout = false;
+    $('#object-search-input').on('keyup', function() {
+        if (searchTimeout) clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            const searchTerm = $(this).val();
+            const tree = $("#object-explorer-tree").jstree(true);
+            if (searchTerm.length >= 3) {
+                tree.search(searchTerm);
+            } else {
+                tree.clear_search();
+            }
+        }, 300);
+    });
+
+    $('#theme-toggle-btn').on('click', () => {
+        themeManager.applyTheme($('body').hasClass("light-theme") ? "dark" : "light");
+    });
+
+    $('#query-history-list').on('click', 'li', function() {
+        const query = $(this).data("query");
+        if (query) editor.setValue(query);
+    });
+
+    $('#saved-scripts-list').on('click', '.load-script', function() {
+        const index = $(this).data("index");
+        const scripts = getSavedScripts();
+        if (scripts[index]) editor.setValue(scripts[index].sql);
+    });
+
+    $('#saved-scripts-list').on('click', '.delete-script', function() {
+        const index = $(this).data("index");
+        const scripts = getSavedScripts();
+        if (confirm(LANG.confirm_delete_script.replace('{0}', scripts[index].name))) {
+            scripts.splice(index, 1);
+            localStorage.setItem("querysphere_scripts", JSON.stringify(scripts));
+            renderSavedScripts();
+        }
+    });
+
+    $('#save-script-btn').on('click', () => {
+        const sql = editor.getValue();
+        if (!sql.trim()) return alert(LANG.empty_script_alert);
+        const name = prompt(LANG.prompt_script_name, LANG.script_name_default);
+        if (name) {
+            const scripts = getSavedScripts();
+            scripts.unshift({ name, sql });
+            localStorage.setItem("querysphere_scripts", JSON.stringify(scripts));
+            renderSavedScripts();
+        }
+    });
+
+    $('#share-script-btn').on('click', function() {
+        const sql = editor.getValue();
+        if (!sql.trim()) return alert(LANG.empty_shared_script_alert);
+        const name = prompt(LANG.prompt_shared_name, LANG.shared_name_default);
+        if (!name) return;
+        const author = prompt(LANG.prompt_author, LANG.author_default);
+        if (!author) return;
+
+        $.post('<?= site_url('api/shared-queries') ?>', {
+            name, author, sql,
+            '<?= csrf_token() ?>': '<?= csrf_hash() ?>'
+        }).done(() => renderSharedScripts()).fail(() => alert(LANG.share_fail));
+    });
+
+    $('#shared-scripts-list').on('click', '.load-shared-script', function() {
+        editor.setValue($(this).data('sql'));
+    });
+
+    $('#shared-scripts-list').on('click', '.delete-shared-script', function() {
+        const queryId = $(this).data('id');
+        if (confirm(LANG.confirm_delete_shared)) {
+            $.ajax({
+                url: `<?= site_url('api/shared-queries') ?>/${queryId}`,
+                method: 'DELETE',
+                headers: { '<?= csrf_token() ?>': '<?= csrf_hash() ?>' },
+                success: () => renderSharedScripts(),
+                error: () => alert(LANG.delete_shared_fail)
+            });
+        }
+    });
+
+    $('#format-sql-btn').on('click', () => {
+        try {
+            editor.setValue(sqlFormatter.format(editor.getValue(), {
+                language: "tsql",
+                tabWidth: 4,
+                keywordCase: "upper"
+            }));
+        } catch (e) {
+            alert(LANG.format_fail);
+        }
+    });
+
+    $('#resultsTab').on('shown.bs.tab', 'button.dynamic-tab', function(event) {
+        updateChartButtonAndOptions(parseInt(event.target.id.split("-")[2]));
+    });
+
+    $('#export-csv-btn').on('click', function() {
+        if (!lastResultData) return;
+        const activeTabIndex = $('#resultsTab button.dynamic-tab.active').attr('id')?.split('-')[2] || 0;
+        const activeResult = lastResultData.results[activeTabIndex];
+        if (activeResult) {
+            exportToCsv(`export_result_${parseInt(activeTabIndex) + 1}.csv`, activeResult.headers, activeResult.data);
+        }
+    });
+
+    $('#export-json-btn').on('click', function() {
+        if (!lastResultData) return;
+        const activeTabIndex = $('#resultsTab button.dynamic-tab.active').attr('id')?.split('-')[2] || 0;
+        const activeResult = lastResultData.results[activeTabIndex];
+        if (activeResult) {
+            exportToJson(`export_result_${parseInt(activeTabIndex) + 1}.json`, activeResult.data);
+        }
+    });
+
+    $('#execute-query-btn').on('click', () => {
+        executeQuery(editor.getSelection() || editor.getValue(), 1);
+    });
+
+    $('#pagination-prev').on('click', () => {
+        const result = lastResultData.results[0];
+        if (result && result.currentPage > 1) {
+            executeQuery(currentSql, result.currentPage - 1);
+        }
+    });
+
+    $('#pagination-next').on('click', () => {
+        const result = lastResultData.results[0];
+        if (result && result.currentPage < result.totalPages) {
+            executeQuery(currentSql, result.currentPage + 1);
+        }
+    });
+
+    $('#generate-chart-btn').on('click', () => {
+        const activeTabIndex = $('#resultsTab button.dynamic-tab.active').attr('id')?.split('-')[2] || 0;
+        const activeResult = lastResultData?.results[activeTabIndex];
+        if (!activeResult) return;
+
+        const type = $('#chart-type').val();
+        const labelCol = $('#chart-label-col').val();
+        const valueCol = $('#chart-value-col').val();
+
+        const labels = $.map(activeResult.data, row => row[labelCol]);
+        const values = $.map(activeResult.data, row => parseFloat(row[valueCol]));
+
+        const ctx = $('#myChart').get(0).getContext('2d');
+        if (myChart) myChart.destroy();
+
+        myChart = new Chart(ctx, {
+            type: type,
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: valueCol,
+                    data: values,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
         });
     });
+
+    $('#explain-query-btn').on('click', function() {
+        const sql = editor.getSelection() || editor.getValue();
+        if (!sql.trim()) return;
+
+        const $btn = $(this).prop('disabled', true)
+            .html('<span class="spinner-border spinner-border-sm"></span>');
+
+        $.ajax({
+            url: '<?= site_url('api/query/explain') ?>',
+            method: 'POST',
+            data: {
+                sql: sql,
+                '<?= csrf_token() ?>': '<?= csrf_hash() ?>'
+            },
+            success: response => {
+                const $planContainer = $('#execution-plan').empty();
+                if (response.db_type === 'mysql') {
+                    $planContainer.append(
+                        $('<pre style="white-space: pre-wrap; word-wrap: break-word;"></pre>')
+                            .text(JSON.stringify(JSON.parse(response.plan), null, 2))
+                    );
+                } else {
+                    QP.showPlan($planContainer.get(0), response.plan);
+                }
+                new bootstrap.Tab($('#plan-tab')[0]).show();
+            },
+            error: xhr => {
+                const errorMsg = xhr.responseJSON?.messages?.error?.message || xhr.responseText || "Ocorreu um erro.";
+                $('#messages-content').html(`
+                    <div class="alert alert-danger m-2">
+                        <h5 class="alert-heading">${LANG.exec_error}</h5>
+                        <hr>
+                        <p class="mb-0">${$('<div>').text(errorMsg).html()}</p>
+                    </div>
+                `);
+                new bootstrap.Tab($('#messages-tab')[0]).show();
+            },
+            complete: () => $btn.prop('disabled', false).html(
+                `<i class="fa fa-sitemap me-1"></i> <?= lang(
+                    'App.workspace.explain',
+                ) ?>`
+            )
+        });
+    });
+
+    $('body').on('click', '.toggle-event-status', function() {
+        const eventName = $(this).data('event-name');
+        const status = $(this).data('status');
+        
+        $.post('<?= site_url('api/mysql/events/toggle') ?>', { 
+            event_name: eventName, 
+            status: status, 
+            '<?= csrf_token() ?>': '<?= csrf_hash() ?>'
+        }).done(() => renderMySqlEvents()).fail(() => alert(`Failed to update event ${eventName}`));
+    });
+
+    $('body').on('click', '.view-event-definition', function(e) {
+        e.preventDefault();
+        const eventName = $(this).data('event-name');
+        editor.setValue(`-- Loading definition for event ${eventName}...`);
+        
+        $.get(`<?= site_url(
+            'api/mysql/events/definition',
+        ) ?>/${encodeURIComponent(eventName)}`, response => {
+            editor.setValue(response.sql || `-- Could not retrieve definition for event ${eventName}.`);
+        }).fail(() => editor.setValue(`-- Error loading definition for event ${eventName}.`));
+    });
+
+    $('#templates-tab').on('click', '.load-template', function(e) {
+        e.preventDefault();
+        const categoryKey = $(this).data('category');
+        const filename = $(this).data('filename');
+
+        $.get(`<?= site_url(
+            'api/templates/get',
+        ) ?>/${categoryKey}/${filename}`, response => {
+            let finalSql = response.sql;
+            const placeholders = finalSql.match(/'NOME_DA_SUA_TABELA'|'schema.NomeDoObjeto'/g) || [];
+
+            if (placeholders.length) {
+                const objectName = prompt("Este script requer um nome de objeto (ex: dbo.MinhaTabela):");
+                if (objectName) {
+                    finalSql = finalSql.replace(/'NOME_DA_SUA_TABELA'|'schema.NomeDoObjeto'/g, objectName);
+                } else {
+                    return;
+                }
+            }
+            editor.setValue(finalSql);
+            isTemplateQuery = true;
+        });
+    });
+
+    // Initial setup
+    refreshHistory();
+    renderSavedScripts();
+    initializeIntellisense();
+    renderQueryTemplates();
+    renderSharedScripts();
+    if (DB_TYPE === 'sqlsrv') {
+        renderAgentJobs();
+    } else if (DB_TYPE === 'mysql') {
+        renderMySqlEvents();
+    }
+});
 </script>
 
 </body>

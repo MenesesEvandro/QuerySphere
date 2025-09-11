@@ -27,9 +27,6 @@ interface DatabaseModelInterface
         string $database,
         string $schema,
         string $objectName,
+        string $type,
     ): ?string;
-    public function getAgentJobs(): array;
-    public function startAgentJob(string $jobName): array;
-    public function stopAgentJob(string $jobName): array;
-    public function getAgentJobHistory(string $jobName): array;
 }
