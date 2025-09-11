@@ -75,7 +75,7 @@ O projeto está em constante evolução. A próxima grande versão, **v0.3 "Lyra
 - Gerenciamento visual (CRUD) para tabelas e outros objetos.
 - Base técnica para o suporte a outros sistemas de banco de dados, como MySQL e PostgreSQL.
 
-> _Acompanhe o desenvolvimento da próxima versão:_ [_v0.3 "Lyra"_](https://github.com/MenesesEvandro/QuerySphere/tree/lyra)
+> _Acompanhe o desenvolvimento da próxima versão:_ [_v0.3 "Lyra"_](https://github.com/MenesesEvandro/QuerySphere/tree/v0.3-lyra)
 
 **QuerySphere** não é apenas uma ferramenta, é uma filosofia: acesso a dados de forma rápida, segura e sem complicações.
 
