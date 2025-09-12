@@ -31,12 +31,14 @@ return [
         'running' => 'Running',
         'success' => 'Success',
         'failed' => 'Failed',
+        'cancel' => 'Cancel',
         'canceled' => 'Canceled',
         'retry' => 'Retry',
         'https_warning' =>
             'Warning: This page should be accessed via HTTPS to ensure security.',
         'crypto_warning' =>
             'Error: This browser does not support the Web Crypto API. Please use a modern browser.',
+        'confirmation' => 'Confirmation',
     ],
 
     //--------------------------------------------------------------------
@@ -347,6 +349,7 @@ return [
         'add_column' => 'Add Column',
         'confirm_drop_table' =>
             'Are you sure you want to drop the table "{0}"? This action cannot be undone.',
+        'table_drop_successfully' => 'The table {0} was successfully deleted',
         'table_creation_failed' => 'Table creation failed.',
         'table_created_successfully' => 'Table "{0}" created successfully.',
         'script_alter' => 'Display edit script',

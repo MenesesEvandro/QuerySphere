@@ -110,6 +110,32 @@
     </div>
 </div>
 
+
+<div class="toast-container position-fixed top-0 end-0 p-3"></div>
+
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmModalLabel"><?= lang(
+                    'App.general.confirmation',
+                ) ?></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?= lang(
+                    'App.general.close',
+                ) ?>"></button>
+            </div>
+            <div class="modal-body" id="confirmModalBody">
+                </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="confirmModalCancelBtn"><?= lang(
+                    'App.general.cancel',
+                ) ?></button>
+                <button type="button" class="btn btn-primary" id="confirmModalOkBtn">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     const themeManager = {
         /**
@@ -169,119 +195,10 @@
 <script src="<?= base_url('libs/qp/qp.js') ?>"></script>
 
 
-
-
 <script>
-    const LANG = {
-        executing: "<?= lang('App.workspace.workspace') ?>",
-        execute: "<?= lang('App.workspace.execute') ?>",
-        changing: "<?= lang('App.connection.changing') ?>",
-        error_alter_database: "<?= lang(
-            'App.feedback.error_alter_database',
-        ) ?>",
-        intellisense_error: "<?= lang('App.feedback.intellisense_error') ?>",
-        confirm_delete_script: "<?= lang('App.scripts.confirm_delete') ?>",
-        prompt_script_name: "<?= lang('App.scripts.prompt_name') ?>",
-        script_name_default: "<?= lang('App.scripts.default_name') ?>",
-        empty_script_alert: "<?= lang('App.scripts.empty_alert') ?>",
-        empty_shared_script_alert: "<?= lang(
-            'App.scripts.empty_shared_alert',
-        ) ?>",
-        prompt_shared_name: "<?= lang('App.scripts.prompt_shared_name') ?>",
-        shared_name_default: "<?= lang('App.scripts.shared_default_name') ?>",
-        prompt_author: "<?= lang('App.scripts.prompt_author') ?>",
-        author_default: "<?= lang('App.scripts.author_default') ?>",
-        share_fail: "<?= lang('App.scripts.share_fail') ?>",
-        confirm_delete_shared: "<?= lang(
-            'App.scripts.confirm_delete_shared',
-        ) ?>",
-        delete_shared_fail: "<?= lang('App.scripts.delete_shared_fail') ?>",
-        format_fail: "<?= lang('App.feedback.format_fail') ?>",
-        exec_error: "<?= lang('App.feedback.exec_error') ?>",
-        no_results_found: "<?= lang('App.feedback.no_results_found') ?>",
-        empty_result: "<?= lang('App.feedback.empty_result') ?>",
-        page: "<?= lang('App.general.page') ?>",
-        of: "<?= lang('App.general.of') ?>",
-        records: "<?= lang('App.general.records') ?>",
-        result: "<?= lang('App.general.result') ?>",
-        loading_definition_for: "<?= lang(
-            'App.objects_browser.loading_definition_for',
-        ) ?>",
-        error_loading_definition: "<?= lang(
-            'App.feedback.error_loading_definition',
-        ) ?>",
-        search_placeholder: "<?= lang('App.workspace.search_placeholder') ?>",
-        no_templates: "<?= lang('App.feedback.no_templates') ?>",
-        loading: "<?= lang('App.general.loading') ?>",
-        job_name: "<?= lang('App.agent.job_name') ?>",
-        status: "<?= lang('App.agent.status') ?>",
-        last_run: "<?= lang('App.agent.last_run') ?>",
-        last_run_status: "<?= lang('App.agent.last_run_status') ?>",
-        next_run: "<?= lang('App.agent.next_run') ?>",
-        actions: "<?= lang('App.general.actions') ?>",
-        start_job: "<?= lang('App.agent.start_job') ?>",
-        stop_job: "<?= lang('App.agent.stop_job') ?>",
-        running: "<?= lang('App.general.running') ?>",
-        enable: "<?= lang('App.general.enable') ?>",
-        enabled: "<?= lang('App.general.enabled') ?>",
-        disable: "<?= lang('App.general.disable') ?>",
-        disabled: "<?= lang('App.general.disabled') ?>",
-        success: "<?= lang('App.general.success') ?>",
-        failed: "<?= lang('App.general.failed') ?>",
-        unknown: "<?= lang('App.general.unknown') ?>",
-        no_jobs_found: "<?= lang('App.agent.no_jobs_found') ?>",
-        view_job_history: "<?= lang('App.agent.history') ?>",
-        no_history_found: "<?= lang('App.agent.no_history_found') ?>",
-        error_retrieving_history: "<?= lang(
-            'App.agent.error_retrieving_history',
-        ) ?>",
-        retry: "<?= lang('App.general.retry') ?>",
-        canceled: "<?= lang('App.general.canceled') ?>",
-        job_started: "<?= lang('App.agent.job_started') ?>",
-        job_start_failed: "<?= lang('App.agent.job_start_failed') ?>",
-        job_stopped: "<?= lang('App.agent.job_stopped') ?>",
-        job_stop_failed: "<?= lang('App.agent.job_stop_failed') ?>",
-        event_name: "<?= lang('App.event.event_name') ?>",
-        disable_event: "<?= lang('App.event.disable_event') ?>",
-        enable_event: "<?= lang('App.event.enable_event') ?>",
+    <?= view('templates/scripts/lang') ?>
 
-        no_primary_key: "<?= lang('App.workspace.no_primary_key') ?>",
-        multiple_tables_not_supported: "<?= lang(
-            'App.workspace.multiple_tables_not_supported',
-        ) ?>",
-        no_table_detected: "<?= lang('App.workspace.no_table_detected') ?>",
-        confirm_discard_changes: "<?= lang(
-            'App.workspace.confirm_discard_changes',
-        ) ?>",
-        error_no_db_selected_for_edit: "<?= lang(
-            'App.feedback.error_no_db_selected_for_edit',
-        ) ?>",
-        error_saving: "<?= lang('App.workspace.error_saving') ?>",
-        data_saved: "<?= lang('App.feedback.data_saved') ?>",
-        no_pk_edit: "<?= lang('App.feedback.no_pk_edit') ?>",
-        new_table: "<?= lang('App.schema_editor.new_table') ?>",
-        design_table: "<?= lang('App.schema_editor.design_table') ?>",
-        drop_table: "<?= lang('App.schema_editor.drop_table') ?>",
-        confirm_drop_table: "<?= lang(
-            'App.schema_editor.confirm_drop_table',
-        ) ?>",
-        stored_procedures: "<?= lang(
-            'App.objects_browser.stored_procedures',
-        ) ?>",
-        script_execute: "<?= lang('App.objects_browser.script_execute') ?>",
-        script_create: "<?= lang('App.schema_editor.script_create') ?>",
-        script_alter: "<?= lang('App.schema_editor.script_alter') ?>",
-
-    };
-
-    var lastResultData = null;
-    var myChart = null;
-    var currentSql = '';
-    var resultsDataTable = null;
-    var isTemplateQuery = false;
-    const DB_TYPE = '<?= $db_type ?? '' ?>';
-
-    $(function() {
+$(async function () {
     // Initialize CodeMirror editor
     const editor = CodeMirror.fromTextArea($('#query-editor')[0], {
         lineNumbers: true,
@@ -485,9 +402,9 @@
                 });
         },
 
-        reset: function() {
+        reset: async function() {
             if (Object.keys(this.changedData).length > 0) {
-                if (!confirm(LANG.confirm_discard_changes)) {
+                if (!await showConfirmModal(LANG.confirm_discard_changes)) {
                     return false;
                 }
             }
@@ -554,7 +471,7 @@
                     const columnName = resultsDataTable.column(td.index()).header().textContent;
 
                     if (columnName === this.pkColumn) {
-                        alert(LANG.no_pk_edit);
+                        notifier.show(LANG.no_pk_edit, 'warning');
                         td.text(originalValue);
                         return;
                     }
@@ -596,14 +513,14 @@
 
             Promise.all(promises)
                 .then(() => {
-                    alert(LANG.data_saved);
+                    notifier.show(LANG.data_saved, 'success');
                     this.changedData = {};
                     $('#save-changes-btn').hide();
                     $('.datatable-row-changed').removeClass('datatable-row-changed');
                 })
                 .catch(err => {
                     const errorMsg = err.responseJSON?.messages?.error || LANG.error_saving;
-                    alert(errorMsg);
+                    notifier.show(errorMsg, 'error');
                 })
                 .finally(() => {
                     btn.prop('disabled', false).html(`<i class="fa fa-save me-1"></i> ${LANG.save_changes}`);
@@ -648,7 +565,7 @@
                         }
                     })
                     .fail(() => {
-                        alert('Error: Could not load table structure.');
+                        notifier.show('Error: Could not load table structure.', 'error');
                         this.modal.hide();
                     });
             }
@@ -679,7 +596,7 @@
         save: function() {
             const tableName = $('#table-name').val();
             if (!tableName) {
-                alert('Table name is required.');
+                notifier.show('Table name is required.', 'warning');
                 return;
             }
 
@@ -702,7 +619,7 @@
             });
 
             if (columns.length === 0) {
-                alert('A table must have at least one column.');
+                notifier.show('A table must have at least one column.', 'warning');
                 return;
             }
 
@@ -721,17 +638,97 @@
                 data: JSON.stringify(payload),
                 headers: { 'X-CSRF-TOKEN': '<?= csrf_hash() ?>' },
                 success: (response) => {
-                    alert(LANG.table_created_successfully.replace('{0}', tableName));
+                    notifier.show(LANG.table_created_successfully.replace('{0}', tableName), 'success');
                     this.modal.hide();
                     $('#object-explorer-tree').jstree(true).refresh();
                 },
                 error: (xhr) => {
                     const errorMsg = xhr.responseJSON?.messages?.error || LANG.table_creation_failed;
-                    alert(errorMsg);
+                    notifier.show(errorMsg, 'error');
                 }
             });
         }
     };
+
+    const notifier = {
+        toastContainer: $('.toast-container'),
+        show: function(message, type = 'info', delay = 5000) {
+            const iconMap = {
+                success: 'fa-check-circle',
+                error: 'fa-times-circle',
+                warning: 'fa-exclamation-triangle',
+                info: 'fa-info-circle'
+            };
+            const bgMap = {
+                success: 'bg-success',
+                error: 'bg-danger',
+                warning: 'bg-warning',
+                info: 'bg-info'
+            };
+
+            const toastId = 'toast-' + Date.now();
+            const toastHtml = `
+                <div id="${toastId}" class="toast align-items-center text-white ${bgMap[type]}" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="${delay}">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            <i class="fa ${iconMap[type]} me-2"></i>
+                            ${message}
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+            `;
+
+            this.toastContainer.append(toastHtml);
+            const toastElement = new bootstrap.Toast(document.getElementById(toastId));
+            
+            // Remove o elemento do DOM depois de o toast ser escondido
+            document.getElementById(toastId).addEventListener('hidden.bs.toast', function () {
+                this.remove();
+            });
+
+            toastElement.show();
+        }
+    };
+
+    const confirmModal = {
+        modal: new bootstrap.Modal(document.getElementById('confirmModal')),
+        show: function(message, title = 'Confirmation') {
+            return new Promise((resolve, reject) => {
+                const modalTitle = document.getElementById('confirmModalLabel');
+                const modalBody = document.getElementById('confirmModalBody');
+                const okBtn = document.getElementById('confirmModalOkBtn');
+                const cancelBtn = document.getElementById('confirmModalCancelBtn');
+
+                modalTitle.textContent = title;
+                modalBody.textContent = message;
+
+                const onOk = () => {
+                    cleanup();
+                    resolve(true);
+                };
+
+                const onCancel = () => {
+                    cleanup();
+                    reject(false);
+                };
+
+                const cleanup = () => {
+                    this.modal.hide();
+                    okBtn.removeEventListener('click', onOk);
+                    cancelBtn.removeEventListener('click', onCancel);
+                };
+
+                okBtn.addEventListener('click', onOk, { once: true });
+                cancelBtn.addEventListener('click', onCancel, { once: true });
+                
+                this.modal.show();
+            });
+        }
+    };
+
+    // Alias
+    const showConfirmModal = (message, title) => confirmModal.show(message, title);
 
     // Render functions
     function renderAgentJobs() {
@@ -975,7 +972,7 @@
         $("#chart-value-col").html($.map(numericCols, col => `<option>${col}</option>`).join(""));
     }
 
-    function executeQuery(sql, page = 1) {
+    async function executeQuery(sql, page = 1) {
         if (typeof editableGrid !== 'undefined' && !editableGrid.reset()) {
             return; // Aborta a execução se o utilizador cancelar
         }
@@ -1223,16 +1220,12 @@
                         label: LANG.drop_table,
                         icon: "fa fa-trash-alt",
                         _separator_before: true,
-                        action: () => {
+                        action: async () => {
                             const { db, schema, table } = nodeData;
-                            if (confirm(LANG.confirm_drop_table.replace('{0}', table))) {
+                            try {
+                                await showConfirmModal(LANG.schema_editor.confirm_drop_table.replace('{0}', table));
                                 
-                                const payload = {
-                                    database: db,
-                                    schema: schema,
-                                    table: table
-                                };
-
+                                const payload = { database: db, schema: schema, table: table };
                                 $.ajax({
                                     url: '<?= site_url('api/schema/drop') ?>',
                                     method: 'DELETE',
@@ -1240,14 +1233,16 @@
                                     data: JSON.stringify(payload),
                                     headers: { 'X-CSRF-TOKEN': '<?= csrf_hash() ?>' },
                                     success: () => {
-                                        alert(`Table "${table}" dropped successfully.`);
+                                        notifier.show(`Table "${table}" dropped successfully.`, 'success');
                                         $('#object-explorer-tree').jstree(true).refresh_node(node.parent);
                                     },
                                     error: (xhr) => {
                                         const errorMsg = xhr.responseJSON?.messages?.error || 'Failed to drop table.';
-                                        alert(errorMsg);
+                                        notifier.show(errorMsg, 'error');
                                     }
                                 });
+                            } catch (e) {
+                                console.log('Drop table operation canceled by user.');
                             }
                         }
                     };
@@ -1284,9 +1279,9 @@
             job_name: jobName,
             '<?= csrf_token() ?>': '<?= csrf_hash() ?>'
         }).done(() => {
-            alert(`${jobName}: ${LANG.job_started}`);
+            notifier.show(`${jobName}: ${LANG.job_started}`, 'success');
             renderAgentJobs();
-        }).fail(() => alert(`${jobName}: ${LANG.job_start_failed}`));
+        }).fail(() => notifier.show(`${jobName}: ${LANG.job_start_failed}`, 'error'));
     });
 
     $('#agent-jobs-container').on('click', '.stop-job', function() {
@@ -1295,9 +1290,9 @@
             job_name: jobName,
             '<?= csrf_token() ?>': '<?= csrf_hash() ?>'
         }).done(() => {
-            alert(`${jobName}: ${LANG.job_stopped}`);
+            notifier.show(`${jobName}: ${LANG.job_stopped}`, 'success');
             renderAgentJobs();
-        }).fail(() => alert(`${jobName}: ${LANG.job_stop_failed}`));
+        }).fail(() => notifier.show(`${jobName}: ${LANG.job_stop_failed}`, 'error'));
     });
 
     $('#agent-jobs-container').on('click', '.view-job-history', function(e) {
@@ -1320,7 +1315,7 @@
                 },
                 success: () => window.location.reload(),
                 error: () => {
-                    alert(LANG.error_alter_database);
+                    notifier.show(LANG.error_alter_database, 'error');
                     $('#active-database-name').text(currentDbName);
                 }
             });
@@ -1356,19 +1351,23 @@
         if (scripts[index]) editor.setValue(scripts[index].sql);
     });
 
-    $('#saved-scripts-list').on('click', '.delete-script', function() {
+    $('#saved-scripts-list').on('click', '.delete-script', async function () {
         const index = $(this).data("index");
         const scripts = getSavedScripts();
-        if (confirm(LANG.confirm_delete_script.replace('{0}', scripts[index].name))) {
+        try {
+            await showConfirmModal(LANG.scripts.confirm_delete_script.replace('{0}', scripts[index].name));
+
             scripts.splice(index, 1);
             localStorage.setItem("querysphere_scripts", JSON.stringify(scripts));
             renderSavedScripts();
+        } catch (e) {
+            console.log('Delete script operation canceled.');
         }
     });
 
     $('#save-script-btn').on('click', () => {
         const sql = editor.getValue();
-        if (!sql.trim()) return alert(LANG.empty_script_alert);
+        if (!sql.trim()) return notifier.show(LANG.empty_script_alert, 'error');
         const name = prompt(LANG.prompt_script_name, LANG.script_name_default);
         if (name) {
             const scripts = getSavedScripts();
@@ -1380,7 +1379,7 @@
 
     $('#share-script-btn').on('click', function() {
         const sql = editor.getValue();
-        if (!sql.trim()) return alert(LANG.empty_shared_script_alert);
+        if (!sql.trim()) return notifier.show(LANG.empty_shared_script_alert, 'error');
         const name = prompt(LANG.prompt_shared_name, LANG.shared_name_default);
         if (!name) return;
         const author = prompt(LANG.prompt_author, LANG.author_default);
@@ -1389,25 +1388,31 @@
         $.post('<?= site_url('api/shared-queries') ?>', {
             name, author, sql,
             '<?= csrf_token() ?>': '<?= csrf_hash() ?>'
-        }).done(() => renderSharedScripts()).fail(() => alert(LANG.share_fail));
+        }).done(() => renderSharedScripts()).fail(() => notifier.show(LANG.share_fail, 'error'));
     });
 
     $('#shared-scripts-list').on('click', '.load-shared-script', function() {
         editor.setValue($(this).data('sql'));
     });
 
-    $('#shared-scripts-list').on('click', '.delete-shared-script', function() {
-        const queryId = $(this).data('id');
-        if (confirm(LANG.confirm_delete_shared)) {
-            $.ajax({
-                url: `<?= site_url('api/shared-queries') ?>/${queryId}`,
-                method: 'DELETE',
-                headers: { '<?= csrf_token() ?>': '<?= csrf_hash() ?>' },
-                success: () => renderSharedScripts(),
-                error: () => alert(LANG.delete_shared_fail)
-            });
-        }
-    });
+    $('#shared-scripts-list').on('click', '.delete-shared-script', async function () {
+    const queryId = $(this).data('id');
+    try {
+        await showConfirmModal(LANG.scripts.confirm_delete_shared);
+        $.ajax({
+            url: `<?= site_url('api/shared-queries') ?>/${queryId}`,
+            method: 'DELETE',
+            headers: { 'X-CSRF-TOKEN': '<?= csrf_hash() ?>' },
+            success: () => {
+                notifier.show(LANG.feedback.delete_shared_success, 'success');
+                renderSharedScripts();
+            },
+            error: () => notifier.show(LANG.feedback.delete_shared_fail, 'error')
+        });
+    } catch (e) {
+        console.log('Delete shared query operation canceled.');
+    }
+});
 
     $('#format-sql-btn').on('click', () => {
         try {
@@ -1417,7 +1422,7 @@
                 keywordCase: "upper"
             }));
         } catch (e) {
-            alert(LANG.format_fail);
+            notifier.show(LANG.format_fail, 'error');
         }
     });
 
@@ -1546,7 +1551,7 @@
             event_name: eventName, 
             status: status, 
             '<?= csrf_token() ?>': '<?= csrf_hash() ?>'
-        }).done(() => renderMySqlEvents()).fail(() => alert(`Failed to update event ${eventName}`));
+        }).done(() => renderMySqlEvents()).fail(() => notifier.show(`Failed to update event ${eventName}`, 'error'));
     });
 
     $('body').on('click', '.view-event-definition', function(e) {

@@ -243,39 +243,35 @@
     </div>
 </div>
 
+<div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmModalLabel"><?= lang(
+                    'App.general.confirmation',
+                ) ?></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?= lang(
+                    'App.general.close',
+                ) ?>"></button>
+            </div>
+            <div class="modal-body" id="confirmModalBody">
+                </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="confirmModalCancelBtn"><?= lang(
+                    'App.general.cancel',
+                ) ?></button>
+                <button type="button" class="btn btn-primary" id="confirmModalOkBtn">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 
 <script>
-    const LANG = {
-        new_connection: "<?= lang('App.connection.new_connection') ?>",
-        manage_connections: "<?= lang('App.connection.manage_connections') ?>",
-        select_connection: "<?= lang('App.connection.select_connection') ?>",
-        confirm_delete_connection: "<?= lang(
-            'App.connection.confirm_delete_connection',
-        ) ?>",
-        invalid_number: "<?= lang('App.general.invalid_number') ?>",
-        new_master_password: "<?= lang('App.master_password.new') ?>",
-        ask_master_password: "<?= lang('App.master_password.ask_prompt') ?>",
-        prompt_connection_name: "<?= lang(
-            'App.connection.prompt_connection_name',
-        ) ?>",
-        error_decrypting_password: "<?= lang(
-            'App.master_password.error_decrypting',
-        ) ?>",
-        no_saved_connections: "<?= lang(
-            'App.connection.no_saved_connections',
-        ) ?>",
-        connection_deleted: "<?= lang('App.connection.connection_deleted') ?>",
-        connection: "<?= lang('App.connection.title') ?>",
-        actions: "<?= lang('App.general.actions') ?>",
-        delete: "<?= lang('App.general.delete') ?>",
-        invalid_master_password: "<?= lang('App.master_password.invalid') ?>",
-        confirm_clear_connections: "<?= lang(
-            'App.connection.confirm_clear_connections',
-        ) ?>"
-    };
-
+    <?= view('templates/scripts/lang', $this->data) ?>
+    
     $(async function () {
         // Check for HTTPS and Web Crypto API support
         if (window.location.protocol !== 'https:') {
@@ -608,30 +604,90 @@
             }
         });
 
+        const confirmModal = {
+            modal: new bootstrap.Modal(document.getElementById('confirmModal')),
+            show: function(message, title = 'Confirmation') {
+                return new Promise((resolve, reject) => {
+                    const modalTitle = document.getElementById('confirmModalLabel');
+                    const modalBody = document.getElementById('confirmModalBody');
+                    const okBtn = document.getElementById('confirmModalOkBtn');
+                    const cancelBtn = document.getElementById('confirmModalCancelBtn');
+
+                    modalTitle.textContent = title;
+                    modalBody.textContent = message;
+
+                    const onOk = () => {
+                        cleanup();
+                        resolve(true);
+                    };
+
+                    const onCancel = () => {
+                        cleanup();
+                        reject(false);
+                    };
+
+                    const cleanup = () => {
+                        this.modal.hide();
+                        okBtn.removeEventListener('click', onOk);
+                        cancelBtn.removeEventListener('click', onCancel);
+                    };
+
+                    okBtn.addEventListener('click', onOk, { once: true });
+                    cancelBtn.addEventListener('click', onCancel, { once: true });
+                    
+                    this.modal.show();
+                });
+            }
+        };
+
+        // Alias
+        const showConfirmModal = (message, title) => confirmModal.show(message, title);
+
         // Handle delete connection using event delegation
         $manageModalElement.on('click', '.delete-connection-btn', async function () {
-            const $button = $(this);
-            const index = parseInt($button.data('index'));
-            const connections = await getSavedConnections(masterPassword);
-            if (confirm(LANG.confirm_delete_connection.replace('{0}', escapeHtml(connections[index].name)))) {
+            const button = $(this);
+            const index = parseInt(button.data('index'));
+            
+            try {
+                const connections = await getSavedConnections(masterPassword);
+                
+                await showConfirmModal(LANG.confirm_delete_connection.replace('{0}', escapeHtml(connections[index].name)));
+
                 connections.splice(index, 1);
                 await saveConnections(connections, masterPassword);
                 await renderConnectionsInModal();
-                if ($connectionSelect.val() == index) {
-                    $connectionSelect.val('new');
-                    $form[0].reset();
+
+                // Correção dos seletores
+                if ($('#connection-select').val() == index) {
+                    $('#connection-select').val('new');
+                    $('form').trigger('reset');
                 }
+                
+                notifier.show(LANG.connection_deleted, 'success');
+
+            } catch (err) {
+                console.log('Delete connection canceled.');
             }
         });
 
         // Clear all connections
         $('#clear-connections-btn').on('click', async function () {
-            if (confirm(LANG.confirm_clear_connections)) {
+            try {
+                await showConfirmModal(LANG.confirm_clear_connections);
+
                 localStorage.removeItem(STORAGE_KEY);
+                masterPassword = null;
+                
                 await renderConnectionsInModal();
-                $connectionSelect.val('new');
-                $form[0].reset();
+                
+                $('#connection-select').val('new');
+                $('form').trigger('reset');
+                
                 loadConnectionsIntoSelect();
+                notifier.show(LANG.connections_cleared, 'success');
+
+            } catch (err) {
+                console.log('Clear connections canceled.');
             }
         });
 

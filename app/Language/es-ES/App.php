@@ -31,12 +31,14 @@ return [
         'running' => 'En ejecución',
         'success' => 'Éxito',
         'failed' => 'Falló',
+        'cancel' => 'Cancelar',
         'canceled' => 'Cancelado',
         'retry' => 'Reintentar',
         'https_warning' =>
             'Advertencia: Se debe acceder a esta página a través de HTTPS para garantizar la seguridad.',
         'crypto_warning' =>
             'Error: Este navegador no es compatible con la API Web Crypto. Por favor, utilice un navegador moderno.',
+        'confirmation' => 'Confirmación',
     ],
 
     //--------------------------------------------------------------------
@@ -358,6 +360,7 @@ return [
         'add_column' => 'Añadir Columna',
         'confirm_drop_table' =>
             '¿Está seguro de que desea eliminar la tabla "{0}"? Esta acción no se puede deshacer.',
+        'table_drop_successfully' => 'La tabla {0} fue eliminada con éxito',
         'table_creation_failed' => 'La creación de la tabla ha fallado.',
         'table_created_successfully' => 'Tabla "{0}" creada con éxito.',
         'script_alter' => 'Mostrar script de edición',
