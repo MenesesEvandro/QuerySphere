@@ -39,4 +39,23 @@ interface DatabaseModelInterface
         $primaryKeyValue,
         array $data,
     ): array;
+
+    public function getTableStructure(
+        string $database,
+        string $schema,
+        string $table,
+    ): array;
+    public function createTable(
+        string $database,
+        string $schema,
+        string $table,
+        array $columns,
+        ?string $primaryKey,
+    ): array;
+    public function addColumn(
+        string $database,
+        string $schema,
+        string $table,
+        array $column,
+    ): array;
 }

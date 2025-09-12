@@ -153,6 +153,7 @@ return [
         'functions' => 'Functions',
         'no_parameters' => 'No parameters',
         'loading_definition_for' => 'Loading definition for {0}...',
+        'script_execute' => 'Script as Execute',
     ],
 
     //--------------------------------------------------------------------
@@ -327,6 +328,29 @@ return [
         'disable_event' => 'Disable Event',
         'enable_event' => 'Enable Event',
         'no_events_found' => 'No MySQL Events found.',
+    ],
+
+    //--------------------------------------------------------------------
+    // Schema Editor (Create/Design Table)
+    //--------------------------------------------------------------------
+    'schema_editor' => [
+        'new_table' => 'New Table',
+        'design_table' => 'Design Table',
+        'drop_table' => 'Drop Table',
+        'table_name' => 'Table Name',
+        'columns' => 'Columns',
+        'column_name' => 'Column Name',
+        'data_type' => 'Data Type',
+        'size_length' => 'Size/Length',
+        'allow_null' => 'Allow Null',
+        'primary_key' => 'Primary Key',
+        'add_column' => 'Add Column',
+        'confirm_drop_table' =>
+            'Are you sure you want to drop the table "{0}"? This action cannot be undone.',
+        'table_creation_failed' => 'Table creation failed.',
+        'table_created_successfully' => 'Table "{0}" created successfully.',
+        'script_alter' => 'Display edit script',
+        'script_create' => 'Display creation script',
     ],
 
     //--------------------------------------------------------------------

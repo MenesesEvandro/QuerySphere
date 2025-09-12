@@ -518,21 +518,109 @@ class SqlServerModel extends Model implements DatabaseModelInterface
         if (!$this->hasConnection()) {
             return null;
         }
-        if (sqlsrv_query($this->conn, 'USE [' . $database . ']') === false) {
-            return null;
-        }
-        $qualifiedName = $schema . '.' . $objectName;
-        $sql = 'EXEC sp_helptext ?';
-        $params = [$qualifiedName];
-        $stmt = sqlsrv_query($this->conn, $sql, $params);
-        $definition = '';
-        if ($stmt) {
-            while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
-                $definition .= $row['Text'];
+
+        $type = strtoupper($type);
+
+        if ($type === 'TABLE' || $type === 'BASE TABLE') {
+            $sql = "
+                SELECT
+                    '    [' + c.name + '] ' +
+                    UPPER(tp.name) +
+                    CASE
+                        WHEN tp.name IN ('varchar', 'nvarchar', 'char', 'nchar', 'binary', 'varbinary') THEN '(' + IIF(c.max_length = -1, 'MAX', CAST(c.max_length AS VARCHAR(10))) + ')'
+                        WHEN tp.name IN ('decimal', 'numeric') THEN '(' + CAST(c.precision AS VARCHAR(10)) + ', ' + CAST(c.scale AS VARCHAR(10)) + ')'
+                        WHEN tp.name IN ('datetime2', 'time') THEN '(' + CAST(c.scale AS VARCHAR(10)) + ')'
+                        ELSE ''
+                    END +
+                    ' ' +
+                    CASE WHEN c.is_nullable = 0 THEN 'NOT NULL' ELSE 'NULL' END +
+                    ISNULL(' DEFAULT ' + dc.definition, '') AS column_definition,
+                    pk.is_primary_key
+                FROM [{$database}].sys.columns c
+                JOIN [{$database}].sys.tables st ON c.object_id = st.object_id
+                JOIN [{$database}].sys.schemas ss ON st.schema_id = ss.schema_id
+                JOIN [{$database}].sys.types tp ON c.user_type_id = tp.user_type_id
+                LEFT JOIN [{$database}].sys.default_constraints dc ON c.default_object_id = dc.object_id
+                OUTER APPLY (
+                    SELECT 1 AS is_primary_key
+                    FROM [{$database}].sys.index_columns ic
+                    JOIN [{$database}].sys.indexes i ON ic.object_id = i.object_id AND ic.index_id = i.index_id
+                    WHERE i.is_primary_key = 1
+                    AND ic.object_id = c.object_id
+                    AND ic.column_id = c.column_id
+                ) pk
+                WHERE st.name = ? AND ss.name = ?
+                ORDER BY c.column_id;
+            ";
+
+            $params = [$objectName, $schema];
+            $stmt = sqlsrv_query($this->conn, $sql, $params);
+
+            if ($stmt) {
+                $cols = [];
+                $pk_columns = [];
+                while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+                    $cols[] = $row['column_definition'];
+                    if ($row['is_primary_key']) {
+                        preg_match(
+                            '/\[(.*?)\]/',
+                            $row['column_definition'],
+                            $matches,
+                        );
+                        if (isset($matches[1])) {
+                            $pk_columns[] = '[' . $matches[1] . ']';
+                        }
+                    }
+                }
+                sqlsrv_free_stmt($stmt);
+
+                if (empty($cols)) {
+                    return lang(
+                        'App.feedback.db_could_not_retrieve_definition',
+                        [$objectName],
+                    );
+                }
+
+                $script = "CREATE TABLE [{$schema}].[{$objectName}] (\n";
+                $script .= implode(",\n", $cols);
+
+                if (!empty($pk_columns)) {
+                    $script .=
+                        ",\n    CONSTRAINT [PK_{$objectName}] PRIMARY KEY CLUSTERED (" .
+                        implode(', ', $pk_columns) .
+                        ' ASC)';
+                }
+
+                $script .= "\n);";
+
+                return $script;
             }
-            sqlsrv_free_stmt($stmt);
-            return $definition;
+        } else {
+            $fullObjectName = "[{$schema}].[{$objectName}]";
+            $sql = 'EXEC sp_helptext ?';
+            $params = [$fullObjectName];
+
+            $stmt = sqlsrv_query($this->conn, $sql, $params);
+
+            if ($stmt) {
+                $definition = '';
+                while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+                    $definition .= $row['Text'];
+                }
+                sqlsrv_free_stmt($stmt);
+
+                if (!empty($definition)) {
+                    $definition = preg_replace(
+                        '/^\s*CREATE/i',
+                        'ALTER',
+                        $definition,
+                    );
+                }
+
+                return $definition;
+            }
         }
+
         return null;
     }
 
@@ -745,5 +833,228 @@ class SqlServerModel extends Model implements DatabaseModelInterface
             'status' => 'error',
             'message' => sqlsrv_errors()[0]['message'],
         ];
+    }
+
+    /**
+     * Retrieves the detailed structure of a given SQL Server table.
+     *
+     * @param string $database The name of the database.
+     * @param string $schema The schema of the table.
+     * @param string $table The name of the table.
+     * @return array An array of column definitions.
+     */
+    public function getTableStructure(
+        string $database,
+        string $schema,
+        string $table,
+    ): array {
+        if (!$this->hasConnection()) {
+            return [];
+        }
+        $sql = "
+            SELECT
+                c.COLUMN_NAME AS [name],
+                UPPER(c.DATA_TYPE) +
+                    CASE
+                        WHEN c.CHARACTER_MAXIMUM_LENGTH IS NOT NULL THEN '(' + CAST(c.CHARACTER_MAXIMUM_LENGTH AS VARCHAR) + ')'
+                        WHEN c.NUMERIC_PRECISION IS NOT NULL THEN '(' + CAST(c.NUMERIC_PRECISION AS VARCHAR) + ',' + CAST(c.NUMERIC_SCALE AS VARCHAR) + ')'
+                        ELSE ''
+                    END AS [type],
+                IIF(c.IS_NULLABLE = 'YES', 1, 0) as [nullable],
+                IIF(tc.CONSTRAINT_TYPE IS NOT NULL, 1, 0) as [is_pk]
+            FROM [{$database}].INFORMATION_SCHEMA.COLUMNS c
+            LEFT JOIN [{$database}].INFORMATION_SCHEMA.KEY_COLUMN_USAGE ku
+                ON c.TABLE_SCHEMA = ku.TABLE_SCHEMA
+                AND c.TABLE_NAME = ku.TABLE_NAME
+                AND c.COLUMN_NAME = ku.COLUMN_NAME
+            LEFT JOIN [{$database}].INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc
+                ON ku.CONSTRAINT_NAME = tc.CONSTRAINT_NAME
+                AND ku.TABLE_SCHEMA = tc.TABLE_SCHEMA
+                AND ku.TABLE_NAME = tc.TABLE_NAME
+                AND tc.CONSTRAINT_TYPE = 'PRIMARY KEY'
+            WHERE c.TABLE_NAME = ? AND c.TABLE_SCHEMA = ?
+            ORDER BY c.ORDINAL_POSITION
+        ";
+        $params = [$table, $schema];
+        $stmt = sqlsrv_query($this->conn, $sql, $params);
+        $structure = [];
+        if ($stmt) {
+            while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+                // Extrai o tamanho do tipo
+                preg_match('/\((\d+)(?:,\s*\d+)?\)/', $row['type'], $matches);
+                $row['size'] = $matches[1] ?? '';
+                $row['type'] = preg_replace('/\(.*\)/', '', $row['type']); // Remove o tamanho do tipo
+
+                $structure[] = $row;
+            }
+            sqlsrv_free_stmt($stmt);
+        }
+        return $structure;
+    }
+
+    /**
+     * Creates a new table in the SQL Server database.
+     *
+     * @param string $database The name of the database.
+     * @param string $schema The schema where the table will be created.
+     * @param string $table The name of the new table.
+     * @param array $columns An array of column definitions. Each element is an array with 'name', 'type', 'size', 'nullable'.
+     * @param string|null $primaryKey The name of the column to be the primary key.
+     * @return array An array with 'status' and 'message' keys.
+     */
+    /**
+     * Creates a new table in the SQL Server database.
+     * Includes robust error handling for DDL statements.
+     *
+     * @param string $database The name of the database.
+     * @param string $schema The schema where the table will be created.
+     * @param string $table The name of the new table.
+     * @param array $columns An array of column definitions.
+     * @param string|null $primaryKey The name of the column to be the primary key.
+     * @return array An array with 'status' and 'message' keys.
+     */
+    public function createTable(
+        string $database,
+        string $schema,
+        string $table,
+        array $columns,
+        ?string $primaryKey,
+    ): array {
+        if (!$this->hasConnection()) {
+            return [
+                'status' => 'error',
+                'message' => lang('App.feedback.session_lost'),
+            ];
+        }
+
+        $colsDefs = [];
+        foreach ($columns as $col) {
+            $def = "[{$col['name']}] {$col['type']}";
+            if (!empty($col['size'])) {
+                $def .= "({$col['size']})";
+            }
+            $def .= $col['nullable'] ? ' NULL' : ' NOT NULL';
+            $colsDefs[] = $def;
+        }
+
+        if ($primaryKey) {
+            $colsDefs[] = "CONSTRAINT PK_{$table} PRIMARY KEY ([{$primaryKey}])";
+        }
+
+        $sql =
+            "CREATE TABLE [{$database}].[{$schema}].[{$table}] (" .
+            implode(', ', $colsDefs) .
+            ');';
+
+        sqlsrv_query($this->conn, $sql);
+        $errors = sqlsrv_errors(SQLSRV_ERR_ALL);
+
+        if ($errors !== null) {
+            foreach ($errors as $error) {
+                if (
+                    substr($error['SQLSTATE'], 0, 2) !== '01' &&
+                    substr($error['SQLSTATE'], 0, 2) !== '00'
+                ) {
+                    return [
+                        'status' => 'error',
+                        'message' => $error['message'],
+                    ]; // Erro real encontrado
+                }
+            }
+        }
+
+        return ['status' => 'success']; // Nenhum erro real foi encontrado
+    }
+
+    /**
+     * Adds a new column to an existing table in SQL Server.
+     *
+     * @param string $database The name of the database.
+     * @param string $schema The schema of the table.
+     * @param string $table The name of the table to alter.
+     * @param array $column The definition of the column to add.
+     * @return array An array with 'status' and 'message' keys.
+     */
+    public function addColumn(
+        string $database,
+        string $schema,
+        string $table,
+        array $column,
+    ): array {
+        if (!$this->hasConnection()) {
+            return [
+                'status' => 'error',
+                'message' => lang('App.feedback.session_lost'),
+            ];
+        }
+
+        $def = "[{$column['name']}] {$column['type']}";
+        if (!empty($column['size'])) {
+            $def .= "({$column['size']})";
+        }
+        $def .= $column['nullable'] ? ' NULL' : ' NOT NULL';
+
+        $sql = "ALTER TABLE [{$database}].[{$schema}].[{$table}] ADD {$def};";
+
+        sqlsrv_query($this->conn, $sql);
+        $errors = sqlsrv_errors(SQLSRV_ERR_ALL);
+
+        if ($errors !== null) {
+            foreach ($errors as $error) {
+                if (
+                    substr($error['SQLSTATE'], 0, 2) !== '01' &&
+                    substr($error['SQLSTATE'], 0, 2) !== '00'
+                ) {
+                    return [
+                        'status' => 'error',
+                        'message' => $error['message'],
+                    ];
+                }
+            }
+        }
+
+        return ['status' => 'success'];
+    }
+
+    /**
+     * Drops (deletes) a table from the SQL Server database.
+     *
+     * @param string $database The name of the database.
+     * @param string $schema The schema of the table.
+     * @param string $table The name of the table to drop.
+     * @return array An array with 'status' and 'message' keys.
+     */
+    public function dropTable(
+        string $database,
+        string $schema,
+        string $table,
+    ): array {
+        if (!$this->hasConnection()) {
+            return [
+                'status' => 'error',
+                'message' => lang('App.feedback.session_lost'),
+            ];
+        }
+
+        $sql = "DROP TABLE [{$database}].[{$schema}].[{$table}];";
+
+        sqlsrv_query($this->conn, $sql);
+        $errors = sqlsrv_errors(SQLSRV_ERR_ALL);
+
+        if ($errors !== null) {
+            foreach ($errors as $error) {
+                if (
+                    substr($error['SQLSTATE'], 0, 2) !== '01' &&
+                    substr($error['SQLSTATE'], 0, 2) !== '00'
+                ) {
+                    return [
+                        'status' => 'error',
+                        'message' => $error['message'],
+                    ];
+                }
+            }
+        }
+
+        return ['status' => 'success'];
     }
 }

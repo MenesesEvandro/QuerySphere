@@ -155,6 +155,7 @@ return [
         'functions' => 'Funções',
         'no_parameters' => 'Sem parâmetros',
         'loading_definition_for' => 'Carregando definição para {0}...',
+        'script_execute' => 'Script como Executar',
     ],
 
     //--------------------------------------------------------------------
@@ -331,6 +332,29 @@ return [
         'disable_event' => 'Desativar Evento',
         'enable_event' => 'Ativar Evento',
         'no_events_found' => 'Nenhum Evento MySQL encontrado.',
+    ],
+
+    //--------------------------------------------------------------------
+    // Editor de Esquema (Criar/Desenhar Tabela)
+    //--------------------------------------------------------------------
+    'schema_editor' => [
+        'new_table' => 'Nova Tabela',
+        'design_table' => 'Design da Tabela',
+        'drop_table' => 'Excluir Tabela',
+        'table_name' => 'Nome da Tabela',
+        'columns' => 'Colunas',
+        'column_name' => 'Nome da Coluna',
+        'data_type' => 'Tipo de Dados',
+        'size_length' => 'Tamanho/Comprimento',
+        'allow_null' => 'Permitir Nulo',
+        'primary_key' => 'Chave Primária',
+        'add_column' => 'Adicionar Coluna',
+        'confirm_drop_table' =>
+            'Tem a certeza de que deseja excluir a tabela {0}? Esta ação não pode ser desfeita.',
+        'table_creation_failed' => 'A criação da tabela falhou.',
+        'table_created_successfully' => 'Tabela {0} criada com sucesso.',
+        'script_alter' => 'Exibir script de alteração',
+        'script_create' => 'Exibir script de criação',
     ],
 
     //--------------------------------------------------------------------

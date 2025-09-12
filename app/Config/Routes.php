@@ -89,5 +89,14 @@ $routes->group('', ['filter' => 'auth'], static function ($routes) {
             'Api\TableEditor::getPrimaryKey/$1/$2',
         );
         $routes->post('editor/update', 'Api\TableEditor::update');
-    });
+
+        // Schema Editor
+        $routes->get(
+            'schema/structure/(:any)/(:any)/(:any)',
+            'Api\SchemaEditor::getTableStructure/$1/$2/$3',
+        );
+        $routes->post('schema/create', 'Api\SchemaEditor::createTable');
+        $routes->delete('schema/drop', 'Api\SchemaEditor::dropTable');
+        $routes->post('schema/add_column', 'Api\SchemaEditor::addColumn');
+    }); // API GROUP
 });

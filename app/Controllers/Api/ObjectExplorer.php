@@ -65,26 +65,30 @@ class ObjectExplorer extends BaseController
      */
     public function getObjectSource()
     {
-        $db = $this->request->getGet('db');
+        $database = $this->request->getGet('db');
         $schema = $this->request->getGet('schema');
-        $object = $this->request->getGet('object');
-        $type = $this->request->getGet('type');
+        $objectName = $this->request->getGet('object');
+        $type = $this->request->getGet('type'); // Obter o tipo do pedido
 
-        if (empty($db) || empty($schema) || empty($object) || empty($type)) {
-            return $this->fail('Insufficient parameters provided.', 400);
+        if (!$database || !$objectName || !$type) {
+            return $this->fail(
+                'Missing required parameters: db, object, type.',
+                400,
+            );
         }
 
-        $definition = $this->model->getObjectDefinition($db, $schema, $object);
+        $sql = $this->model->getObjectDefinition(
+            $database,
+            $schema,
+            $objectName,
+            $type,
+        );
 
-        if (is_null($definition)) {
-            return $this->failNotFound('Could not find the object definition.');
+        if ($sql !== null) {
+            return $this->respond(['sql' => $sql]);
         }
 
-        // Converts the first occurrence of CREATE to ALTER, case-insensitively.
-        // This turns "CREATE PROCEDURE" into "ALTER PROCEDURE".
-        $alterScript = preg_replace('/^\s*CREATE/i', 'ALTER', $definition, 1);
-
-        return $this->respond(['sql' => $alterScript]);
+        return $this->failNotFound('Object definition not found.');
     }
 
     /**
@@ -359,13 +363,12 @@ class ObjectExplorer extends BaseController
         $db = $this->request->getGet('db');
         $table = $this->request->getGet('table');
 
-        if (empty($db) || empty($table)) {
-            return $this->fail('Parâmetros insuficientes.', 400);
+        if (!$db || !$table) {
+            return $this->fail('Missing required parameters.', 400);
         }
 
-        $columnsData = $this->model->getColumns($db, $table);
-
-        $columnNames = array_map(fn($col) => $col['COLUMN_NAME'], $columnsData);
+        $columns = $this->model->getColumns($db, $table);
+        $columnNames = array_map(fn($col) => $col['COLUMN_NAME'], $columns);
 
         return $this->respond($columnNames);
     }

@@ -47,6 +47,69 @@
     </div>
 </div>
 
+<div class="modal fade" id="schema-editor-modal" tabindex="-1" aria-labelledby="schemaEditorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="schemaEditorModalLabel"></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<?= lang(
+                    'App.general.close',
+                ) ?>"></button>
+            </div>
+            <div class="modal-body">
+                <form id="schema-editor-form">
+                    <input type="hidden" id="schema-editor-mode" value="create">
+                    <div class="mb-3">
+                        <label for="table-name" class="form-label"><?= lang(
+                            'App.schema_editor.table_name',
+                        ) ?></label>
+                        <input type="text" class="form-control" id="table-name" required>
+                    </div>
+                    <hr>
+                    <h6><?= lang('App.schema_editor.columns') ?></h6>
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th><?= lang(
+                                    'App.schema_editor.primary_key',
+                                ) ?></th>
+                                <th><?= lang(
+                                    'App.schema_editor.column_name',
+                                ) ?></th>
+                                <th><?= lang(
+                                    'App.schema_editor.data_type',
+                                ) ?></th>
+                                <th><?= lang(
+                                    'App.schema_editor.size_length',
+                                ) ?></th>
+                                <th><?= lang(
+                                    'App.schema_editor.allow_null',
+                                ) ?></th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="columns-container">
+                            </tbody>
+                    </table>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" id="add-column-btn">
+                        <i class="fa fa-plus me-1"></i> <?= lang(
+                            'App.schema_editor.add_column',
+                        ) ?>
+                    </button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?= lang(
+                    'App.general.close',
+                ) ?></button>
+                <button type="button" class="btn btn-primary" id="save-table-btn"><?= lang(
+                    'App.general.submit',
+                ) ?></button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     const themeManager = {
         /**
@@ -196,6 +259,18 @@
         error_saving: "<?= lang('App.workspace.error_saving') ?>",
         data_saved: "<?= lang('App.feedback.data_saved') ?>",
         no_pk_edit: "<?= lang('App.feedback.no_pk_edit') ?>",
+        new_table: "<?= lang('App.schema_editor.new_table') ?>",
+        design_table: "<?= lang('App.schema_editor.design_table') ?>",
+        drop_table: "<?= lang('App.schema_editor.drop_table') ?>",
+        confirm_drop_table: "<?= lang(
+            'App.schema_editor.confirm_drop_table',
+        ) ?>",
+        stored_procedures: "<?= lang(
+            'App.objects_browser.stored_procedures',
+        ) ?>",
+        script_execute: "<?= lang('App.objects_browser.script_execute') ?>",
+        script_create: "<?= lang('App.schema_editor.script_create') ?>",
+        script_alter: "<?= lang('App.schema_editor.script_alter') ?>",
 
     };
 
@@ -536,6 +611,128 @@
         }
     };
 
+    const schemaEditor = {
+        modal: new bootstrap.Modal(document.getElementById('schema-editor-modal')),
+        mode: 'create',
+        dbName: null,
+        schemaName: null,
+
+        open: function(mode, nodeData) {
+            this.mode = mode;
+            this.dbName = nodeData?.db || sessionDb;
+            this.schemaName = nodeData?.schema || (DB_TYPE === 'sqlsrv' ? 'dbo' : this.dbName);
+
+            const form = $('#schema-editor-form')[0];
+            form.reset();
+            $('#columns-container').empty();
+            $('#save-table-btn').show();
+
+            if (mode === 'create') {
+                $('#schemaEditorModalLabel').text(LANG.new_table);
+                $('#table-name').val('').prop('disabled', false);
+                this.addColumnRow();
+            } else { 
+                $('#schemaEditorModalLabel').text(`${LANG.design_table}: ${nodeData.table}`);
+                $('#table-name').val(nodeData.table).prop('disabled', true);
+                
+
+                const { db, schema, table } = nodeData;
+                $.get(`<?= site_url(
+                    'api/schema/structure',
+                ) ?>/${encodeURIComponent(db)}/${encodeURIComponent(schema)}/${encodeURIComponent(table)}`)
+                    .done(columns => {
+                        if (columns && columns.length > 0) {
+                            columns.forEach(col => this.addColumnRow(col));
+                        } else {
+                            this.addColumnRow();
+                        }
+                    })
+                    .fail(() => {
+                        alert('Error: Could not load table structure.');
+                        this.modal.hide();
+                    });
+            }
+            
+            this.modal.show();
+        },
+
+        addColumnRow: function(column = {}) {
+            const isNullable = column.nullable == 1;
+            const isPk = column.is_pk == 1;
+
+            const checked = isNullable ? 'checked' : '';
+            const pkChecked = isPk ? 'checked' : '';
+
+            const newRow = `
+                <tr>
+                    <td class="text-center align-middle"><input class="form-check-input pk-radio" type="radio" name="primary_key" ${pkChecked}></td>
+                    <td><input type="text" class="form-control form-control-sm" name="col_name" value="${column.name || ''}" required></td>
+                    <td><input type="text" class="form-control form-control-sm" name="col_type" value="${column.type || 'VARCHAR'}" required></td>
+                    <td><input type="text" class="form-control form-control-sm" name="col_size" value="${column.size || '255'}"></td>
+                    <td class="text-center align-middle"><input class="form-check-input" type="checkbox" name="col_nullable" ${checked}></td>
+                    <td class="text-center align-middle"><button type="button" class="btn btn-sm btn-outline-danger remove-column-btn"><i class="fa fa-trash"></i></button></td>
+                </tr>
+            `;
+            $('#columns-container').append(newRow);
+        },
+
+        save: function() {
+            const tableName = $('#table-name').val();
+            if (!tableName) {
+                alert('Table name is required.');
+                return;
+            }
+
+            const columns = [];
+            let primaryKey = null;
+            $('#columns-container tr').each(function(index, row) {
+                const $row = $(row);
+                const colName = $row.find('input[name="col_name"]').val();
+                if (colName) {
+                    columns.push({
+                        name: colName,
+                        type: $row.find('input[name="col_type"]').val(),
+                        size: $row.find('input[name="col_size"]').val(),
+                        nullable: $row.find('input[name="col_nullable"]').is(':checked')
+                    });
+                    if ($row.find('.pk-radio').is(':checked')) {
+                        primaryKey = colName;
+                    }
+                }
+            });
+
+            if (columns.length === 0) {
+                alert('A table must have at least one column.');
+                return;
+            }
+
+            const payload = {
+                database: this.dbName,
+                schema: this.schemaName,
+                table: tableName,
+                columns: columns,
+                primaryKey: primaryKey
+            };
+
+            $.ajax({
+                url: '<?= site_url('api/schema/create') ?>',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(payload),
+                headers: { 'X-CSRF-TOKEN': '<?= csrf_hash() ?>' },
+                success: (response) => {
+                    alert(LANG.table_created_successfully.replace('{0}', tableName));
+                    this.modal.hide();
+                    $('#object-explorer-tree').jstree(true).refresh();
+                },
+                error: (xhr) => {
+                    const errorMsg = xhr.responseJSON?.messages?.error || LANG.table_creation_failed;
+                    alert(errorMsg);
+                }
+            });
+        }
+    };
+
     // Render functions
     function renderAgentJobs() {
         const $container = $('#agent-jobs-container').html(
@@ -681,7 +878,7 @@
                 });
                 $container.append($table);
             } else {
-                $container.html(`<p class="text-muted p-2">${LANG.event.no_events_found}</p>`);
+                $container.html(`<p class="text-muted p-2">${LANG.no_events_found}</p>`);
             }
         });
     }
@@ -991,30 +1188,89 @@
                 const nodeData = node.data;
                 if (!nodeData) return menu;
 
+                if (nodeData?.type === 'database' || nodeData?.type === 'folder_tables') {
+                    menu.createTable = {
+                        label: LANG.new_table,
+                        icon: "fa fa-plus-square",
+                        action: () => {
+                            let dbName;
+                            if (nodeData.type === 'database') {
+                                dbName = node.text;
+                            } else {
+                                const parentNode = $('#object-explorer-tree').jstree(true).get_node(node.parent);
+                                dbName = parentNode.text;
+                            }
+                            schemaEditor.open('create', { db: dbName });
+                        }
+                    };
+                }
+
                 if (nodeData.type === "table" || nodeData.type === "view") {
                     menu.selectTop1000 = {
-                        label: "SELECT TOP 1000 Rows",
+                        label: DB_TYPE === 'mysql' ? "SELECT LIMIT 1000 Rows" : "SELECT TOP 1000 Rows",
                         icon: "fa fa-bolt",
                         action: () => scriptGenerator.selectTop1000(nodeData)
+                    };
+                }
+
+                if (nodeData.type === "table") {
+                    menu.designTable = {
+                        label: LANG.design_table,
+                        icon: "fa fa-edit",
+                        action: () => schemaEditor.open('design', nodeData)
+                    };
+                    menu.dropTable = {
+                        label: LANG.drop_table,
+                        icon: "fa fa-trash-alt",
+                        _separator_before: true,
+                        action: () => {
+                            const { db, schema, table } = nodeData;
+                            if (confirm(LANG.confirm_drop_table.replace('{0}', table))) {
+                                
+                                const payload = {
+                                    database: db,
+                                    schema: schema,
+                                    table: table
+                                };
+
+                                $.ajax({
+                                    url: '<?= site_url('api/schema/drop') ?>',
+                                    method: 'DELETE',
+                                    contentType: 'application/json',
+                                    data: JSON.stringify(payload),
+                                    headers: { 'X-CSRF-TOKEN': '<?= csrf_hash() ?>' },
+                                    success: () => {
+                                        alert(`Table "${table}" dropped successfully.`);
+                                        $('#object-explorer-tree').jstree(true).refresh_node(node.parent);
+                                    },
+                                    error: (xhr) => {
+                                        const errorMsg = xhr.responseJSON?.messages?.error || 'Failed to drop table.';
+                                        alert(errorMsg);
+                                    }
+                                });
+                            }
+                        }
                     };
                 }
 
                 if (nodeData.type === "procedure" || nodeData.type === "function") {
                     if (DB_TYPE === 'sqlsrv') {
                         menu.scriptAsExecute = {
-                            label: "Script as EXECUTE",
+                            label: LANG.script_execute,
                             icon: "fa fa-play-circle",
                             action: () => scriptGenerator.execute(node)
                         };
                     }
                 }
                 
-                menu.scriptAsAlter = {
-                    label: DB_TYPE === 'mysql' ? "Show CREATE Statement" : "Script as ALTER",
-                    icon: "fa fa-pencil-alt",
-                    _separator_before: true,
-                    action: () => scriptGenerator.alter(nodeData)
-                };
+                if (nodeData.type !== 'database' && !nodeData.type.startsWith('folder')) {
+                    menu.scriptAsAlterOrCreate = {
+                        label: DB_TYPE === 'mysql' ? LANG.script_create : LANG.script_alter,
+                        icon: "fa fa-pencil-alt",
+                        _separator_before: true,
+                        action: () => scriptGenerator.alter(nodeData)
+                    };
+                }
 
                 return menu;
             }
@@ -1338,6 +1594,12 @@
     });
 
     $('<style>.datatable-row-changed > td { background-color: #fff3cd !important; }</style>').appendTo('head');
+
+    $('#add-column-btn').on('click', () => schemaEditor.addColumnRow());
+    $('#schema-editor-modal').on('click', '.remove-column-btn', function() {
+        $(this).closest('tr').remove();
+    });
+    $('#save-table-btn').on('click', () => schemaEditor.save());
 
 
     // Initial setup

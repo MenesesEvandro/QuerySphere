@@ -159,6 +159,7 @@ return [
         'functions' => 'Funciones',
         'no_parameters' => 'Sin parámetros',
         'loading_definition_for' => 'Cargando definición para {0}...',
+        'script_execute' => 'Script para Ejecutar',
     ],
 
     //--------------------------------------------------------------------
@@ -338,6 +339,29 @@ return [
         'disable_event' => 'Deshabilitar Evento',
         'enable_event' => 'Habilitar Evento',
         'no_events_found' => 'No se encontraron eventos del MySQL.',
+    ],
+
+    //--------------------------------------------------------------------
+    // Editor de Esquemas (Crear/Diseñar Tabla)
+    //--------------------------------------------------------------------
+    'schema_editor' => [
+        'new_table' => 'Nueva Tabla',
+        'design_table' => 'Diseñar Tabla',
+        'drop_table' => 'Eliminar Tabla',
+        'table_name' => 'Nombre de la Tabla',
+        'columns' => 'Colunas',
+        'column_name' => 'Nombre de la Coluna',
+        'data_type' => 'Tipo de Dato',
+        'size_length' => 'Tamaño/Longitud',
+        'allow_null' => 'Permitir Nulo',
+        'primary_key' => 'Clave Primaria',
+        'add_column' => 'Añadir Columna',
+        'confirm_drop_table' =>
+            '¿Está seguro de que desea eliminar la tabla "{0}"? Esta acción no se puede deshacer.',
+        'table_creation_failed' => 'La creación de la tabla ha fallado.',
+        'table_created_successfully' => 'Tabla "{0}" creada con éxito.',
+        'script_alter' => 'Mostrar script de edición',
+        'script_create' => 'Mostrar script de creación',
     ],
 
     //--------------------------------------------------------------------
