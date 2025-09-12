@@ -308,6 +308,7 @@
         const $connectionSelect = $('#connection-select');
         const $saveCheckbox = $('#save-connection-checkbox');
         const $hostInput = $('#host');
+        const $dbType = $('#db_type');
         const $portInput = $('#port');
         const $databaseInput = $('#database');
         const $userInput = $('#user');
@@ -442,6 +443,7 @@
         // Fill form with connection data
         function fillFormWithConnectionData(connection, includePassword = true) {
             $hostInput.val(escapeHtml(connection.host || ''));
+            $dbType.val(connection.db_type || 'sqlsrv');
             $portInput.val(connection.port || '');
             $databaseInput.val(escapeHtml(connection.db_database || ''));
             $userInput.val(escapeHtml(connection.user || ''));
@@ -561,6 +563,7 @@
                     const newConnection = {
                         name: connectionName,
                         host: $hostInput.val(),
+                        db_type: $dbType.val(),
                         port: $portInput.val(),
                         db_database: $databaseInput.val(),
                         user: $userInput.val(),
