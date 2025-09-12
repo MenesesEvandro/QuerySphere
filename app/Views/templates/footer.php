@@ -198,6 +198,9 @@
 <script>
     <?= view('templates/scripts/lang') ?>
 
+    const DB_TYPE = '<?= $db_type ?? '' ?>';
+    const sessionDb = '<?= $db_database ?? '' ?>';
+
 $(async function () {
     // Initialize CodeMirror editor
     const editor = CodeMirror.fromTextArea($('#query-editor')[0], {

@@ -10,30 +10,40 @@ class QueryTemplates extends BaseController
     use ResponseTrait;
 
     private $basePath;
+    private $dbType;
 
     public function __construct()
     {
-        $this->basePath = WRITEPATH . 'query_templates';
+        $this->dbType = session()->get('db_type') ?? 'sqlsrv';
+        $this->basePath = WRITEPATH . 'query_templates/' . $this->dbType;
     }
 
     /**
-     * Lists all available query templates, organized by category (subdirectories).
+     * Lists all available query templates for the current DBMS, organized by category.
      */
     public function index()
     {
         helper('filesystem');
+        $templateTranslations = lang('App.query_templates.' . $this->dbType);
 
-        $templateTranslations = lang('App.query_templates');
+        if (
+            !is_dir($this->basePath) ||
+            empty($templateTranslations) ||
+            !is_array($templateTranslations)
+        ) {
+            return $this->respond([]);
+        }
 
         $directoryMap = directory_map($this->basePath, 2);
         $response = [];
 
-        if (!$directoryMap || !$templateTranslations) {
-            return $this->respond([]);
-        }
-
         foreach ($templateTranslations as $categoryKey => $categoryData) {
-            if (isset($directoryMap[$categoryKey . DIRECTORY_SEPARATOR])) {
+            if (
+                is_array($categoryData) &&
+                isset($categoryData['title'], $categoryData['scripts']) &&
+                is_array($categoryData['scripts']) &&
+                isset($directoryMap[$categoryKey . DIRECTORY_SEPARATOR])
+            ) {
                 $templateCategory = [
                     'category' => $categoryData['title'],
                     'scripts' => [],
@@ -44,6 +54,8 @@ class QueryTemplates extends BaseController
                     as $scriptFileKey => $scriptData
                 ) {
                     if (
+                        is_array($scriptData) &&
+                        isset($scriptData['title']) &&
                         in_array(
                             $scriptFileKey,
                             $directoryMap[$categoryKey . DIRECTORY_SEPARATOR],
@@ -68,8 +80,7 @@ class QueryTemplates extends BaseController
     }
 
     /**
-     * Gets the content of a specific query template file.
-     * Includes security checks to prevent directory traversal.
+     * Gets the content of a specific query template file for the current DBMS.
      */
     public function get($category, $filename)
     {
