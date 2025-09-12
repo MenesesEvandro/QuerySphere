@@ -80,6 +80,11 @@
                         'App.workspace.execute',
                     ) ?> (Ctrl+Enter)
                 </button>
+                <button id="save-changes-btn" class="btn btn-warning btn-sm me-2 mb-1 mb-md-0" style="display: none;">
+                    <i class="fa fa-save me-1"></i> <?= lang(
+                        'App.workspace.save_changes',
+                    ) ?>
+                </button>
                 <button id="explain-query-btn" class="btn btn-info btn-sm me-2 mb-1 mb-md-0">
                     <i class="fa fa-sitemap me-1"></i> <?= lang(
                         'App.workspace.explain',

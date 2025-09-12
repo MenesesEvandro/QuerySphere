@@ -131,6 +131,17 @@ return [
             'Execute uma consulta para ver os resultados.',
         'search_placeholder' => 'Buscar em {0}...',
         'templates' => 'Templates',
+        'save_changes' => 'Salvar Alterações',
+        'saving_changes' => 'Salvando...',
+        'error_saving' => 'Erro ao salvar alterações.',
+        'no_primary_key' =>
+            'Esta tabela não pode ser editada porque não possui uma chave primária.',
+        'multiple_tables_not_supported' =>
+            'A edição não é suportada para resultados de múltiplas tabelas.',
+        'no_table_detected' =>
+            'Não foi possível detectar uma tabela na consulta. A edição está desabilitada.',
+        'confirm_discard_changes' =>
+            'Você tem alterações não salvas. Tem certeza de que deseja descartá-las?',
     ],
 
     //--------------------------------------------------------------------
@@ -223,6 +234,10 @@ return [
             'Não foi possível obter a definição para o objeto `{0}`.',
         'db_event_not_found' =>
             'Não foi possível obter a definição para o evento `{0}`.',
+        'error_no_db_selected_for_edit' =>
+            'Por favor, selecione uma base de dados no menu superior antes de tentar editar os dados.',
+        'data_saved' => 'Sucesso! Todas as alterações foram salvas.',
+        'no_pk_edit' => 'A coluna de chave primária não pode ser editada.',
     ],
 
     //--------------------------------------------------------------------

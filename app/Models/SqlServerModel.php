@@ -668,4 +668,82 @@ class SqlServerModel extends Model implements DatabaseModelInterface
         }
         return $history;
     }
+
+    /**
+     * Retrieves the primary key column name for a given table from SQL Server.
+     *
+     * @param string $database The name of the database.
+     * @param string $table The name of the table.
+     * @return string|null The name of the primary key column, or null if not found.
+     */
+    public function getPrimaryKey(string $database, string $table): ?string
+    {
+        if (!$this->hasConnection()) {
+            return null;
+        }
+        $sql = "
+        SELECT KU.COLUMN_NAME
+        FROM [{$database}].INFORMATION_SCHEMA.TABLE_CONSTRAINTS AS TC
+        INNER JOIN [{$database}].INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS KU
+            ON TC.CONSTRAINT_TYPE = 'PRIMARY KEY' AND
+               TC.CONSTRAINT_NAME = KU.CONSTRAINT_NAME AND
+               KU.TABLE_NAME = ?
+    ";
+        $params = [$table];
+        $stmt = sqlsrv_query($this->conn, $sql, $params);
+        if ($stmt && ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC))) {
+            return $row['COLUMN_NAME'];
+        }
+        return null;
+    }
+
+    /**
+     * Updates a single record in a SQL Server table based on its primary key.
+     *
+     * @param string $database The name of the database.
+     * @param string $schema The schema of the table.
+     * @param string $table The name of the table.
+     * @param string $primaryKey The name of the primary key column.
+     * @param mixed $primaryKeyValue The value of the primary key for the record to update.
+     * @param array $data An associative array of [column => value] pairs to update.
+     * @return array An array with 'status' and 'message' keys.
+     */
+    public function updateRecord(
+        string $database,
+        string $schema,
+        string $table,
+        string $primaryKey,
+        $primaryKeyValue,
+        array $data,
+    ): array {
+        if (!$this->hasConnection() || empty($data)) {
+            return [
+                'status' => 'error',
+                'message' => lang('App.db_invalid_operation'),
+            ];
+        }
+
+        $setClauses = [];
+        $params = [];
+        foreach ($data as $column => $value) {
+            $setClauses[] = "[{$column}] = ?";
+            $params[] = $value;
+        }
+        $params[] = $primaryKeyValue;
+
+        $sql =
+            "UPDATE [{$database}].[{$schema}].[{$table}] SET " .
+            implode(', ', $setClauses) .
+            " WHERE [{$primaryKey}] = ?";
+
+        $stmt = sqlsrv_query($this->conn, $sql, $params);
+        if ($stmt) {
+            return ['status' => 'success'];
+        }
+
+        return [
+            'status' => 'error',
+            'message' => sqlsrv_errors()[0]['message'],
+        ];
+    }
 }

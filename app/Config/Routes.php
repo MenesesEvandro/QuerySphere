@@ -82,5 +82,12 @@ $routes->group('', ['filter' => 'auth'], static function ($routes) {
             'mysql/events/definition/(:any)',
             'Api\MySqlEvents::definition/$1',
         );
+
+        // Inline Editor
+        $routes->get(
+            'editor/pk/(:any)/(:any)',
+            'Api\TableEditor::getPrimaryKey/$1/$2',
+        );
+        $routes->post('editor/update', 'Api\TableEditor::update');
     });
 });

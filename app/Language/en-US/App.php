@@ -129,6 +129,17 @@ return [
         'queryResultsPlaceholder' => 'Execute a query to see the results.',
         'search_placeholder' => 'Search in {0}...',
         'templates' => 'Templates',
+        'save_changes' => 'Save Changes',
+        'saving_changes' => 'Saving...',
+        'error_saving' => 'Error saving changes.',
+        'no_primary_key' =>
+            'This table cannot be edited because it does not have a primary key.',
+        'multiple_tables_not_supported' =>
+            'Editing is not supported for results from multiple tables.',
+        'no_table_detected' =>
+            'Could not detect a table in the query. Editing is disabled.',
+        'confirm_discard_changes' =>
+            'You have unsaved changes. Are you sure you want to discard them?',
     ],
 
     //--------------------------------------------------------------------
@@ -219,6 +230,10 @@ return [
             'Could not retrieve definition for object `{0}`.',
         'db_event_not_found' =>
             'Could not retrieve definition for event `{0}`.',
+        'error_no_db_selected_for_edit' =>
+            'Please select a database from the top menu before attempting to edit data.',
+        'data_saved' => '¡Éxito! Todos los cambios han sido guardados.',
+        'no_pk_edit' => 'Primary key column cannot be edited.',
     ],
 
     //--------------------------------------------------------------------

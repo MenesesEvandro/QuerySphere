@@ -135,6 +135,17 @@ return [
             'Ejecute una consulta para ver los resultados.',
         'search_placeholder' => 'Buscar en {0}...',
         'templates' => 'Plantillas',
+        'save_changes' => 'Guardar Cambios',
+        'saving_changes' => 'Guardando...',
+        'error_saving' => 'Error guardando cambios.',
+        'no_primary_key' =>
+            'Esta tabla no se puede editar porque no tiene una clave primaria.',
+        'multiple_tables_not_supported' =>
+            'La edición no está soportada para resultados de múltiples tablas.',
+        'no_table_detected' =>
+            'No se pudo detectar una tabla en la consulta. La edición está deshabilitada.',
+        'confirm_discard_changes' =>
+            'Tienes cambios no guardados. ¿Estás seguro de que quieres descartarlos?',
     ],
 
     //--------------------------------------------------------------------
@@ -229,6 +240,10 @@ return [
             'No se pudo recuperar la definición para el objeto `{0}`.',
         'db_event_not_found' =>
             'No se pudo recuperar la definición para el evento `{0}`.',
+        'error_no_db_selected_for_edit' =>
+            'Por favor, seleccione una base de datos en el menú superior antes de intentar editar los datos.',
+        'data_saved' => 'Sucesso! Todos datos salvos',
+        'no_pk_edit' => 'La columna de clave primaria no se puede editar.',
     ],
 
     //--------------------------------------------------------------------

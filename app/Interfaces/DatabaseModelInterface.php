@@ -29,4 +29,14 @@ interface DatabaseModelInterface
         string $objectName,
         string $type,
     ): ?string;
+
+    public function getPrimaryKey(string $database, string $table): ?string;
+    public function updateRecord(
+        string $database,
+        string $schema,
+        string $table,
+        string $primaryKey,
+        $primaryKeyValue,
+        array $data,
+    ): array;
 }
