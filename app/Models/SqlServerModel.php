@@ -286,18 +286,13 @@ class SqlServerModel extends Model implements DatabaseModelInterface
     }
 
     /**
-     * Executes a user-provided SQL query, with support for server-side pagination.
+     * Executes a user-provided SQL query, with support for server-side pagination for single SELECT statements.
+     * This function handles multiple result sets and correctly reports the total number of rows affected or returned.
      *
-     * It intelligently detects if a query is a single, paginatable SELECT statement.
-     * If so, it first runs a COUNT(*) query to get the total number of rows, then
-     * modifies the original SQL with `OFFSET...FETCH` to retrieve only the requested page.
-     * If the query is not paginatable (e.g., multiple statements, DDL), it executes
-     * the script as-is and loops through multiple result sets using `sqlsrv_next_result()`.
-     * The method returns raw data; the controller is responsible for localization.
-     *
-     * @param string $sql      The user's full SQL query string.
-     * @param int    $page     The page number to retrieve for paginated queries.
+     * @param string $sql The user's full SQL query string.
+     * @param int    $page The page number to retrieve for paginated queries.
      * @param int    $pageSize The number of rows per page.
+     * @param bool   $disablePagination A flag to force disable the pagination logic.
      * @return array An associative array containing the status, results, and execution metadata.
      */
     public function executeQuery(
@@ -317,26 +312,24 @@ class SqlServerModel extends Model implements DatabaseModelInterface
         }
 
         $startTime = microtime(true);
-        $totalRows = 0;
         $allResults = [];
         $totalRowsAffected = 0;
         $paginated = false;
-        $trimmedSql = ltrim($sql);
-        $normalizedSql = preg_replace('/\s+/', ' ', $trimmedSql);
 
+        $trimmedSql = trim($sql, " \t\n\r\0\x0B;");
         $isSingleSelect =
-            substr_count(strtoupper($normalizedSql), 'SELECT ') === 1;
-        $hasTopClause = stripos($normalizedSql, 'SELECT TOP ') === 0;
+            preg_match('/^\s*SELECT/i', $trimmedSql) &&
+            strpos($trimmedSql, ';') === false;
+        $hasTopClause = preg_match('/^\s*SELECT\s+TOP\s+\d+/i', $trimmedSql);
 
-        $isPaginatable = $isSingleSelect && !$hasTopClause;
-
-        if ($disablePagination) {
-            $isPaginatable = false;
-        }
+        $isPaginatable =
+            $isSingleSelect && !$hasTopClause && !$disablePagination;
+        $queryToExecute = $sql;
+        $totalRows = 0;
 
         if ($isPaginatable) {
             $paginated = true;
-            $countSql = "WITH UserQuery AS ({$sql}) SELECT COUNT(*) as TotalRows FROM UserQuery";
+            $countSql = "WITH UserQuery AS ({$trimmedSql}) SELECT COUNT_BIG(*) as TotalRows FROM UserQuery;";
             $countStmt = sqlsrv_query($this->conn, $countSql);
             if (
                 $countStmt &&
@@ -347,16 +340,18 @@ class SqlServerModel extends Model implements DatabaseModelInterface
             if ($countStmt) {
                 sqlsrv_free_stmt($countStmt);
             }
-            $paginatedSql = $sql;
+
+            $paginatedSql = $trimmedSql;
             if (stripos($paginatedSql, 'ORDER BY') === false) {
                 $paginatedSql .= ' ORDER BY (SELECT NULL)';
             }
             $offset = ($page - 1) * $pageSize;
             $paginatedSql .= " OFFSET {$offset} ROWS FETCH NEXT {$pageSize} ROWS ONLY";
-            $stmt = sqlsrv_query($this->conn, $paginatedSql);
-        } else {
-            $stmt = sqlsrv_query($this->conn, $sql);
+            $queryToExecute = $paginatedSql;
         }
+
+        $stmt = sqlsrv_query($this->conn, $queryToExecute);
+
         if ($stmt === false) {
             $errors = sqlsrv_errors();
             return [
@@ -368,21 +363,18 @@ class SqlServerModel extends Model implements DatabaseModelInterface
             ];
         }
 
-        if ($pageSize <= 0) {
-            $pageSize = 1000;
-        }
-
         do {
-            $headers = [];
-            $data = [];
-            $rowsAffected = sqlsrv_rows_affected($stmt);
-            if ($rowsAffected > 0 && sqlsrv_field_metadata($stmt) === false) {
-                $totalRowsAffected += $rowsAffected;
-            }
-            if (sqlsrv_has_rows($stmt)) {
-                foreach (sqlsrv_field_metadata($stmt) as $fieldMetadata) {
+            $rowsAffectedThisResult = sqlsrv_rows_affected($stmt);
+
+            // **CORREÇÃO:** Verifica se os metadados são um array antes do loop.
+            $metadata = sqlsrv_field_metadata($stmt);
+            if (is_array($metadata)) {
+                $headers = [];
+                foreach ($metadata as $fieldMetadata) {
                     $headers[] = $fieldMetadata['Name'];
                 }
+
+                $data = [];
                 while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
                     $data[] = array_map(
                         fn($v) => $v instanceof \DateTime
@@ -391,10 +383,14 @@ class SqlServerModel extends Model implements DatabaseModelInterface
                         $row,
                     );
                 }
+
+                $rowCount = count($data);
+                $totalRowsAffected += $rowCount;
+
                 $result = [
                     'headers' => $headers,
                     'data' => $data,
-                    'rowCount' => count($data),
+                    'rowCount' => $rowCount,
                 ];
                 if ($paginated) {
                     $result['totalRows'] = $totalRows;
@@ -403,12 +399,16 @@ class SqlServerModel extends Model implements DatabaseModelInterface
                         $pageSize > 0 ? ceil($totalRows / $pageSize) : 1;
                 }
                 $allResults[] = $result;
+            } elseif ($rowsAffectedThisResult > 0) {
+                $totalRowsAffected += $rowsAffectedThisResult;
             }
-        } while (!$paginated && sqlsrv_next_result($stmt));
+        } while (!$paginated && sqlsrv_next_result($stmt) !== false);
+
         $executionTime = number_format(microtime(true) - $startTime, 4);
         if ($stmt) {
             sqlsrv_free_stmt($stmt);
         }
+
         return [
             'status' => 'success',
             'results' => $allResults,
@@ -910,7 +910,7 @@ class SqlServerModel extends Model implements DatabaseModelInterface
      * @param string $schema The schema where the table will be created.
      * @param string $table The name of the new table.
      * @param array $columns An array of column definitions.
-     * @param string|null $primaryKey The name of the column to be the primary key.
+     * @param array $primaryKeys An array of column names for the primary key.
      * @return array An array with 'status' and 'message' keys.
      */
     public function createTable(
@@ -918,7 +918,7 @@ class SqlServerModel extends Model implements DatabaseModelInterface
         string $schema,
         string $table,
         array $columns,
-        ?string $primaryKey,
+        array $primaryKeys,
     ): array {
         if (!$this->hasConnection()) {
             return [
@@ -937,8 +937,12 @@ class SqlServerModel extends Model implements DatabaseModelInterface
             $colsDefs[] = $def;
         }
 
-        if ($primaryKey) {
-            $colsDefs[] = "CONSTRAINT PK_{$table} PRIMARY KEY ([{$primaryKey}])";
+        if (!empty($primaryKeys)) {
+            $quotedKeys = array_map(fn($key) => "[{$key}]", $primaryKeys);
+            $colsDefs[] =
+                "CONSTRAINT PK_{$table} PRIMARY KEY (" .
+                implode(', ', $quotedKeys) .
+                ')';
         }
 
         $sql =
@@ -1056,5 +1060,52 @@ class SqlServerModel extends Model implements DatabaseModelInterface
         }
 
         return ['status' => 'success'];
+    }
+
+    /**
+     * Retrieves a list of all indexes for a given SQL Server table.
+     *
+     * @param string $database The name of the database.
+     * @param string $schema The schema of the table.
+     * @param string $table The name of the table.
+     * @return array An array of index definitions.
+     */
+    public function getIndexes(
+        string $database,
+        string $schema,
+        string $table,
+    ): array {
+        if (!$this->hasConnection()) {
+            return [];
+        }
+        $sql = "
+            SELECT
+                i.name AS index_name,
+                STUFF((
+                    SELECT ', ' + c.name
+                    FROM [{$database}].sys.index_columns ic
+                    JOIN [{$database}].sys.columns c ON ic.object_id = c.object_id AND ic.column_id = c.column_id
+                    WHERE ic.object_id = i.object_id AND ic.index_id = i.index_id AND ic.is_included_column = 0
+                    ORDER BY ic.key_ordinal
+                    FOR XML PATH('')
+                ), 1, 2, '') AS columns,
+                i.is_unique,
+                i.type_desc
+            FROM [{$database}].sys.indexes i
+            JOIN [{$database}].sys.tables st ON i.object_id = st.object_id
+            JOIN [{$database}].sys.schemas ss ON st.schema_id = ss.schema_id
+            WHERE st.name = ? AND ss.name = ? AND i.name IS NOT NULL
+            ORDER BY i.name;
+        ";
+        $params = [$table, $schema];
+        $stmt = sqlsrv_query($this->conn, $sql, $params);
+        $indexes = [];
+        if ($stmt) {
+            while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+                $indexes[] = $row;
+            }
+            sqlsrv_free_stmt($stmt);
+        }
+        return $indexes;
     }
 }

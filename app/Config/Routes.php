@@ -98,5 +98,9 @@ $routes->group('', ['filter' => 'auth'], static function ($routes) {
         $routes->post('schema/create', 'Api\SchemaEditor::createTable');
         $routes->delete('schema/drop', 'Api\SchemaEditor::dropTable');
         $routes->post('schema/add_column', 'Api\SchemaEditor::addColumn');
+        $routes->get(
+            'schema/indexes/(:any)/(:any)/(:any)',
+            'Api\SchemaEditor::getIndexes/$1/$2/$3',
+        );
     }); // API GROUP
 });

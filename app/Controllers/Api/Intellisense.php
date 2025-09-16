@@ -22,7 +22,7 @@ class Intellisense extends BaseController
     /**
      * Retrieves the database schema for SQL autocompletion.
      *
-     * This method instantiates the nDatabaseModelFactory and calls the method responsible
+     * This method instantiates the DatabaseModelFactory and calls the method responsible
      * for querying the database metadata. It then returns the structured schema
      * as a JSON response, which the frontend uses to power the Intellisense feature.
      *

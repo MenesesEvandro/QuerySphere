@@ -228,7 +228,7 @@ return [
             'This feature is not supported for the connected database.',
         'db_invalid_operation' => 'Invalid operation.',
         'db_object_type_not_supported' =>
-            'Object type \'{0}\' is not supported for definition lookup.',
+            'Object type \"{0}\" is not supported for definition lookup.',
         'db_could_not_retrieve_definition' =>
             'Could not retrieve definition for object `{0}`.',
         'db_event_not_found' =>
@@ -354,6 +354,11 @@ return [
         'table_created_successfully' => 'Table "{0}" created successfully.',
         'script_alter' => 'Display edit script',
         'script_create' => 'Display creation script',
+        'indexes' => 'Indexes',
+        'index_name' => 'Index Name',
+        'index_columns' => 'Columns',
+        'index_unique' => 'Unique',
+        'index_type' => 'Type',
     ],
 
     //--------------------------------------------------------------------

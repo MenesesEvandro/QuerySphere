@@ -748,7 +748,7 @@ class MySqlModel extends Model implements DatabaseModelInterface
      * @param string $schema The schema (same as database for MySQL).
      * @param string $table The name of the new table.
      * @param array $columns An array of column definitions.
-     * @param string|null $primaryKey The name of the column to be the primary key.
+     * @param array $primaryKeys An array of column names for the primary key.
      * @return array An array with 'status' and 'message' keys.
      */
     public function createTable(
@@ -756,7 +756,7 @@ class MySqlModel extends Model implements DatabaseModelInterface
         string $schema,
         string $table,
         array $columns,
-        ?string $primaryKey,
+        array $primaryKeys,
     ): array {
         if (!$this->hasConnection()) {
             return ['status' => 'error', 'message' => lang('App.session_lost')];
@@ -772,14 +772,15 @@ class MySqlModel extends Model implements DatabaseModelInterface
             $colsDefs[] = $def;
         }
 
-        if ($primaryKey) {
-            $colsDefs[] = "PRIMARY KEY (`{$primaryKey}`)";
+        if (!empty($primaryKeys)) {
+            $quotedKeys = array_map(fn($key) => "`{$key}`", $primaryKeys);
+            $colsDefs[] = 'PRIMARY KEY (' . implode(', ', $quotedKeys) . ')';
         }
 
         $sql =
             "CREATE TABLE `{$database}`.`{$table}` (" .
             implode(', ', $colsDefs) .
-            ');';
+            ') ENGINE=InnoDB;';
 
         if ($this->conn->query($sql)) {
             return ['status' => 'success'];
@@ -846,5 +847,48 @@ class MySqlModel extends Model implements DatabaseModelInterface
         }
 
         return ['status' => 'error', 'message' => $this->conn->error];
+    }
+
+    /**
+     * Retrieves a list of all indexes for a given MySQL table.
+     *
+     * @param string $database The name of the database.
+     * @param string $schema The schema (same as database for MySQL).
+     * @param string $table The name of the table.
+     * @return array An array of index definitions.
+     */
+    public function getIndexes(
+        string $database,
+        string $schema,
+        string $table,
+    ): array {
+        if (!$this->hasConnection()) {
+            return [];
+        }
+        $sql = "SHOW INDEX FROM `{$database}`.`{$table}`;";
+        $result = $this->conn->query($sql);
+        $indexesData = [];
+        if ($result) {
+            while ($row = $result->fetch_assoc()) {
+                $indexesData[$row['Key_name']]['columns'][] =
+                    $row['Column_name'];
+                $indexesData[$row['Key_name']]['is_unique'] =
+                    $row['Non_unique'] == 0;
+                $indexesData[$row['Key_name']]['type_desc'] =
+                    $row['Index_type'];
+            }
+            $result->free();
+        }
+
+        $indexes = [];
+        foreach ($indexesData as $name => $data) {
+            $indexes[] = [
+                'index_name' => $name,
+                'columns' => implode(', ', $data['columns']),
+                'is_unique' => $data['is_unique'],
+                'type_desc' => $data['type_desc'],
+            ];
+        }
+        return $indexes;
     }
 }

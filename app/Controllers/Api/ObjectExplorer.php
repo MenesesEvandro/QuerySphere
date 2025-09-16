@@ -25,7 +25,7 @@ class ObjectExplorer extends BaseController
     private $model;
 
     /**
-     * Constructor: initializes the nDatabaseModelFactory.
+     * Constructor: initializes the DatabaseModelFactory.
      */
     public function __construct()
     {

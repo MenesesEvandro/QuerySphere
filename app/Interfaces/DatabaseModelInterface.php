@@ -50,12 +50,18 @@ interface DatabaseModelInterface
         string $schema,
         string $table,
         array $columns,
-        ?string $primaryKey,
+        array $primaryKeys,
     ): array;
     public function addColumn(
         string $database,
         string $schema,
         string $table,
         array $column,
+    ): array;
+
+    public function getIndexes(
+        string $database,
+        string $schema,
+        string $table,
     ): array;
 }

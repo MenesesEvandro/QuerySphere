@@ -238,7 +238,7 @@ return [
             'Esta característica no es compatible con la base de datos conectada.',
         'db_invalid_operation' => 'Operación inválida.',
         'db_object_type_not_supported' =>
-            'El tipo de objeto \'{0}\' no es compatible para la búsqueda de definiciones.',
+            'El tipo de objeto \"{0}\" no es compatible para la búsqueda de definiciones.',
         'db_could_not_retrieve_definition' =>
             'No se pudo recuperar la definición para el objeto `{0}`.',
         'db_event_not_found' =>
@@ -365,6 +365,11 @@ return [
         'table_created_successfully' => 'Tabla "{0}" creada con éxito.',
         'script_alter' => 'Mostrar script de edición',
         'script_create' => 'Mostrar script de creación',
+        'indexes' => 'Índices',
+        'index_name' => 'Nombre del Índice',
+        'index_columns' => 'Columnas',
+        'index_unique' => 'Único',
+        'index_type' => 'Tipo',
     ],
 
     //--------------------------------------------------------------------

@@ -232,7 +232,7 @@ return [
             'Esta funcionalidade não é suportada para o banco de dados conectado.',
         'db_invalid_operation' => 'Operação inválida.',
         'db_object_type_not_supported' =>
-            'O tipo de objeto \'{0}\' não é suportado para a busca de definição.',
+            'O tipo de objeto \"{0}\" não é suportado para a busca de definição.',
         'db_could_not_retrieve_definition' =>
             'Não foi possível obter a definição para o objeto `{0}`.',
         'db_event_not_found' =>
@@ -358,6 +358,11 @@ return [
         'table_created_successfully' => 'Tabela {0} criada com sucesso.',
         'script_alter' => 'Exibir script de alteração',
         'script_create' => 'Exibir script de criação',
+        'indexes' => 'Índices',
+        'index_name' => 'Nome do Índice',
+        'index_columns' => 'Colunas',
+        'index_unique' => 'Único',
+        'index_type' => 'Tipo',
     ],
 
     //--------------------------------------------------------------------

@@ -64,7 +64,7 @@ class SchemaEditor extends BaseController
             $data['schema'],
             $data['table'],
             $data['columns'],
-            $data['primaryKey'] ?? null,
+            $data['primaryKeys'] ?? [],
         );
 
         if ($result['status'] === 'success') {
@@ -118,5 +118,23 @@ class SchemaEditor extends BaseController
             ]);
         }
         return $this->fail($result['message']);
+    }
+
+    /**
+     * Retrieves the list of indexes for a specific table.
+     *
+     * @param string $database The URL-encoded database name.
+     * @param string $schema The URL-encoded schema name.
+     * @param string $table The URL-encoded table name.
+     * @return \CodeIgniter\HTTP\ResponseInterface
+     */
+    public function getIndexes($database, $schema, $table)
+    {
+        $indexes = $this->model->getIndexes(
+            urldecode($database),
+            urldecode($schema),
+            urldecode($table),
+        );
+        return $this->respond($indexes);
     }
 }
