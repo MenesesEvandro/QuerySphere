@@ -5,6 +5,7 @@ namespace App\Models;
 use CodeIgniter\Model;
 use App\Interfaces\DatabaseModelInterface;
 use App\Libraries\MySqlConnector;
+use App\Libraries\QueryLogger;
 
 /**
  * The data access layer for interacting with a MySQL database.
@@ -16,6 +17,12 @@ class MySqlModel extends Model implements DatabaseModelInterface
      * @var \mysqli|false|null The active MySQLi connection resource.
      */
     private $conn;
+
+    /**
+     * Instance of the QueryLogger.
+     * @var QueryLogger
+     */
+    protected $queryLogger;
 
     /**
      * Constructor.
@@ -596,6 +603,8 @@ class MySqlModel extends Model implements DatabaseModelInterface
             ];
         }
 
+        $startTime = microtime(true);
+
         $setClauses = [];
         $params = [];
         $types = '';
@@ -616,8 +625,18 @@ class MySqlModel extends Model implements DatabaseModelInterface
         $stmt->bind_param($types, ...$params);
 
         if ($stmt->execute()) {
+            $executionTime = microtime(true) - $startTime;
+            $this->queryLogger->logQuery(
+                $sql,
+                'success',
+                $executionTime,
+                $stmt->affected_rows,
+            );
             return ['status' => 'success'];
         }
+
+        $executionTime = microtime(true) - $startTime;
+        $this->queryLogger->logQuery($sql, 'error', $executionTime, 0);
 
         return ['status' => 'error', 'message' => $stmt->error];
     }
@@ -762,6 +781,8 @@ class MySqlModel extends Model implements DatabaseModelInterface
             return ['status' => 'error', 'message' => lang('App.session_lost')];
         }
 
+        $startTime = microtime(true);
+
         $colsDefs = [];
         foreach ($columns as $col) {
             $def = "`{$col['name']}` {$col['type']}";
@@ -783,8 +804,14 @@ class MySqlModel extends Model implements DatabaseModelInterface
             ') ENGINE=InnoDB;';
 
         if ($this->conn->query($sql)) {
+            $executionTime = microtime(true) - $startTime;
+            $this->queryLogger->logQuery($sql, 'success', $executionTime, 0);
+
             return ['status' => 'success'];
         }
+
+        $executionTime = microtime(true) - $startTime;
+        $this->queryLogger->logQuery($sql, 'error', $executionTime, 0);
 
         return ['status' => 'error', 'message' => $this->conn->error];
     }
@@ -808,6 +835,8 @@ class MySqlModel extends Model implements DatabaseModelInterface
             return ['status' => 'error', 'message' => lang('App.session_lost')];
         }
 
+        $startTime = microtime(true);
+
         $def = "`{$column['name']}` {$column['type']}";
         if (!empty($column['size'])) {
             $def .= "({$column['size']})";
@@ -817,8 +846,14 @@ class MySqlModel extends Model implements DatabaseModelInterface
         $sql = "ALTER TABLE `{$database}`.`{$table}` ADD COLUMN {$def};";
 
         if ($this->conn->query($sql)) {
+            $executionTime = microtime(true) - $startTime;
+            $this->queryLogger->logQuery($sql, 'success', $executionTime, 0);
+
             return ['status' => 'success'];
         }
+
+        $executionTime = microtime(true) - $startTime;
+        $this->queryLogger->logQuery($sql, 'error', $executionTime, 0);
 
         return ['status' => 'error', 'message' => $this->conn->error];
     }
@@ -840,11 +875,19 @@ class MySqlModel extends Model implements DatabaseModelInterface
             return ['status' => 'error', 'message' => lang('App.session_lost')];
         }
 
+        $startTime = microtime(true);
+
         $sql = "DROP TABLE `{$database}`.`{$table}`;";
 
         if ($this->conn->query($sql)) {
+            $executionTime = microtime(true) - $startTime;
+            $this->queryLogger->logQuery($sql, 'success', $executionTime, 0);
+
             return ['status' => 'success'];
         }
+
+        $executionTime = microtime(true) - $startTime;
+        $this->queryLogger->logQuery($sql, 'error', $executionTime, 0);
 
         return ['status' => 'error', 'message' => $this->conn->error];
     }

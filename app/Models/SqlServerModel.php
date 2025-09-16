@@ -5,6 +5,7 @@ namespace App\Models;
 use CodeIgniter\Model;
 use App\Libraries\DatabaseConnector;
 use App\Interfaces\DatabaseModelInterface;
+use App\Libraries\QueryLogger;
 
 /**
  * The primary data access layer for interacting with a Microsoft SQL Server database.
@@ -24,12 +25,19 @@ class SqlServerModel extends Model implements DatabaseModelInterface
     private $conn;
 
     /**
+     * Instance of the QueryLogger.
+     * @var QueryLogger
+     */
+    protected $queryLogger;
+
+    /**
      * Constructor: gets the shared connection from the connector.
      */
     public function __construct()
     {
         parent::__construct();
         $this->conn = DatabaseConnector::getConnection();
+        $this->queryLogger = new QueryLogger();
     }
 
     /**
@@ -811,6 +819,8 @@ class SqlServerModel extends Model implements DatabaseModelInterface
             ];
         }
 
+        $startTime = microtime(true);
+
         $setClauses = [];
         $params = [];
         foreach ($data as $column => $value) {
@@ -826,8 +836,19 @@ class SqlServerModel extends Model implements DatabaseModelInterface
 
         $stmt = sqlsrv_query($this->conn, $sql, $params);
         if ($stmt) {
+            $executionTime = microtime(true) - $startTime;
+            $rowsAffected = sqlsrv_rows_affected($stmt);
+            $this->queryLogger->logQuery(
+                $sql,
+                'success',
+                $executionTime,
+                $rowsAffected > 0 ? $rowsAffected : 0,
+            );
             return ['status' => 'success'];
         }
+
+        $executionTime = microtime(true) - $startTime;
+        $this->queryLogger->logQuery($sql, 'error', $executionTime, 0);
 
         return [
             'status' => 'error',
@@ -927,6 +948,8 @@ class SqlServerModel extends Model implements DatabaseModelInterface
             ];
         }
 
+        $startTime = microtime(true);
+
         $colsDefs = [];
         foreach ($columns as $col) {
             $def = "[{$col['name']}] {$col['type']}";
@@ -959,6 +982,13 @@ class SqlServerModel extends Model implements DatabaseModelInterface
                     substr($error['SQLSTATE'], 0, 2) !== '01' &&
                     substr($error['SQLSTATE'], 0, 2) !== '00'
                 ) {
+                    $executionTime = microtime(true) - $startTime;
+                    $this->queryLogger->logQuery(
+                        $sql,
+                        'error',
+                        $executionTime,
+                        0,
+                    );
                     return [
                         'status' => 'error',
                         'message' => $error['message'],
@@ -966,6 +996,9 @@ class SqlServerModel extends Model implements DatabaseModelInterface
                 }
             }
         }
+
+        $executionTime = microtime(true) - $startTime;
+        $this->queryLogger->logQuery($sql, 'success', $executionTime, 0);
 
         return ['status' => 'success']; // Nenhum erro real foi encontrado
     }
@@ -992,6 +1025,8 @@ class SqlServerModel extends Model implements DatabaseModelInterface
             ];
         }
 
+        $startTime = microtime(true);
+
         $def = "[{$column['name']}] {$column['type']}";
         if (!empty($column['size'])) {
             $def .= "({$column['size']})";
@@ -1009,6 +1044,14 @@ class SqlServerModel extends Model implements DatabaseModelInterface
                     substr($error['SQLSTATE'], 0, 2) !== '01' &&
                     substr($error['SQLSTATE'], 0, 2) !== '00'
                 ) {
+                    $executionTime = microtime(true) - $startTime;
+                    $this->queryLogger->logQuery(
+                        $sql,
+                        'error',
+                        $executionTime,
+                        0,
+                    );
+
                     return [
                         'status' => 'error',
                         'message' => $error['message'],
@@ -1016,6 +1059,9 @@ class SqlServerModel extends Model implements DatabaseModelInterface
                 }
             }
         }
+
+        $executionTime = microtime(true) - $startTime;
+        $this->queryLogger->logQuery($sql, 'success', $executionTime, 0);
 
         return ['status' => 'success'];
     }
@@ -1040,6 +1086,8 @@ class SqlServerModel extends Model implements DatabaseModelInterface
             ];
         }
 
+        $startTime = microtime(true);
+
         $sql = "DROP TABLE [{$database}].[{$schema}].[{$table}];";
 
         sqlsrv_query($this->conn, $sql);
@@ -1051,6 +1099,14 @@ class SqlServerModel extends Model implements DatabaseModelInterface
                     substr($error['SQLSTATE'], 0, 2) !== '01' &&
                     substr($error['SQLSTATE'], 0, 2) !== '00'
                 ) {
+                    $executionTime = microtime(true) - $startTime;
+                    $this->queryLogger->logQuery(
+                        $sql,
+                        'error',
+                        $executionTime,
+                        0,
+                    );
+
                     return [
                         'status' => 'error',
                         'message' => $error['message'],
@@ -1058,6 +1114,9 @@ class SqlServerModel extends Model implements DatabaseModelInterface
                 }
             }
         }
+
+        $executionTime = microtime(true) - $startTime;
+        $this->queryLogger->logQuery($sql, 'success', $executionTime, 0);
 
         return ['status' => 'success'];
     }
