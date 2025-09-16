@@ -5,6 +5,7 @@ namespace App\Controllers\Api;
 use App\Controllers\BaseController;
 use CodeIgniter\API\ResponseTrait;
 use App\Factories\DatabaseModelFactory;
+use App\Libraries\QueryLogger;
 
 /**
  * Controller responsible for executing SQL queries and explaining execution plans via the API.
@@ -20,9 +21,15 @@ class Query extends BaseController
 
     /**
      * Instance of the model for accessing the SQL Server.
-     * @var nDatabaseModelFactory
+     * @var DatabaseModelFactory
      */
     private $model;
+
+    /**
+     * Instance of the QueryLogger.
+     * @var QueryLogger
+     */
+    protected $queryLogger;
 
     /**
      * Constructor: initializes the nDatabaseModelFactory.
@@ -30,6 +37,7 @@ class Query extends BaseController
     public function __construct()
     {
         $this->model = DatabaseModelFactory::create();
+        $this->queryLogger = new QueryLogger();
     }
 
     /**
@@ -59,6 +67,13 @@ class Query extends BaseController
             $sql,
             (int) $page,
             (int) $pageSize,
+        );
+
+        $this->queryLogger->logQuery(
+            $sql,
+            $result['status'],
+            $result['executionTime'] ?? 0,
+            $result['totalRowsAffected'] ?? 0,
         );
 
         if ($result['status'] === 'error') {
