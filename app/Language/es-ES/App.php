@@ -546,6 +546,32 @@ return [
                         ],
                     ],
                 ],
+                '30_indexes' => [
+                    'title' => 'Índices',
+                    'scripts' => [
+                        '10_index_usage.sql' => [
+                            'title' => 'Analizar Uso de Índices',
+                            'description' =>
+                                'Muestra estadísticas de lectura para cada índice, ayudando a identificar aquellos que no se utilizan.',
+                        ],
+                        '20_duplicate_indexes.sql' => [
+                            'title' => 'Encontrar Índices Duplicados',
+                            'description' =>
+                                'Lista cualquier índice que sea duplicado o redundante y que pueda ser candidato para eliminación.',
+                        ],
+                    ],
+                ],
+                '60_security' => [
+                    'title' => 'Seguridad',
+                    'scripts' => [
+                        '10_users_with_all_privileges.sql' => [
+                            'title' =>
+                                'Listar Usuarios con Privilegios Elevados',
+                            'description' =>
+                                'Auditoría de seguridad que lista todos los usuarios con privilegios de SUPER o GRANT.',
+                        ],
+                    ],
+                ],
             ],
         ],
     ],

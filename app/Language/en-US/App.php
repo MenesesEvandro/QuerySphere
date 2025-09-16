@@ -532,6 +532,31 @@ return [
                         ],
                     ],
                 ],
+                '30_indexes' => [
+                    'title' => 'Indexes',
+                    'scripts' => [
+                        '10_index_usage.sql' => [
+                            'title' => 'Analyze Index Usage',
+                            'description' =>
+                                'Shows read statistics for each index, helping to identify those that are not used.',
+                        ],
+                        '20_duplicate_indexes.sql' => [
+                            'title' => 'Find Duplicate Indexes',
+                            'description' =>
+                                'Lists any indexes that are duplicated or redundant and may be candidates for removal.',
+                        ],
+                    ],
+                ],
+                '60_security' => [
+                    'title' => 'Security',
+                    'scripts' => [
+                        '10_users_with_all_privileges.sql' => [
+                            'title' => 'List Users with Elevated Privileges',
+                            'description' =>
+                                'Security audit that lists all users with SUPER or GRANT privileges.',
+                        ],
+                    ],
+                ],
             ],
         ],
     ],

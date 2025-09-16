@@ -200,6 +200,7 @@
 
     const DB_TYPE = '<?= $db_type ?? '' ?>';
     const sessionDb = '<?= $db_database ?? '' ?>';
+    var resultsDataTable = null; 
 
 $(async function () {
     // Initialize CodeMirror editor
