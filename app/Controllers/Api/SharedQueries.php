@@ -131,7 +131,7 @@ class SharedQueries extends BaseController
 
         $queriesAfterDelete = array_filter(
             $queries,
-            fn($q) => $q['id'] !== $id,
+            fn ($q) => $q['id'] !== $id,
         );
 
         if (count($queries) === count($queriesAfterDelete)) {

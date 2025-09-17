@@ -50,8 +50,7 @@ class QueryTemplates extends BaseController
                 ];
 
                 foreach (
-                    $categoryData['scripts']
-                    as $scriptFileKey => $scriptData
+                    $categoryData['scripts'] as $scriptFileKey => $scriptData
                 ) {
                     if (
                         is_array($scriptData) &&

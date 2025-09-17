@@ -368,7 +368,7 @@ class ObjectExplorer extends BaseController
         }
 
         $columns = $this->model->getColumns($db, $table);
-        $columnNames = array_map(fn($col) => $col['COLUMN_NAME'], $columns);
+        $columnNames = array_map(fn ($col) => $col['COLUMN_NAME'], $columns);
 
         return $this->respond($columnNames);
     }

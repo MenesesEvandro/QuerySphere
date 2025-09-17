@@ -5,7 +5,6 @@ namespace App\Models;
 use CodeIgniter\Model;
 use App\Interfaces\DatabaseModelInterface;
 use App\Libraries\MySqlConnector;
-use App\Libraries\QueryLogger;
 
 /**
  * The data access layer for interacting with a MySQL database.
@@ -17,12 +16,6 @@ class MySqlModel extends Model implements DatabaseModelInterface
      * @var \mysqli|false|null The active MySQLi connection resource.
      */
     private $conn;
-
-    /**
-     * Instance of the QueryLogger.
-     * @var QueryLogger
-     */
-    protected $queryLogger;
 
     /**
      * Constructor.
@@ -603,8 +596,6 @@ class MySqlModel extends Model implements DatabaseModelInterface
             ];
         }
 
-        $startTime = microtime(true);
-
         $setClauses = [];
         $params = [];
         $types = '';
@@ -625,18 +616,8 @@ class MySqlModel extends Model implements DatabaseModelInterface
         $stmt->bind_param($types, ...$params);
 
         if ($stmt->execute()) {
-            $executionTime = microtime(true) - $startTime;
-            $this->queryLogger->logQuery(
-                $sql,
-                'success',
-                $executionTime,
-                $stmt->affected_rows,
-            );
             return ['status' => 'success'];
         }
-
-        $executionTime = microtime(true) - $startTime;
-        $this->queryLogger->logQuery($sql, 'error', $executionTime, 0);
 
         return ['status' => 'error', 'message' => $stmt->error];
     }
@@ -712,226 +693,5 @@ class MySqlModel extends Model implements DatabaseModelInterface
             return $row['Create Event'];
         }
         return lang('App.db_event_not_found', [$eventName]);
-    }
-
-    /**
-     * Retrieves the detailed structure of a given MySQL table.
-     *
-     * @param string $database The name of the database.
-     * @param string $schema The schema (same as database for MySQL).
-     * @param string $table The name of the table.
-     * @return array An array of column definitions.
-     */
-    public function getTableStructure(
-        string $database,
-        string $schema,
-        string $table,
-    ): array {
-        if (!$this->hasConnection()) {
-            return [];
-        }
-        $sql = "
-            SELECT
-                c.COLUMN_NAME as 'name',
-                c.COLUMN_TYPE as 'type',
-                IF(c.IS_NULLABLE = 'YES', 1, 0) as 'nullable',
-                IF(kcu.CONSTRAINT_NAME IS NOT NULL, 1, 0) as 'is_pk'
-            FROM information_schema.COLUMNS c
-            LEFT JOIN information_schema.KEY_COLUMN_USAGE kcu
-                ON c.TABLE_SCHEMA = kcu.TABLE_SCHEMA
-                AND c.TABLE_NAME = kcu.TABLE_NAME
-                AND c.COLUMN_NAME = kcu.COLUMN_NAME
-                AND kcu.CONSTRAINT_NAME = 'PRIMARY'
-            WHERE c.TABLE_SCHEMA = ? AND c.TABLE_NAME = ?
-            ORDER BY c.ORDINAL_POSITION;
-        ";
-        $stmt = $this->conn->prepare($sql);
-        $stmt->bind_param('ss', $database, $table);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $structure = [];
-        if ($result) {
-            while ($row = $result->fetch_assoc()) {
-                $structure[] = $row;
-            }
-            $result->free();
-        }
-        $stmt->close();
-        return $structure;
-    }
-
-    /**
-     * Creates a new table in the MySQL database.
-     *
-     * @param string $database The name of the database.
-     * @param string $schema The schema (same as database for MySQL).
-     * @param string $table The name of the new table.
-     * @param array $columns An array of column definitions.
-     * @param array $primaryKeys An array of column names for the primary key.
-     * @return array An array with 'status' and 'message' keys.
-     */
-    public function createTable(
-        string $database,
-        string $schema,
-        string $table,
-        array $columns,
-        array $primaryKeys,
-    ): array {
-        if (!$this->hasConnection()) {
-            return ['status' => 'error', 'message' => lang('App.session_lost')];
-        }
-
-        $startTime = microtime(true);
-
-        $colsDefs = [];
-        foreach ($columns as $col) {
-            $def = "`{$col['name']}` {$col['type']}";
-            if (!empty($col['size'])) {
-                $def .= "({$col['size']})";
-            }
-            $def .= $col['nullable'] ? ' NULL' : ' NOT NULL';
-            $colsDefs[] = $def;
-        }
-
-        if (!empty($primaryKeys)) {
-            $quotedKeys = array_map(fn ($key) => "`{$key}`", $primaryKeys);
-            $colsDefs[] = 'PRIMARY KEY (' . implode(', ', $quotedKeys) . ')';
-        }
-
-        $sql =
-            "CREATE TABLE `{$database}`.`{$table}` (" .
-            implode(', ', $colsDefs) .
-            ') ENGINE=InnoDB;';
-
-        if ($this->conn->query($sql)) {
-            $executionTime = microtime(true) - $startTime;
-            $this->queryLogger->logQuery($sql, 'success', $executionTime, 0);
-
-            return ['status' => 'success'];
-        }
-
-        $executionTime = microtime(true) - $startTime;
-        $this->queryLogger->logQuery($sql, 'error', $executionTime, 0);
-
-        return ['status' => 'error', 'message' => $this->conn->error];
-    }
-
-    /**
-     * Adds a new column to an existing table in MySQL.
-     *
-     * @param string $database The name of the database.
-     * @param string $schema The schema of the table.
-     * @param string $table The name of the table to alter.
-     * @param array $column The definition of the column to add.
-     * @return array An array with 'status' and 'message' keys.
-     */
-    public function addColumn(
-        string $database,
-        string $schema,
-        string $table,
-        array $column,
-    ): array {
-        if (!$this->hasConnection()) {
-            return ['status' => 'error', 'message' => lang('App.session_lost')];
-        }
-
-        $startTime = microtime(true);
-
-        $def = "`{$column['name']}` {$column['type']}";
-        if (!empty($column['size'])) {
-            $def .= "({$column['size']})";
-        }
-        $def .= $column['nullable'] ? ' NULL' : ' NOT NULL';
-
-        $sql = "ALTER TABLE `{$database}`.`{$table}` ADD COLUMN {$def};";
-
-        if ($this->conn->query($sql)) {
-            $executionTime = microtime(true) - $startTime;
-            $this->queryLogger->logQuery($sql, 'success', $executionTime, 0);
-
-            return ['status' => 'success'];
-        }
-
-        $executionTime = microtime(true) - $startTime;
-        $this->queryLogger->logQuery($sql, 'error', $executionTime, 0);
-
-        return ['status' => 'error', 'message' => $this->conn->error];
-    }
-
-    /**
-     * Drops (deletes) a table from the MySQL database.
-     *
-     * @param string $database The name of the database.
-     * @param string $schema The schema of the table.
-     * @param string $table The name of the table to drop.
-     * @return array An array with 'status' and 'message' keys.
-     */
-    public function dropTable(
-        string $database,
-        string $schema,
-        string $table,
-    ): array {
-        if (!$this->hasConnection()) {
-            return ['status' => 'error', 'message' => lang('App.session_lost')];
-        }
-
-        $startTime = microtime(true);
-
-        $sql = "DROP TABLE `{$database}`.`{$table}`;";
-
-        if ($this->conn->query($sql)) {
-            $executionTime = microtime(true) - $startTime;
-            $this->queryLogger->logQuery($sql, 'success', $executionTime, 0);
-
-            return ['status' => 'success'];
-        }
-
-        $executionTime = microtime(true) - $startTime;
-        $this->queryLogger->logQuery($sql, 'error', $executionTime, 0);
-
-        return ['status' => 'error', 'message' => $this->conn->error];
-    }
-
-    /**
-     * Retrieves a list of all indexes for a given MySQL table.
-     *
-     * @param string $database The name of the database.
-     * @param string $schema The schema (same as database for MySQL).
-     * @param string $table The name of the table.
-     * @return array An array of index definitions.
-     */
-    public function getIndexes(
-        string $database,
-        string $schema,
-        string $table,
-    ): array {
-        if (!$this->hasConnection()) {
-            return [];
-        }
-        $sql = "SHOW INDEX FROM `{$database}`.`{$table}`;";
-        $result = $this->conn->query($sql);
-        $indexesData = [];
-        if ($result) {
-            while ($row = $result->fetch_assoc()) {
-                $indexesData[$row['Key_name']]['columns'][] =
-                    $row['Column_name'];
-                $indexesData[$row['Key_name']]['is_unique'] =
-                    $row['Non_unique'] == 0;
-                $indexesData[$row['Key_name']]['type_desc'] =
-                    $row['Index_type'];
-            }
-            $result->free();
-        }
-
-        $indexes = [];
-        foreach ($indexesData as $name => $data) {
-            $indexes[] = [
-                'index_name' => $name,
-                'columns' => implode(', ', $data['columns']),
-                'is_unique' => $data['is_unique'],
-                'type_desc' => $data['type_desc'],
-            ];
-        }
-        return $indexes;
     }
 }

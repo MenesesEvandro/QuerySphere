@@ -385,7 +385,7 @@ class SqlServerModel extends Model implements DatabaseModelInterface
                 $data = [];
                 while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
                     $data[] = array_map(
-                        fn($v) => $v instanceof \DateTime
+                        fn ($v) => $v instanceof \DateTime
                             ? $v->format('Y-m-d H:i:s.v')
                             : $v,
                         $row,
@@ -961,7 +961,7 @@ class SqlServerModel extends Model implements DatabaseModelInterface
         }
 
         if (!empty($primaryKeys)) {
-            $quotedKeys = array_map(fn($key) => "[{$key}]", $primaryKeys);
+            $quotedKeys = array_map(fn ($key) => "[{$key}]", $primaryKeys);
             $colsDefs[] =
                 "CONSTRAINT PK_{$table} PRIMARY KEY (" .
                 implode(', ', $quotedKeys) .

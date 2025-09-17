@@ -2,8 +2,6 @@
 
 namespace App\Libraries;
 
-use App\Libraries\ConnectionManager;
-
 /**
  * Manages a single, shared SQL Server connection instance per request.
  */

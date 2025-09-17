@@ -2,7 +2,6 @@
 
 namespace App\Libraries;
 
-use App\Libraries\ConnectionManager;
 use mysqli;
 
 /**

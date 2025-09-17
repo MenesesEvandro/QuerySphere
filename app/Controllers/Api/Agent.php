@@ -6,7 +6,6 @@ use App\Controllers\BaseController;
 use CodeIgniter\API\ResponseTrait;
 use App\Factories\DatabaseModelFactory;
 
-
 /**
  * Controller responsible for managing SQL Server Agent jobs via the API.
  *

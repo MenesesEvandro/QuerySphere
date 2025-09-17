@@ -2,8 +2,6 @@
 
 namespace App\Controllers;
 
-use App\Controllers\BaseController;
-
 /**
  * Controller responsible for validating the server environment.
  *

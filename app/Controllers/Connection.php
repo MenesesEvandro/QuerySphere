@@ -2,10 +2,7 @@
 
 namespace App\Controllers;
 
-use App\Controllers\BaseController;
 use App\Libraries\ConnectionManager;
-use App\Factories\DatabaseModelFactory;
-
 
 /**
  * Controller responsible for managing database connections.
