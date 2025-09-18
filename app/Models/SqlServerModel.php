@@ -294,8 +294,8 @@ class SqlServerModel extends Model implements DatabaseModelInterface
     }
 
     /**
-     * Executes a user-provided SQL query, with support for server-side pagination for single SELECT statements.
-     * This function handles multiple result sets and correctly reports the total number of rows affected or returned.
+     * Executes a user-provided SQL query, with support for server-side pagination.
+     * This is the main entry point for query execution.
      *
      * @param string $sql The user's full SQL query string.
      * @param int    $page The page number to retrieve for paginated queries.
@@ -309,86 +309,153 @@ class SqlServerModel extends Model implements DatabaseModelInterface
         int $pageSize = 1000,
         bool $disablePagination = false,
     ): array {
-        ini_set('memory_limit', '512M');
-        set_time_limit(300);
-
         if (!$this->hasConnection()) {
-            return [
-                'status' => 'error',
-                'message' => lang('App.feedback.session_lost'),
-            ];
+            return ['status' => 'error', 'message' => lang('App.feedback.session_lost')];
         }
 
         $startTime = microtime(true);
-        $allResults = [];
-        $totalRowsAffected = 0;
-        $paginated = false;
 
-        $trimmedSql = trim($sql, " \t\n\r\0\x0B;");
-        $isSingleSelect =
-            preg_match('/^\s*SELECT/i', $trimmedSql) &&
-            strpos($trimmedSql, ';') === false;
-        $hasTopClause = preg_match('/^\s*SELECT\s+TOP\s+\d+/i', $trimmedSql);
-
-        $isPaginatable =
-            $isSingleSelect && !$hasTopClause && !$disablePagination;
-        $queryToExecute = $sql;
-        $totalRows = 0;
-
-        if ($isPaginatable) {
-            $paginated = true;
-            $countSql = "WITH UserQuery AS ({$trimmedSql}) SELECT COUNT_BIG(*) as TotalRows FROM UserQuery;";
-            $countStmt = sqlsrv_query($this->conn, $countSql);
-            if (
-                $countStmt &&
-                ($row = sqlsrv_fetch_array($countStmt, SQLSRV_FETCH_ASSOC))
-            ) {
-                $totalRows = $row['TotalRows'];
-            }
-            if ($countStmt) {
-                sqlsrv_free_stmt($countStmt);
-            }
-
-            $paginatedSql = $trimmedSql;
-            if (stripos($paginatedSql, 'ORDER BY') === false) {
-                $paginatedSql .= ' ORDER BY (SELECT NULL)';
-            }
-            $offset = ($page - 1) * $pageSize;
-            $paginatedSql .= " OFFSET {$offset} ROWS FETCH NEXT {$pageSize} ROWS ONLY";
-            $queryToExecute = $paginatedSql;
+        if ($this->isPaginatable($sql, $disablePagination)) {
+            $result = $this->executePaginatedQuery($sql, $page, $pageSize);
+        } else {
+            $result = $this->executeSimpleQuery($sql);
         }
 
-        $stmt = sqlsrv_query($this->conn, $queryToExecute);
+        $executionTime = number_format(microtime(true) - $startTime, 4);
+        $result['executionTime'] = $executionTime;
+
+        // Log the query after execution
+        $this->queryLogger->logQuery(
+            $sql,
+            $result['status'],
+            $executionTime,
+            $result['totalRowsAffected'] ?? 0
+        );
+
+        return $result;
+    }
+
+    /**
+     * Determines if a given SQL query is a simple SELECT statement that can be paginated.
+     *
+     * @param string $sql The SQL query string.
+     * @param bool   $disablePagination A flag to override pagination.
+     * @return bool True if the query is paginatable, false otherwise.
+     */
+    private function isPaginatable(string $sql, bool $disablePagination): bool
+    {
+        if ($disablePagination) {
+            return false;
+        }
+
+        $trimmedSql = trim($sql, " \t\n\r\0\x0B;");
+        $isSingleSelect = preg_match('/^\s*SELECT/i', $trimmedSql) && strpos($trimmedSql, ';') === false;
+        $hasTopClause = preg_match('/^\s*SELECT\s+TOP\s+\d+/i', $trimmedSql);
+
+        return $isSingleSelect && !$hasTopClause;
+    }
+
+    /**
+     * Executes a paginated SELECT query.
+     *
+     * @param string $sql The SQL SELECT statement.
+     * @param int    $page The current page number.
+     * @param int    $pageSize The number of rows per page.
+     * @return array The result of the query execution.
+     */
+    private function executePaginatedQuery(string $sql, int $page, int $pageSize): array
+    {
+        $trimmedSql = trim($sql, " \t\n\r\0\x0B;");
+
+        // First, get the total number of rows
+        $countSql = "WITH UserQuery AS ({$trimmedSql}) SELECT COUNT_BIG(*) as TotalRows FROM UserQuery;";
+        $countStmt = sqlsrv_query($this->conn, $countSql);
+
+        $totalRows = 0;
+        if ($countStmt && ($row = sqlsrv_fetch_array($countStmt, SQLSRV_FETCH_ASSOC))) {
+            $totalRows = $row['TotalRows'];
+        }
+        if ($countStmt) {
+            sqlsrv_free_stmt($countStmt);
+        }
+
+        // Now, fetch the paginated data
+        $paginatedSql = $trimmedSql;
+        if (stripos($paginatedSql, 'ORDER BY') === false) {
+            $paginatedSql .= ' ORDER BY (SELECT NULL)';
+        }
+        $offset = ($page - 1) * $pageSize;
+        $paginatedSql .= " OFFSET {$offset} ROWS FETCH NEXT {$pageSize} ROWS ONLY";
+
+        $stmt = sqlsrv_query($this->conn, $paginatedSql);
 
         if ($stmt === false) {
             $errors = sqlsrv_errors();
             return [
                 'status' => 'error',
-                'message' =>
-                    lang('App.feedback.syntax_error') .
-                    ($errors[0]['message'] ??
-                        lang('App.feedback.unknown_error')),
+                'message' => lang('App.feedback.syntax_error') . ($errors[0]['message'] ?? lang('App.feedback.unknown_error')),
             ];
         }
 
+        $result = $this->processResults($stmt, true, $totalRows, $page, $pageSize);
+        sqlsrv_free_stmt($stmt);
+
+        return $result;
+    }
+
+    /**
+     * Executes a non-paginated query (DML, DDL, or non-paginatable SELECT).
+     *
+     * @param string $sql The SQL query to execute.
+     * @return array The result of the query execution.
+     */
+    private function executeSimpleQuery(string $sql): array
+    {
+        $stmt = sqlsrv_query($this->conn, $sql);
+
+        if ($stmt === false) {
+            $errors = sqlsrv_errors();
+            return [
+                'status' => 'error',
+                'message' => lang('App.feedback.syntax_error') . ($errors[0]['message'] ?? lang('App.feedback.unknown_error')),
+            ];
+        }
+
+        $result = $this->processResults($stmt);
+        sqlsrv_free_stmt($stmt);
+
+        return $result;
+    }
+
+    /**
+     * Processes the result sets from a sqlsrv statement.
+     *
+     * @param resource $stmt The executed statement resource.
+     * @param bool     $paginated Whether the query was paginated.
+     * @param int      $totalRows The total row count for a paginated query.
+     * @param int      $page The current page for a paginated query.
+     * @param int      $pageSize The page size for a paginated query.
+     * @return array An array containing the processed results and metadata.
+     */
+    private function processResults($stmt, bool $paginated = false, int $totalRows = 0, int $page = 1, int $pageSize = 1000): array
+    {
+        ini_set('memory_limit', '512M');
+        set_time_limit(300);
+
+        $allResults = [];
+        $totalRowsAffected = 0;
+
         do {
             $rowsAffectedThisResult = sqlsrv_rows_affected($stmt);
-
-            // **CORREÇÃO:** Verifica se os metadados são um array antes do loop.
             $metadata = sqlsrv_field_metadata($stmt);
-            if (is_array($metadata)) {
-                $headers = [];
-                foreach ($metadata as $fieldMetadata) {
-                    $headers[] = $fieldMetadata['Name'];
-                }
 
+            if (is_array($metadata)) {
+                $headers = array_map(fn ($field) => $field['Name'], $metadata);
                 $data = [];
                 while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
                     $data[] = array_map(
-                        fn ($v) => $v instanceof \DateTime
-                            ? $v->format('Y-m-d H:i:s.v')
-                            : $v,
-                        $row,
+                        fn ($v) => $v instanceof \DateTime ? $v->format('Y-m-d H:i:s.v') : $v,
+                        $row
                     );
                 }
 
@@ -400,11 +467,11 @@ class SqlServerModel extends Model implements DatabaseModelInterface
                     'data' => $data,
                     'rowCount' => $rowCount,
                 ];
+
                 if ($paginated) {
                     $result['totalRows'] = $totalRows;
                     $result['currentPage'] = $page;
-                    $result['totalPages'] =
-                        $pageSize > 0 ? ceil($totalRows / $pageSize) : 1;
+                    $result['totalPages'] = $pageSize > 0 ? ceil($totalRows / $pageSize) : 1;
                 }
                 $allResults[] = $result;
             } elseif ($rowsAffectedThisResult > 0) {
@@ -412,15 +479,9 @@ class SqlServerModel extends Model implements DatabaseModelInterface
             }
         } while (!$paginated && sqlsrv_next_result($stmt) !== false);
 
-        $executionTime = number_format(microtime(true) - $startTime, 4);
-        if ($stmt) {
-            sqlsrv_free_stmt($stmt);
-        }
-
         return [
             'status' => 'success',
             'results' => $allResults,
-            'executionTime' => $executionTime,
             'totalRowsAffected' => $totalRowsAffected,
             'resultSetCount' => count($allResults),
         ];
