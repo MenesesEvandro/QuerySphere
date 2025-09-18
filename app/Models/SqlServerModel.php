@@ -2,42 +2,26 @@
 
 namespace App\Models;
 
-use CodeIgniter\Model;
 use App\Libraries\DatabaseConnector;
-use App\Interfaces\DatabaseModelInterface;
-use App\Libraries\QueryLogger;
 
 /**
  * The primary data access layer for interacting with a Microsoft SQL Server database.
- *
- * This model encapsulates all database operations, from establishing connections
- * to fetching metadata for the object explorer, executing user queries with pagination,
- * retrieving execution plans, and searching for database objects.
- *
- * @package App\Models
  */
-class SqlServerModel extends Model implements DatabaseModelInterface
+class SqlServerModel extends BaseDatabaseModel
 {
     /**
-     * The active SQL Server connection resource, obtained from the shared connector.
+     * The active SQL Server connection resource.
      * @var resource|false
      */
     private $conn;
 
     /**
-     * Instance of the QueryLogger.
-     * @var QueryLogger
-     */
-    protected $queryLogger;
-
-    /**
-     * Constructor: gets the shared connection from the connector.
+     * Constructor: gets the shared connection and calls the parent constructor.
      */
     public function __construct()
     {
         parent::__construct();
         $this->conn = DatabaseConnector::getConnection();
-        $this->queryLogger = new QueryLogger();
     }
 
     /**

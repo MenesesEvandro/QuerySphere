@@ -2,27 +2,17 @@
 
 namespace App\Models;
 
-use CodeIgniter\Model;
-use App\Interfaces\DatabaseModelInterface;
 use App\Libraries\MySqlConnector;
-use App\Libraries\QueryLogger;
 
 /**
  * The data access layer for interacting with a MySQL database.
- * This class implements all the necessary methods for QuerySphere to function with MySQL.
  */
-class MySqlModel extends Model implements DatabaseModelInterface
+class MySqlModel extends BaseDatabaseModel
 {
     /**
      * @var \mysqli|false|null The active MySQLi connection resource.
      */
     private $conn;
-
-    /**
-     * Instance of the QueryLogger.
-     * @var QueryLogger
-     */
-    protected $queryLogger;
 
     /**
      * Constructor.
