@@ -1,7 +1,9 @@
 const TabManager = {
   tabCounter: 0,
   activeTabId: null,
-  tabs: {}, // Armazena o estado de cada aba (editor, resultados, etc.)
+  tabs: {},
+  csrfTokenName: window.csrfTokenName,
+  csrfTokenValue: window.csrfTokenValue,
 
   /**
    * Inicializa o TabManager, cria a primeira aba e anexa os eventos globais.
@@ -26,7 +28,10 @@ const TabManager = {
     // Atualiza a aba ativa quando o usuário clica em uma
     $("#editor-tabs").on("shown.bs.tab", 'a[data-bs-toggle="tab"]', (e) => {
       this.activeTabId = $(e.target).attr("href").substring(1);
-      this.getActiveTab()?.editor.focus();
+      const activeTab = this.getActiveTab();
+      if (activeTab && activeTab.editor) {
+        activeTab.editor.focus();
+      }
     });
   },
 
@@ -38,7 +43,6 @@ const TabManager = {
     const tabId = `tab-${this.tabCounter}`;
     const paneId = `pane-${this.tabCounter}`;
 
-    // Cria o link da aba
     const tabLink = $(`
             <li class="nav-item" role="presentation">
                 <a class="nav-link" id="${tabId}-link" data-bs-toggle="tab" href="#${paneId}" role="tab">
@@ -49,21 +53,17 @@ const TabManager = {
         `);
     $("#new-tab-btn-container").before(tabLink);
 
-    // Clona e cria o painel da aba
     const template = document.getElementById("editor-tab-template");
     const newPane = $(template.content.cloneNode(true).firstElementChild);
     newPane.attr("id", paneId).addClass("h-100");
     $("#editor-panes").append(newPane);
 
-    // Inicializa a nova aba
     this.initTab(paneId);
-
-    // Ativa a nova aba
     new bootstrap.Tab(tabLink.find("a")[0]).show();
   },
 
   /**
-   * Inicializa os componentes de uma nova aba (CodeMirror, Split.js, eventos).
+   * Inicializa os componentes de uma nova aba.
    */
   initTab: function (paneId) {
     const $pane = $(`#${paneId}`);
@@ -125,10 +125,7 @@ const TabManager = {
     const $pane = $(`#${paneId}`);
     const tab = this.tabs[paneId];
     const $resultsPanel = $pane.find(".results-panel");
-    const csrfTokenName = window.csrfTokenName;
-    const csrfTokenValue = window.csrfTokenValue;
 
-    // Eventos da Barra de Ferramentas
     $pane
       .find(".execute-query-btn")
       .on("click", () => this.executeQuery(paneId));
@@ -184,7 +181,7 @@ const TabManager = {
         name,
         author,
         sql,
-        [csrfTokenName]: csrfTokenValue,
+        [this.csrfTokenName]: this.csrfTokenValue,
       })
         .done(() => renderSharedScripts())
         .fail(() => notifier.show(LANG.share_fail, "error"));
@@ -193,7 +190,6 @@ const TabManager = {
       .find(".save-changes-btn")
       .on("click", () => this.saveGridChanges(paneId));
 
-    // Eventos de Resultado (delegados)
     $resultsPanel.on("click", ".pagination-prev", () => {
       const result = tab.lastResultData?.results?.[0];
       if (result && result.currentPage > 1)
@@ -215,11 +211,6 @@ const TabManager = {
           $pane.find(".show-chart-btn").prop("disabled", true);
         }
       },
-    );
-
-    // Evento de Edição Inline (delegado)
-    $resultsPanel.on("dblclick", ".dataTables_wrapper tbody td", (e) =>
-      this.handleCellDoubleClick(e.currentTarget, paneId),
     );
   },
 
@@ -334,9 +325,6 @@ const TabManager = {
     const $placeholder = $pane.find(".results-placeholder");
     const $paginationControls = $pane.find(".pagination-controls");
 
-    const csrfTokenName = window.csrfTokenName;
-    const csrfTokenValue = window.csrfTokenValue;
-
     if (tab.resultsDataTable) {
       tab.resultsDataTable.destroy();
       tab.resultsDataTable = null;
@@ -345,11 +333,12 @@ const TabManager = {
     $resultsTabContent.find(".dynamic-tab-pane").remove();
     $placeholder.hide();
     $messagesContent.empty();
+    $paginationControls.hide();
 
     $.ajax({
       url: site_url + "api/query/execute",
       method: "POST",
-      data: { sql: sql, page: page, [csrfTokenName]: csrfTokenValue },
+      data: { sql: sql, page: page, [this.csrfTokenName]: this.csrfTokenValue },
       success: (response) => {
         $messagesContent.html(`<pre class="p-2 m-0">${response.message}</pre>`);
         refreshHistory();
@@ -388,6 +377,7 @@ const TabManager = {
             });
             $table.append($thead).append($tfoot);
             $tableContainer.append($table);
+
             tab.resultsDataTable = new DataTable(`#${tableId}`, {
               data: result.data,
               columns: $.map(result.headers, (h) => ({ data: h })),
@@ -411,6 +401,13 @@ const TabManager = {
                   });
               },
             });
+
+            // *** INÍCIO DA CORREÇÃO ***
+            // Ligamos o evento de duplo clique diretamente na tabela recém-criada.
+            $table.on("dblclick", "tbody td", (e) =>
+              this.handleCellDoubleClick(e.currentTarget, paneId),
+            );
+            // *** FIM DA CORREÇÃO ***
           } else {
             $tableContainer.html(
               `<p class="p-2 text-muted">${LANG.empty_result}</p>`,
@@ -455,7 +452,7 @@ const TabManager = {
         const errorMsg =
           xhr.responseJSON?.messages?.error?.message ||
           xhr.responseText ||
-          "Ocorreu um erro.";
+          "An error occurred.";
         $messagesContent.html(
           `<div class="alert alert-danger m-2"><h5 class="alert-heading">${LANG.exec_error}</h5><hr><p class="mb-0">${$("<div>").text(errorMsg).html()}</p></div>`,
         );
@@ -473,10 +470,6 @@ const TabManager = {
     const tab = this.tabs[paneId];
     const $pane = $(`#${paneId}`);
     const sql = tab.editor.getSelection() || tab.editor.getValue();
-
-    const csrfTokenName = window.csrfTokenName;
-    const csrfTokenValue = window.csrfTokenValue;
-
     if (!sql.trim()) return;
     const $explainBtn = $pane
       .find(".explain-query-btn")
@@ -485,7 +478,7 @@ const TabManager = {
     $.ajax({
       url: site_url + "api/query/explain",
       method: "POST",
-      data: { sql: sql, [csrfTokenName]: csrfTokenValue },
+      data: { sql: sql, [this.csrfTokenName]: this.csrfTokenValue },
       success: (response) => {
         const $planContainer = $pane.find(".execution-plan-pane").empty();
         if (response.db_type === "mysql") {
@@ -500,7 +493,16 @@ const TabManager = {
         new bootstrap.Tab($pane.find(".plan-tab")[0]).show();
       },
       error: (xhr) => {
-        /* ... sua lógica de erro ... */
+        const errorMsg =
+          xhr.responseJSON?.messages?.error?.message ||
+          xhr.responseText ||
+          "An error occurred.";
+        $pane
+          .find(".messages-content")
+          .html(
+            `<div class="alert alert-danger m-2"><h5 class="alert-heading">${LANG.exec_error}</h5><hr><p class="mb-0">${$("<div>").text(errorMsg).html()}</p></div>`,
+          );
+        new bootstrap.Tab($pane.find(".messages-tab")[0]).show();
       },
       complete: () =>
         $explainBtn
@@ -610,10 +612,6 @@ const TabManager = {
   saveGridChanges: function (paneId) {
     const tab = this.tabs[paneId];
     const $btn = $(`#${paneId}`).find(".save-changes-btn");
-
-    const csrfTokenName = window.csrfTokenName;
-    const csrfTokenValue = window.csrfTokenValue;
-
     $btn
       .prop("disabled", true)
       .html(
@@ -622,7 +620,7 @@ const TabManager = {
     const promises = Object.entries(tab.editableGrid.changedData).map(
       ([pkValue, data]) => {
         const payload = {
-          [csrfTokenName]: csrfTokenValue,
+          [this.csrfTokenName]: this.csrfTokenValue,
           database: tab.editableGrid.dbName,
           schema: tab.editableGrid.schemaName,
           table: tab.editableGrid.tableName,

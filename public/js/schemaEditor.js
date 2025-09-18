@@ -159,10 +159,10 @@ const schemaEditor = {
       method: "POST",
       contentType: "application/json",
       data: JSON.stringify(payload),
-      headers: { [csrfTokenName]: csrfTokenValue },
+      headers: { [this.csrfTokenName]: this.csrfTokenValue },
       success: (response) => {
         notifier.show(
-          LANG.feedback.table_created_successfully.replace("{0}", tableName),
+          LANG.table_created_successfully.replace("{0}", tableName),
           "success",
         );
         this.modal.hide();
@@ -170,8 +170,7 @@ const schemaEditor = {
       },
       error: (xhr) => {
         const errorMsg =
-          xhr.responseJSON?.messages?.error ||
-          LANG.feedback.table_creation_failed;
+          xhr.responseJSON?.messages?.error || LANG.table_creation_failed;
         notifier.show(errorMsg, "error");
       },
     });
@@ -211,7 +210,7 @@ const schemaEditor = {
         method: "POST",
         contentType: "application/json",
         data: JSON.stringify(payload),
-        headers: { [csrfTokenName]: csrfTokenValue },
+        headers: { [this.csrfTokenName]: this.csrfTokenValue },
       });
     });
 
@@ -229,28 +228,10 @@ const schemaEditor = {
   },
 };
 
-$(async function () {
-  $(document).on(
-    "dblclick",
-    "#resultsTabContent .table-responsive table tbody td",
-    function () {
-      editableGrid.cellDoubleClicked(this);
-    },
-  );
-
-  $("#save-changes-btn").on("click", function () {
-    editableGrid.save();
-  });
-
-  $(
-    "<style>.datatable-row-changed > td { background-color: #fff3cd !important; }</style>",
-  ).appendTo("head");
-
+$(function () {
   $("#add-column-btn").on("click", () => schemaEditor.addColumnRow());
-
   $("#schema-editor-modal").on("click", ".remove-column-btn", function () {
     $(this).closest("tr").remove();
   });
-
   $("#save-table-btn").on("click", () => schemaEditor.save());
 });
