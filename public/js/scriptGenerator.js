@@ -5,7 +5,8 @@ const scriptGenerator = {
    */
   selectTop1000: function (nodeData) {
     const { db, schema, table } = nodeData;
-    editor.setValue(`-- ${LANG.loading}...`);
+    const activeTab = TabManager.getActiveTab();
+    activeTab.editor.setValue(`-- ${LANG.loading}...`);
 
     $.get(site_url + "api/objects/columns", { db, table })
       .done((columns) => {
@@ -20,14 +21,14 @@ const scriptGenerator = {
           // Padrão para sqlsrv
           sql = `SELECT TOP 1000${columnList}FROM ${this._quoteIdentifier(db)}.${this._quoteIdentifier(schema)}.${this._quoteIdentifier(table)}`;
         }
-        editor.setValue(sql);
+        activeTab.editor.setValue(sql);
       })
       .fail(() => {
         const tableName =
           DB_TYPE === "mysql"
             ? `${this._quoteIdentifier(db)}.${this._quoteIdentifier(table)}`
             : `${this._quoteIdentifier(db)}.${this._quoteIdentifier(schema)}.${this._quoteIdentifier(table)}`;
-        editor.setValue(
+        activeTab.editor.setValue(
           `-- ${LANG.error_loading_definition}\n\nSELECT * FROM ${tableName} LIMIT 1000;`,
         );
       });
@@ -39,6 +40,7 @@ const scriptGenerator = {
    */
   execute: function (node) {
     const { db, schema, routine } = node.data;
+    const activeTab = TabManager.getActiveTab();
     const routineName = `${this._quoteIdentifier(db)}.${this._quoteIdentifier(schema)}.${this._quoteIdentifier(routine)}`;
 
     $.get(site_url + "api/objects/children", { id: node.id }, (params) => {
@@ -48,7 +50,7 @@ const scriptGenerator = {
           ",\n",
         );
       }
-      editor.setValue(script);
+      activeTab.editor.setValue(script);
     });
   },
 
@@ -58,11 +60,12 @@ const scriptGenerator = {
    */
   alter: function (nodeData) {
     const { db, schema, routine, type, table } = nodeData;
+    const activeTab = TabManager.getActiveTab();
     const objectName = routine || table; // Pega o nome do objeto (seja rotina ou tabela)
     const objectFullName =
       DB_TYPE === "mysql" ? `${objectName}` : `${schema}.${objectName}`;
 
-    editor.setValue(
+    activeTab.editor.setValue(
       `-- ${LANG.loading_definition_for.replace("{0}", objectFullName)}`,
     );
 
@@ -81,9 +84,11 @@ const scriptGenerator = {
         ) {
           script = script.replace(/CREATE/i, "ALTER");
         }
-        editor.setValue(script);
+        activeTab.editor.setValue(script);
       })
-      .fail(() => editor.setValue(`-- ${LANG.error_loading_definition}`));
+      .fail(() =>
+        activeTab.editor.setValue(`-- ${LANG.error_loading_definition}`),
+      );
   },
 
   /**

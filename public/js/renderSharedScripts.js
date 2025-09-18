@@ -33,27 +33,9 @@ function renderSharedScripts() {
 }
 
 $(async function () {
-  $("#share-script-btn").on("click", function () {
-    const sql = editor.getValue();
-    if (!sql.trim())
-      return notifier.show(LANG.empty_shared_script_alert, "error");
-    const name = prompt(LANG.prompt_shared_name, LANG.shared_name_default);
-    if (!name) return;
-    const author = prompt(LANG.prompt_author, LANG.author_default);
-    if (!author) return;
-
-    $.post(site_url + "api/shared-queries", {
-      name,
-      author,
-      sql,
-      [csrfTokenName]: csrfTokenValue,
-    })
-      .done(() => renderSharedScripts())
-      .fail(() => notifier.show(LANG.share_fail, "error"));
-  });
-
   $("#shared-scripts-list").on("click", ".load-shared-script", function () {
-    editor.setValue($(this).data("sql"));
+    const activeTab = TabManager.getActiveTab();
+    activeTab.editor.setValue($(this).data("sql"));
   });
 
   $("#shared-scripts-list").on(

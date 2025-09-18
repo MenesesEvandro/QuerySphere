@@ -10,14 +10,6 @@ $(async function () {
       direction: "horizontal",
       cursor: "col-resize",
     });
-    Split(["#query-editor-panel", "#results-panel"], {
-      sizes: [65, 35],
-      minSize: 100,
-      gutterSize: 7,
-      direction: "vertical",
-      cursor: "row-resize",
-      onDragEnd: () => editor.refresh(),
-    });
   }
 
   $("#object-explorer-tree").jstree({

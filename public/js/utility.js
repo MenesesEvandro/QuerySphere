@@ -23,9 +23,10 @@ function formatDuration(duration) {
 
 $(async function () {
   $("#format-sql-btn").on("click", () => {
+    const activeTab = TabManager.getActiveTab();
     try {
-      editor.setValue(
-        sqlFormatter.format(editor.getValue(), {
+      activeTab.editor.setValue(
+        sqlFormatter.format(activeTab.editor.getValue(), {
           language: "tsql",
           tabWidth: 4,
           keywordCase: "upper",
@@ -40,6 +41,7 @@ $(async function () {
     e.preventDefault();
     const categoryKey = $(this).data("category");
     const filename = $(this).data("filename");
+    const activeTab = TabManager.getActiveTab();
 
     $.get(
       `${site_url}api/templates/get/${categoryKey}/${filename}`,
@@ -61,7 +63,7 @@ $(async function () {
             return;
           }
         }
-        editor.setValue(finalSql);
+        activeTab.editor.setValue(finalSql);
         isTemplateQuery = true;
       },
     );

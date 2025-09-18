@@ -172,6 +172,78 @@
     </div>
 </div>
 
+<template id="editor-tab-template">
+    <div class="tab-pane fade" role="tabpanel">
+        <div class="d-flex flex-column h-100">
+            <section class="query-editor-panel d-flex flex-column">
+                <div class="p-2 border-bottom d-flex align-items-center flex-wrap">
+                    <button class="btn btn-success btn-sm me-2 mb-1 mb-md-0 execute-query-btn">
+                        <i class="fa fa-play me-1"></i> <?= lang('App.workspace.execute') ?> (Ctrl+Enter)
+                    </button>
+                    <button class="btn btn-warning btn-sm me-2 mb-1 mb-md-0 save-changes-btn" style="display: none;">
+                        <i class="fa fa-save me-1"></i> <?= lang('App.workspace.save_changes') ?>
+                    </button>
+                    <button class="btn btn-info btn-sm me-2 mb-1 mb-md-0 explain-query-btn">
+                        <i class="fa fa-sitemap me-1"></i> <?= lang('App.workspace.explain') ?>
+                    </button>
+                    <button class="btn btn-outline-secondary btn-sm me-3 mb-1 mb-md-0 format-sql-btn"
+                        title="<?= lang('App.workspace.formatSQL') ?>">
+                        <i class="fa fa-align-left"></i>
+                    </button>
+                    <div class="btn-group me-3 mb-1 mb-md-0">
+                        <button class="btn btn-outline-secondary btn-sm export-csv-btn" disabled>
+                            <i class="fa fa-file-csv me-1"></i> <?= lang('App.workspace.exportCSV') ?>
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm export-json-btn" disabled>
+                            <i class="fa fa-file-code me-1"></i> <?= lang('App.workspace.exportJSON') ?>
+                        </button>
+                    </div>
+                    <button class="btn btn-outline-primary btn-sm mb-1 mb-md-0 show-chart-btn" disabled
+                        data-bs-toggle="modal" data-bs-target="#chartModal">
+                        <i class="fa fa-chart-bar me-1"></i> <?= lang('App.charts.title') ?>
+                    </button>
+                    <button class="btn btn-outline-info btn-sm ms-auto mb-1 mb-md-0 save-script-btn">
+                        <i class="fa fa-save me-1"></i> <?= lang('App.scripts.save') ?>
+                    </button>
+                    <button class="btn btn-outline-success btn-sm ms-2 mb-1 mb-md-0 share-script-btn">
+                        <i class="fa fa-users me-1"></i> <?= lang('App.scripts.share') ?>
+                    </button>
+                </div>
+                <textarea class="query-editor flex-grow-1"></textarea>
+            </section>
+
+            <section class="results-panel p-2 d-flex flex-column">
+                <div class="pagination-controls pb-2 border-bottom d-flex justify-content-between align-items-center"
+                    style="display: none;">
+                    <div>
+                        <button class="btn btn-sm btn-outline-secondary pagination-prev">&laquo; <?= lang('App.general.previous') ?></button>
+                        <button class="btn btn-sm btn-outline-secondary pagination-next"><?= lang('App.general.next') ?> &raquo;</button>
+                    </div>
+                    <div class="pagination-info" style="font-size: 0.9em;"></div>
+                </div>
+
+                <ul class="nav nav-tabs flex-shrink-0 results-tab-nav" role="tablist">
+                    <li class="nav-item static-tab" role="presentation">
+                        <button class="nav-link messages-tab" data-bs-toggle="tab" type="button" role="tab"><?= lang('App.workspace.messages') ?></button>
+                    </li>
+                    <li class="nav-item static-tab" role="presentation">
+                        <button class="nav-link plan-tab" data-bs-toggle="tab" type="button" role="tab"><?= lang('App.workspace.explain') ?></button>
+                    </li>
+                </ul>
+                <div class="tab-content flex-grow-1 results-tab-content" style="overflow: auto;">
+                    <div class="results-placeholder p-3">
+                        <?= lang('App.workspace.queryResultsPlaceholder') ?>
+                    </div>
+                    <div class="tab-pane fade h-100 messages-pane" role="tabpanel">
+                        <div class="messages-content text-monospace h-100"></div>
+                    </div>
+                    <div class="tab-pane fade h-100 p-2 execution-plan-pane" role="tabpanel"></div>
+                </div>
+            </section>
+        </div>
+    </div>
+</template>
+
 <script>
     const themeManager = {
         /**
@@ -233,11 +305,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
 <script src="<?= base_url('libs/qp/qp.js') ?>"></script>
 
-<script src="<?= base_url('js/editor.js') ?>"></script>
 <script src="<?= base_url('js/export.js') ?>"></script>
 <script src="<?= base_url('js/utility.js') ?>"></script>
 <script src="<?= base_url('js/dbSelectorHandler.js') ?>"></script>
-<script src="<?= base_url('js/editableGrid.js') ?>"></script>
 <script src="<?= base_url('js/schemaEditor.js') ?>"></script>
 <script src="<?= base_url('js/scriptGenerator.js') ?>"></script>
 <script src="<?= base_url('js/notifier.js') ?>"></script>
@@ -248,13 +318,11 @@
 <script src="<?= base_url('js/renderSavedScripts.js') ?>"></script>
 <script src="<?= base_url('js/refreshHistory.js') ?>"></script>
 <script src="<?= base_url('js/renderSharedScripts.js') ?>"></script>
-<script src="<?= base_url('js/updateChartButtonAndOptions.js') ?>"></script>
-<script src="<?= base_url('js/executeQuery.js') ?>"></script>
 <script src="<?= base_url('js/renderQueryTemplates.js') ?>"></script>
-<script src="<?= base_url('js/initializeIntellisense.js') ?>"></script>
 <script src="<?= base_url('js/objectExplorer.js') ?>"></script>
 <script src="<?= base_url('js/jobsHandlers.js') ?>"></script>
 <script src="<?= base_url('js/localEventHandlers.js') ?>"></script>
+<script src="<?= base_url('js/tabManager.js') ?>"></script>
 
 
 <script>
@@ -274,14 +342,11 @@ $(async function () {
   // Initial setup
   refreshHistory();
   renderSavedScripts();
-  initializeIntellisense();
   renderQueryTemplates();
   renderSharedScripts();
-  if (DB_TYPE === "sqlsrv") {
-    renderAgentJobs();
-  } else if (DB_TYPE === "mysql") {
-    renderMySqlEvents();
-  }
+  TabManager.init();
+  if (DB_TYPE === 'sqlsrv') renderAgentJobs();
+  if (DB_TYPE === 'mysql') renderMySqlEvents();
 });
 </script>
 

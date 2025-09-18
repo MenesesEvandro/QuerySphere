@@ -1,62 +1,52 @@
+/**
+ * Gera e baixa um arquivo CSV a partir dos dados fornecidos.
+ * @param {string} filename - O nome do arquivo a ser baixado.
+ * @param {string[]} headers - Um array com os nomes das colunas.
+ * @param {object[]} data - Um array de objetos, onde cada objeto é uma linha.
+ */
 function exportToCsv(filename, headers, data) {
-  const csvRows = [headers.join(",")];
-  $.each(data, (i, row) => {
-    const values = $.map(
-      headers,
-      (header) => `"${("" + row[header]).replace(/"/g, '""')}"`,
-    );
+  const csvRows = [headers.join(",")]; // Cabeçalho
+
+  // Adiciona as linhas
+  data.forEach((row) => {
+    const values = headers.map((header) => {
+      const escaped = ("" + row[header]).replace(/"/g, '""'); // Aspas duplas
+      return `"${escaped}"`;
+    });
     csvRows.push(values.join(","));
   });
-  const blob = new Blob([csvRows.join("\n")], {
+
+  const blob = new Blob(["\uFEFF" + csvRows.join("\n")], {
     type: "text/csv;charset=utf-8;",
-  });
+  }); // \uFEFF é o BOM para UTF-8
   const url = URL.createObjectURL(blob);
 
-  $("<a>", { href: url, download: filename })
-    .css("visibility", "hidden")
-    .appendTo("body")
-    .trigger("click")
-    .remove();
+  const a = document.createElement("a");
+  a.setAttribute("hidden", "");
+  a.setAttribute("href", url);
+  a.setAttribute("download", filename);
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 }
 
+/**
+ * Gera e baixa um arquivo JSON a partir dos dados fornecidos.
+ * @param {string} filename - O nome do arquivo a ser baixado.
+ * @param {object[]} data - Um array de objetos.
+ */
 function exportToJson(filename, data) {
-  const blob = new Blob([JSON.stringify(data, null, 2)], {
+  const jsonString = JSON.stringify(data, null, 2);
+  const blob = new Blob([jsonString], {
     type: "application/json;charset=utf-8;",
   });
   const url = URL.createObjectURL(blob);
 
-  $("<a>", { href: url, download: filename })
-    .css("visibility", "hidden")
-    .appendTo("body")
-    .trigger("click")
-    .remove();
+  const a = document.createElement("a");
+  a.setAttribute("hidden", "");
+  a.setAttribute("href", url);
+  a.setAttribute("download", filename);
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 }
-
-$(async function () {
-  $("#export-csv-btn").on("click", function () {
-    if (!lastResultData) return;
-    const activeTabIndex =
-      $("#resultsTab button.dynamic-tab.active").attr("id")?.split("-")[2] || 0;
-    const activeResult = lastResultData.results[activeTabIndex];
-    if (activeResult) {
-      exportToCsv(
-        `export_result_${parseInt(activeTabIndex) + 1}.csv`,
-        activeResult.headers,
-        activeResult.data,
-      );
-    }
-  });
-
-  $("#export-json-btn").on("click", function () {
-    if (!lastResultData) return;
-    const activeTabIndex =
-      $("#resultsTab button.dynamic-tab.active").attr("id")?.split("-")[2] || 0;
-    const activeResult = lastResultData.results[activeTabIndex];
-    if (activeResult) {
-      exportToJson(
-        `export_result_${parseInt(activeTabIndex) + 1}.json`,
-        activeResult.data,
-      );
-    }
-  });
-});

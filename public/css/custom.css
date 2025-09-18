@@ -110,3 +110,36 @@ body {
   border: 1px solid var(--border-color);
   border-radius: 3px;
 }
+#editor-tabs .nav-link {
+  display: flex;
+  align-items: center;
+  padding-right: 0.5rem;
+  padding-left: 1rem;
+}
+
+#editor-tabs .nav-link .tab-close-btn {
+  margin-left: 0.75rem;
+  padding: 0.2rem 0.4rem;
+  font-size: 0.8rem;
+  line-height: 1;
+  background: transparent;
+  border: none;
+  color: var(--text-color-secondary);
+}
+
+#editor-tabs .nav-link .tab-close-btn:hover {
+  color: var(--text-color-primary);
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+}
+
+#editor-panes,
+.tab-pane {
+  height: 100%;
+}
+
+#new-tab-btn {
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+  font-weight: bold;
+}

@@ -69,18 +69,23 @@ $(async function () {
   $("body").on("click", ".view-event-definition", function (e) {
     e.preventDefault();
     const eventName = $(this).data("event-name");
-    editor.setValue(`-- Loading definition for event ${eventName}...`);
+    const activeTab = TabManager.getActiveTab();
+    activeTab.editor.setValue(
+      `-- Loading definition for event ${eventName}...`,
+    );
 
     $.get(
       `${site_url}api/mysql/events/definition'/${encodeURIComponent(eventName)}`,
       (response) => {
-        editor.setValue(
+        activeTab.editor.setValue(
           response.sql ||
             `-- Could not retrieve definition for event ${eventName}.`,
         );
       },
     ).fail(() =>
-      editor.setValue(`-- Error loading definition for event ${eventName}.`),
+      activeTab.editor.setValue(
+        `-- Error loading definition for event ${eventName}.`,
+      ),
     );
   });
 });
