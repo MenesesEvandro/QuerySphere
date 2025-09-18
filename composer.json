@@ -17,7 +17,9 @@
         "fakerphp/faker": "^1.9",
         "friendsofphp/php-cs-fixer": "^3.87",
         "mikey179/vfsstream": "^1.6",
-        "phpunit/phpunit": "^10.5.16"
+        "phpunit/phpunit": "^10.5.16",
+        "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+        "phpstan/extension-installer": "^1.0"
     },
     "autoload": {
         "psr-4": {
@@ -36,7 +38,11 @@
     "config": {
         "optimize-autoloader": true,
         "preferred-install": "dist",
-        "sort-packages": true
+        "sort-packages": true,
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "phpstan/extension-installer": true
+        }
     },
     "scripts": {
         "test": "phpunit",

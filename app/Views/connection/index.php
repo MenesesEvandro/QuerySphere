@@ -53,8 +53,8 @@
                 <button class="btn btn-outline-secondary" type="button" id="manage-connections-btn" title="<?= lang(
                     'App.connection.manage_connections',
                 ) ?>" aria-label="<?= lang(
-    'App.connection.manage_connections',
-) ?>">
+                    'App.connection.manage_connections',
+                ) ?>">
                     <i class="fa fa-cog" aria-hidden="true"></i>
                 </button>
             </div>
@@ -197,8 +197,8 @@
                 <button class="btn btn-warning mt-3" id="clear-connections-btn" aria-label="<?= lang(
                     'App.connection.clear_all_connections',
                 ) ?>"><?= lang(
-    'App.connection.clear_all_connections',
-) ?></button>
+                    'App.connection.clear_all_connections',
+                ) ?></button>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?= lang(

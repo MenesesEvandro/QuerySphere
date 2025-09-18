@@ -101,8 +101,8 @@
                 <a href="<?= site_url(
                     '/',
                 ) ?>" class="btn btn-primary"><i class="fa fa-home me-2"></i><?= lang(
-    'App.server_check.go_to_app',
-) ?></a>
+                    'App.server_check.go_to_app',
+                ) ?></a>
             </div>
 
         </div>

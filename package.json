@@ -7,7 +7,13 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint-js": "eslint public/js/**/*.js --fix",
+    "lint-css": "eslint public/css/**/*.css --fix",
+    "lint-all": "npm run lint-js && npm run lint-css",
+    "pretty-js": "npx prettier public/js/**/*.js --write",
+    "pretty-css": "npx prettier public/css/**/*.css --write",
+    "pretty-all": "npm run pretty-js && npm run pretty-css"
   },
   "repository": {
     "type": "git",
@@ -20,5 +26,16 @@
   "bugs": {
     "url": "https://github.com/MenesesEvandro/QuerySphere/issues"
   },
-  "homepage": "https://github.com/MenesesEvandro/QuerySphere#readme"
+  "homepage": "https://github.com/MenesesEvandro/QuerySphere#readme",
+  "devDependencies": {
+    "@eslint/css": "^0.11.0",
+    "@eslint/js": "^9.35.0",
+    "@eslint/json": "^0.13.2",
+    "@eslint/markdown": "^7.2.0",
+    "eslint": "^9.35.0",
+    "globals": "^16.4.0",
+    "prettier": "^3.6.2",
+    "stylelint": "^16.24.0",
+    "stylelint-config-standard": "^39.0.0"
+  }
 }
