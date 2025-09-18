@@ -303,58 +303,87 @@ class MySqlModel extends Model implements DatabaseModelInterface
         int $pageSize = 1000,
         bool $disablePagination = false,
     ): array {
-        ini_set('memory_limit', '512M');
-        set_time_limit(300);
-
         if (!$this->hasConnection()) {
             return ['status' => 'error', 'message' => lang('App.session_lost')];
         }
 
-        $limit = null;
-        $sql = $this->translateSqlServerToMySql($sql, $limit);
-
         $startTime = microtime(true);
-        $totalRows = 0;
-        $allResults = [];
-        $totalRowsAffected = 0;
-        $paginated = false;
+        $limit = null;
+        $translatedSql = $this->translateSqlServerToMySql($sql, $limit);
+
+        if ($this->isPaginatable($translatedSql, $disablePagination, $limit)) {
+            $result = $this->executePaginatedQuery($translatedSql, $page, $pageSize);
+        } else {
+            $result = $this->executeSimpleQuery($translatedSql, $limit);
+        }
+
+        $executionTime = number_format(microtime(true) - $startTime, 4);
+        $result['executionTime'] = $executionTime;
+
+        $this->queryLogger->logQuery(
+            $sql,
+            $result['status'],
+            $executionTime,
+            $result['totalRowsAffected'] ?? 0
+        );
+
+        return $result;
+    }
+
+    /**
+     * Determines if a given SQL query can be paginated.
+     *
+     * @param string $sql The SQL query string.
+     * @param bool $disablePagination Flag to force disable pagination.
+     * @param int|null $limit A limit extracted from a TOP clause.
+     * @return bool
+     */
+    private function isPaginatable(string $sql, bool $disablePagination, ?int $limit): bool
+    {
+        if ($disablePagination) {
+            return false;
+        }
 
         $trimmedSql = rtrim(trim($sql), ';');
-        $isSingleSelect =
-            preg_match('/^\s*SELECT/i', $trimmedSql) &&
-            substr_count(strtoupper($trimmedSql), ';') === 0;
+        $isSingleSelect = preg_match('/^\s*SELECT/i', $trimmedSql) && substr_count(strtoupper($trimmedSql), ';') === 0;
         $hasLimitClause = preg_match('/LIMIT\s+\d+/i', $trimmedSql);
 
-        if ($limit !== null && !$hasLimitClause) {
-            $trimmedSql .= ' LIMIT ' . $limit;
-            $hasLimitClause = true;
+        return $isSingleSelect && !$hasLimitClause && $limit === null;
+    }
+
+    /**
+     * Executes a paginated SELECT query for MySQL.
+     *
+     * @param string $sql The SQL SELECT statement.
+     * @param int $page The current page number.
+     * @param int $pageSize The number of rows per page.
+     * @return array The result of the query execution.
+     */
+    private function executePaginatedQuery(string $sql, int $page, int $pageSize): array
+    {
+        $trimmedSql = rtrim(trim($sql), ';');
+
+        // Get total rows
+        $countSql = "SELECT COUNT(*) as TotalRows FROM ({$trimmedSql}) AS count_query;";
+        $countResult = $this->conn->query($countSql);
+
+        if ($this->conn->error) {
+            return [
+                'status' => 'error',
+                'message' => lang('App.syntax_error') . $this->conn->error . ' (in count query)',
+            ];
         }
 
-        if ($isSingleSelect && !$disablePagination && !$hasLimitClause) {
-            $paginated = true;
-            $countSql = "SELECT COUNT(*) as TotalRows FROM ({$trimmedSql}) AS count_query;";
-            $countResult = $this->conn->query($countSql);
-
-            if ($this->conn->error) {
-                return [
-                    'status' => 'error',
-                    'message' =>
-                        lang('App.syntax_error') .
-                        $this->conn->error .
-                        ' (in count query)',
-                ];
-            }
-
-            if ($countResult && ($row = $countResult->fetch_assoc())) {
-                $totalRows = $row['TotalRows'];
-            }
-
-            $offset = ($page - 1) * $pageSize;
-            $paginatedSql = "{$trimmedSql} LIMIT {$pageSize} OFFSET {$offset};";
-            $this->conn->multi_query($paginatedSql);
-        } else {
-            $this->conn->multi_query($trimmedSql);
+        $totalRows = 0;
+        if ($countResult && ($row = $countResult->fetch_assoc())) {
+            $totalRows = $row['TotalRows'];
         }
+
+        // Fetch paginated data
+        $offset = ($page - 1) * $pageSize;
+        $paginatedSql = "{$trimmedSql} LIMIT {$pageSize} OFFSET {$offset};";
+
+        $this->conn->multi_query($paginatedSql);
 
         if ($this->conn->error) {
             return [
@@ -363,14 +392,57 @@ class MySqlModel extends Model implements DatabaseModelInterface
             ];
         }
 
+        return $this->processResults(true, $totalRows, $page, $pageSize);
+    }
+
+    /**
+     * Executes a non-paginated or already limited query.
+     *
+     * @param string $sql The SQL query to execute.
+     * @param int|null $limit An optional limit from a TOP clause.
+     * @return array The result of the query execution.
+     */
+    private function executeSimpleQuery(string $sql, ?int $limit): array
+    {
+        $trimmedSql = rtrim(trim($sql), ';');
+
+        if ($limit !== null) {
+            $trimmedSql .= ' LIMIT ' . $limit;
+        }
+
+        $this->conn->multi_query($trimmedSql);
+
+        if ($this->conn->error) {
+            return [
+                'status' => 'error',
+                'message' => lang('App.syntax_error') . $this->conn->error,
+            ];
+        }
+
+        return $this->processResults();
+    }
+
+    /**
+     * Processes the results from a MySQLi multi-query execution.
+     *
+     * @param bool $paginated
+     * @param int $totalRows
+     * @param int $page
+     * @param int $pageSize
+     * @return array
+     */
+    private function processResults(bool $paginated = false, int $totalRows = 0, int $page = 1, int $pageSize = 1000): array
+    {
+        ini_set('memory_limit', '512M');
+        set_time_limit(300);
+
+        $allResults = [];
+        $totalRowsAffected = 0;
+
         do {
             $result = $this->conn->store_result();
             if ($result) {
-                $headers = [];
-                foreach ($result->fetch_fields() as $field) {
-                    $headers[] = $field->name;
-                }
-
+                $headers = array_map(fn ($field) => $field->name, $result->fetch_fields());
                 $data = [];
                 while ($row = $result->fetch_assoc()) {
                     $data[] = $row;
@@ -385,8 +457,7 @@ class MySqlModel extends Model implements DatabaseModelInterface
                 if ($paginated) {
                     $resultSet['totalRows'] = $totalRows;
                     $resultSet['currentPage'] = $page;
-                    $resultSet['totalPages'] =
-                        $pageSize > 0 ? ceil($totalRows / $pageSize) : 1;
+                    $resultSet['totalPages'] = $pageSize > 0 ? ceil($totalRows / $pageSize) : 1;
                 }
 
                 $allResults[] = $resultSet;
@@ -398,11 +469,9 @@ class MySqlModel extends Model implements DatabaseModelInterface
             }
         } while ($this->conn->more_results() && $this->conn->next_result());
 
-        $executionTime = number_format(microtime(true) - $startTime, 4);
         return [
             'status' => 'success',
             'results' => $allResults,
-            'executionTime' => $executionTime,
             'totalRowsAffected' => $totalRowsAffected,
             'resultSetCount' => count($allResults),
         ];
