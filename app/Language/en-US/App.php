@@ -143,6 +143,7 @@ return [
             'Could not detect a table in the query. Editing is disabled.',
         'confirm_discard_changes' =>
             'You have unsaved changes. Are you sure you want to discard them?',
+        'maxEditor' => 'Maximize editor',
     ],
 
     //--------------------------------------------------------------------
@@ -175,6 +176,7 @@ return [
         'prompt_author' => 'Your name:',
         'author_default' => 'User',
         'share_fail' => 'Failed to share the script.',
+        'share_success' => 'Script \"{0}\" shared successfully.',
         'confirm_delete_shared' =>
             'Are you sure you want to delete this shared query for everyone?',
         'delete_shared_fail' => 'Failed to delete the query.',

@@ -149,6 +149,7 @@ return [
             'No se pudo detectar una tabla en la consulta. La edición está deshabilitada.',
         'confirm_discard_changes' =>
             'Tienes cambios no guardados. ¿Estás seguro de que quieres descartarlos?',
+        'maxEditor' => 'Maximizar editor',
     ],
 
     //--------------------------------------------------------------------
@@ -182,6 +183,7 @@ return [
         'prompt_author' => 'Su nombre:',
         'author_default' => 'Usuario',
         'share_fail' => 'Error al compartir el script.',
+        'share_success' => 'Script \"{0}\" compartido con éxito.',
         'confirm_delete_shared' =>
             '¿Está seguro de que desea eliminar esta consulta compartida para todos?',
         'delete_shared_fail' => 'Error al eliminar la consulta.',

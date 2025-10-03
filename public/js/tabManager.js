@@ -8,6 +8,7 @@ const TabManager = {
   tabCounter: 0,
   activeTabId: null,
   tabs: {},
+  isMaximized: false,
   csrfTokenName: window.csrfTokenName,
   csrfTokenValue: window.csrfTokenValue,
 
@@ -15,7 +16,23 @@ const TabManager = {
    * Inicializa o TabManager, cria a primeira aba e anexa os eventos globais.
    */
   init: function () {
-    this.addTab(); // Adiciona a primeira aba ao iniciar
+    const savedState = localStorage.getItem("querysphere_tabs_state");
+    if (savedState) {
+      const tabsToRestore = JSON.parse(savedState);
+      if (tabsToRestore.length > 0) {
+        this.tabCounter = 0; // Resetar o contador
+        $("#editor-tabs")
+          .find(".nav-item:not(#new-tab-btn-container)")
+          .remove(); // Limpar abas padrão
+        $("#editor-panes").empty();
+
+        tabsToRestore.forEach((tabState) => {
+          this.addTab(tabState.name, tabState.sql); // Modificar addTab para aceitar valores iniciais
+        });
+        return; // Impede a criação da aba padrão
+      }
+    }
+    this.addTab(); // Cria a primeira aba se não houver estado salvo
 
     // O timeout dá tempo para que a UI (Split.js, etc.) se processe completamente.
     setTimeout(() => this.getActiveTab()?.editor.refresh(), 100);
@@ -45,29 +62,42 @@ const TabManager = {
     });
 
     // Lógica para renomear abas com duplo clique
-    $('#editor-tabs').on('dblclick', '.tab-title', (e) => {
-        e.preventDefault();
-        const $span = $(e.currentTarget);
-        const originalName = $span.text();
-        const $input = $('<input type="text" class="tab-rename-input">').val(originalName);
-        
-        $span.html($input);
-        $input.focus().select();
+    $("#editor-tabs").on("dblclick", ".tab-title", (e) => {
+      e.preventDefault();
+      const $span = $(e.currentTarget);
+      const originalName = $span.text();
+      const $input = $('<input type="text" class="tab-rename-input">').val(
+        originalName,
+      );
 
-        const finishEditing = () => {
-            const newName = $input.val().trim();
-            $span.text(newName || originalName); // Reverte se o nome for vazio
-        };
+      $span.html($input);
+      $input.focus().select();
 
-        $input.on('blur', finishEditing);
-        $input.on('keydown', (ev) => {
-            if (ev.key === 'Enter') {
-                $input.blur();
-            } else if (ev.key === 'Escape') {
-                $span.text(originalName); // Cancela a edição
-            }
-        });
+      const finishEditing = () => {
+        const newName = $input.val().trim() || originalName;
+        $span.text(newName);
+
+        this.tabs[paneId].name = newName;
+      };
+
+      $input.on("blur", finishEditing);
+      $input.on("keydown", (ev) => {
+        if (ev.key === "Enter") {
+          $input.blur();
+        } else if (ev.key === "Escape") {
+          $span.text(originalName); // Cancela a edição
+        }
+      });
     });
+  },
+
+  saveTabsState: function () {
+    const stateToSave = Object.values(this.tabs).map((tab) => ({
+      name: tab.name,
+      sql: tab.editor.getValue(),
+      isDirty: tab.isDirty,
+    }));
+    localStorage.setItem("querysphere_tabs_state", JSON.stringify(stateToSave));
   },
 
   /**
@@ -75,11 +105,11 @@ const TabManager = {
    */
   addTab: function () {
     this.tabCounter++;
-        const paneId = `pane-${this.tabCounter}`;
-        const tabTitle = `Query ${this.tabCounter}`;
+    const paneId = `pane-${this.tabCounter}`;
+    const tabTitle = `Query ${this.tabCounter}`;
 
-        // O título da aba agora está dentro de um <span> para ser editável
-        const tabLink = $(`
+    // O título da aba agora está dentro de um <span> para ser editável
+    const tabLink = $(`
             <li class="nav-item" role="presentation">
                 <a class="nav-link" id="tab-${paneId}-link" data-bs-toggle="tab" href="#${paneId}" role="tab">
                     <span class="tab-title">${tabTitle}</span>
@@ -87,15 +117,15 @@ const TabManager = {
                 </a>
             </li>
         `);
-        $('#new-tab-btn-container').before(tabLink);
+    $("#new-tab-btn-container").before(tabLink);
 
-        const template = document.getElementById('editor-tab-template');
-        const newPane = $(template.content.cloneNode(true).firstElementChild);
-        newPane.attr('id', paneId).addClass('h-100');
-        $('#editor-panes').append(newPane);
+    const template = document.getElementById("editor-tab-template");
+    const newPane = $(template.content.cloneNode(true).firstElementChild);
+    newPane.attr("id", paneId).addClass("h-100");
+    $("#editor-panes").append(newPane);
 
-        this.initTab(paneId, tabTitle);
-        new bootstrap.Tab(tabLink.find('a')[0]).show();
+    this.initTab(paneId, tabTitle);
+    new bootstrap.Tab(tabLink.find("a")[0]).show();
   },
 
   /**
@@ -137,6 +167,7 @@ const TabManager = {
       name: tabTitle,
       editor: editor,
       split: split,
+      isDirty: false,
       lastResultData: null,
       currentSql: "",
       resultsDataTable: null,
@@ -151,9 +182,133 @@ const TabManager = {
       },
     };
 
+    // Após a inicialização do editor CodeMirror
+    editor.on("change", () => {
+      const tab = this.tabs[paneId];
+      if (!tab.isDirty) {
+        tab.isDirty = true;
+        const $tabLink = $(`#tab-${paneId}-link .tab-title`);
+        $tabLink.text($tabLink.text() + " *");
+      }
+    });
+
     this.attachTabEvents(paneId);
     this.initializeIntellisense(paneId);
   },
+
+  /**
+   * Salva o script da aba atual no armazenamento local do navegador.
+   */
+  saveScript: function (paneId) {
+    const tab = this.tabs[paneId];
+    if (!tab) return;
+
+    const sql = tab.editor.getValue().trim();
+    if (!sql) {
+      notifier.show(LANG.empty_alert, "warning");
+      return;
+    }
+
+    const currentTabName = $(`#tab-${paneId}-link .tab-title`)
+      .text()
+      .replace(" *", "")
+      .trim();
+    const scriptName = prompt(
+      LANG.prompt_name,
+      currentTabName || LANG.default_name,
+    );
+
+    if (scriptName) {
+      try {
+        const scripts = getSavedScripts();
+        scripts.unshift({ name: scriptName, sql: sql }); // Adiciona no início da lista
+        localStorage.setItem("querysphere_scripts", JSON.stringify(scripts));
+
+        renderSavedScripts(); // Atualiza a lista de scripts salvos na interface
+        notifier.show(`Script '${scriptName}' salvo com sucesso.`, "success");
+        this._resetDirtyState(paneId);
+      } catch (e) {
+        notifier.show(LANG.error_saving, "error");
+        console.error("Failed to save script:", e);
+      }
+    }
+  },
+
+  /**
+   * Compartilha o script da aba atual, enviando-o para o servidor.
+   */
+  shareScript: function (paneId) {
+    const tab = this.tabs[paneId];
+    if (!tab) return;
+
+    const sql = tab.editor.getValue().trim();
+    if (!sql) {
+      notifier.show(LANG.empty_shared_alert, "warning");
+      return;
+    }
+
+    const scriptName = prompt(
+      LANG.prompt_shared_name,
+      LANG.shared_default_name,
+    );
+    if (!scriptName) return;
+
+    const authorName = prompt(LANG.prompt_author, LANG.author_default);
+    if (!authorName) return;
+
+    $.ajax({
+      url: site_url + "api/shared-queries",
+      method: "POST",
+      data: {
+        sql: sql,
+        name: scriptName,
+        author: authorName,
+        [this.csrfTokenName]: this.csrfTokenValue,
+      },
+      success: () => {
+        notifier.show(LANG.share_success.replace("{0}", scriptName), "success");
+        renderSharedScripts(); // Atualiza a lista de scripts partilhados na interface
+        this._resetDirtyState(paneId);
+      },
+      error: () => {
+        notifier.show(LANG.share_fail, "error");
+      },
+    });
+  },
+
+  toggleEditorMaximize: function () {
+    const activeTab = this.getActiveTab();
+    if (!activeTab) return;
+
+    // Alterna o estado
+    this.isMaximized = !this.isMaximized;
+
+    // Adiciona ou remove a classe no body. O CSS fará o resto.
+    $("body").toggleClass("editor-maximized", this.isMaximized);
+
+    const $allButtons = $(".maximize-editor-btn");
+    const $allIcons = $allButtons.find("i");
+
+    if (this.isMaximized) {
+      // Atualiza o ícone e a dica de todos os botões de maximizar
+      $allIcons.removeClass("fa-expand").addClass("fa-compress");
+      $allButtons.prop("title", "Restaurar Layout");
+    } else {
+      // Restaura o ícone e a dica
+      $allIcons.removeClass("fa-compress").addClass("fa-expand");
+      $allButtons.prop("title", "Maximizar Editor");
+    }
+
+    // Força o redimensionamento do editor após a transição do CSS
+    // O timeout é importante para garantir que o DOM foi atualizado
+    setTimeout(() => {
+      window.dispatchEvent(new Event("resize"));
+      if (this.getActiveTab()) {
+        this.getActiveTab().editor.refresh();
+      }
+    }, 150); // Um pequeno delay para a transição do CSS
+  },
+
   /**
    * Anexa todos os manipuladores de eventos para os botões de uma aba específica.
    */
@@ -181,6 +336,9 @@ const TabManager = {
     $pane
       .find(".save-changes-btn")
       .on("click", () => this.saveGridChanges(paneId));
+    $pane
+      .find(".maximize-editor-btn")
+      .on("click", () => this.toggleEditorMaximize());
 
     // Eventos do painel de resultados
     $resultsPanel.on("click", ".pagination-prev", () => {
@@ -420,6 +578,8 @@ const TabManager = {
             $table.on("dblclick", "tbody td", (e) =>
               this.handleCellDoubleClick(e.currentTarget, paneId),
             );
+
+            this._resetDirtyState(paneId);
           } else {
             $tableContainer.html(
               `<p class="p-2 text-muted">${LANG.empty_result}</p>`,
@@ -476,6 +636,19 @@ const TabManager = {
           .html(`<i class="fa fa-play me-1"></i> ${LANG.execute} (Ctrl+Enter)`);
       },
     });
+  },
+
+  /**
+   * Reseta o estado 'isDirty' de uma aba e remove o indicador visual (*).
+   * @param {string} paneId - O ID da aba a ser resetada.
+   */
+  _resetDirtyState: function (paneId) {
+    const tab = this.tabs[paneId];
+    if (tab && tab.isDirty) {
+      tab.isDirty = false;
+      const $tabTitle = $(`#tab-${paneId}-link .tab-title`);
+      $tabTitle.text($tabTitle.text().replace(" *", ""));
+    }
   },
 
   explainQuery: function (paneId) {

@@ -44,16 +44,16 @@ $(async function () {
     async function () {
       const queryId = $(this).data("id");
       try {
-        await showConfirmModal(LANG.scripts.confirm_delete_shared);
+        await showConfirmModal(LANG.confirm_delete_shared);
         $.ajax({
           url: `${site_url}api/shared-queries/${queryId}`,
           method: "DELETE",
           headers: { [csrfTokenName]: csrfTokenValue },
           success: () => {
-            notifier.show(LANG.feedback.delete_shared_success, "success");
+            notifier.show(LANG.delete_shared_success, "success");
             renderSharedScripts();
           },
-          error: () => notifier.show(LANG.feedback.delete_shared_fail, "error"),
+          error: () => notifier.show(LANG.delete_shared_fail, "error"),
         });
       } catch (e) {
         console.log("Delete shared query operation canceled.");

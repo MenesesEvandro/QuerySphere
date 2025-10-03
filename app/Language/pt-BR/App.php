@@ -145,6 +145,7 @@ return [
             'Não foi possível detectar uma tabela na consulta. A edição está desabilitada.',
         'confirm_discard_changes' =>
             'Você tem alterações não salvas. Tem certeza de que deseja descartá-las?',
+        'maxEditor' => 'Maximizar editor',
     ],
 
     //--------------------------------------------------------------------
@@ -177,6 +178,7 @@ return [
         'prompt_author' => 'Seu nome:',
         'author_default' => 'Usuário',
         'share_fail' => 'Falha ao compartilhar o script.',
+        'share_success' => 'Script \"{0}\" compartilhado com sucesso.',
         'confirm_delete_shared' =>
             'Tem certeza que deseja apagar esta query compartilhada para todos?',
         'delete_shared_fail' => 'Falha ao apagar a query.',

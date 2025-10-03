@@ -190,6 +190,10 @@
                         title="<?= lang('App.workspace.formatSQL') ?>">
                         <i class="fa fa-align-left"></i>
                     </button>
+                    <button class="btn btn-outline-secondary btn-sm me-2 mb-1 mb-md-0 maximize-editor-btn"
+                        title="<?= lang('App.workspace.maxEditor') ?>">
+                        <i class="fa fa-expand"></i>
+                    </button>
                     <div class="btn-group me-3 mb-1 mb-md-0">
                         <button class="btn btn-outline-secondary btn-sm export-csv-btn" disabled>
                             <i class="fa fa-file-csv me-1"></i> <?= lang('App.workspace.exportCSV') ?>
