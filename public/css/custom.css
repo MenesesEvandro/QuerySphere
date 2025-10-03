@@ -155,18 +155,18 @@ body {
 
 body.editor-maximized #object-explorer-panel,
 body.editor-maximized .gutter-horizontal {
-    display: none !important;
+  display: none !important;
 }
 
 body.editor-maximized .results-panel,
 body.editor-maximized .gutter-vertical {
-    display: none !important;
+  display: none !important;
 }
 
 body.editor-maximized .main-panel {
-    width: 100vw !important;
+  width: 100vw !important;
 }
 
 body.editor-maximized .query-editor-panel {
-    height: 100% !important;
+  height: 100% !important;
 }

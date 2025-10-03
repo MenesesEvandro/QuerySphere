@@ -493,7 +493,7 @@ const TabManager = {
       );
     const $resultsTabNav = $pane.find(".results-tab-nav");
     const $resultsTabContent = $pane.find(".results-tab-content");
-    const $messagesContent = $pane.find(".messages-content");
+    const $messagesContent = $pane.find(".messages-pane");
     const $placeholder = $pane.find(".results-placeholder");
     const $paginationControls = $pane.find(".pagination-controls");
 
@@ -622,6 +622,7 @@ const TabManager = {
       },
       error: (xhr) => {
         const errorMsg =
+          xhr.responseJSON?.message ||
           xhr.responseJSON?.messages?.error?.message ||
           xhr.responseText ||
           "An error occurred.";

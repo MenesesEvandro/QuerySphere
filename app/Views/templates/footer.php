@@ -228,17 +228,17 @@
 
                 <ul class="nav nav-tabs flex-shrink-0 results-tab-nav" role="tablist">
                     <li class="nav-item static-tab" role="presentation">
-                        <button class="nav-link messages-tab" data-bs-toggle="tab" type="button" role="tab"><?= lang('App.workspace.messages') ?></button>
+                        <button class="nav-link messages-tab" data-bs-toggle="tab" data-bs-target=".messages-pane" type="button" role="tab"><?= lang('App.workspace.messages') ?></button>
                     </li>
                     <li class="nav-item static-tab" role="presentation">
-                        <button class="nav-link plan-tab" data-bs-toggle="tab" type="button" role="tab"><?= lang('App.workspace.explain') ?></button>
+                        <button class="nav-link plan-tab" data-bs-toggle="tab" data-bs-target=".execution-plan-pane" type="button" role="tab"><?= lang('App.workspace.explain') ?></button>
                     </li>
                 </ul>
                 <div class="tab-content flex-grow-1 results-tab-content" style="overflow: auto;">
                     <div class="results-placeholder p-3">
                         <?= lang('App.workspace.queryResultsPlaceholder') ?>
                     </div>
-                    <div class="tab-pane fade h-100 messages-pane" role="tabpanel">
+                    <div class="tab-pane fade h-100 messages-pane show active" role="tabpanel">
                         <div class="messages-content text-monospace h-100"></div>
                     </div>
                     <div class="tab-pane fade h-100 p-2 execution-plan-pane" role="tabpanel"></div>
