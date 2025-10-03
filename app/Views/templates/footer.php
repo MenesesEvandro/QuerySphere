@@ -345,6 +345,7 @@ $(async function () {
   renderQueryTemplates();
   renderSharedScripts();
   TabManager.init();
+  scriptGenerator.init(TabManager);
   if (DB_TYPE === 'sqlsrv') renderAgentJobs();
   if (DB_TYPE === 'mysql') renderMySqlEvents();
 });

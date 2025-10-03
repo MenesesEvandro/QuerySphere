@@ -1,3 +1,9 @@
+/**
+ * TabManager
+ *
+ * Este módulo é responsável por toda a gestão das abas do editor,
+ * incluindo a criação, exclusão e gestão de estado de cada aba (editor, resultados, etc.).
+ */
 const TabManager = {
   tabCounter: 0,
   activeTabId: null,
@@ -10,6 +16,10 @@ const TabManager = {
    */
   init: function () {
     this.addTab(); // Adiciona a primeira aba ao iniciar
+
+    // **CORREÇÃO:** Agenda uma atualização para o primeiro editor.
+    // O timeout dá tempo para que a UI (Split.js, etc.) se processe completamente.
+    setTimeout(() => this.getActiveTab()?.editor.refresh(), 100);
 
     $("#new-tab-btn").on("click", (e) => {
       e.preventDefault();
@@ -25,11 +35,12 @@ const TabManager = {
       this.closeTab(paneId);
     });
 
-    // Atualiza a aba ativa quando o usuário clica em uma
+    // Atualiza a aba ativa quando o utilizador clica em uma.
     $("#editor-tabs").on("shown.bs.tab", 'a[data-bs-toggle="tab"]', (e) => {
       this.activeTabId = $(e.target).attr("href").substring(1);
       const activeTab = this.getActiveTab();
       if (activeTab && activeTab.editor) {
+        activeTab.editor.refresh();
         activeTab.editor.focus();
       }
     });
@@ -40,12 +51,11 @@ const TabManager = {
    */
   addTab: function () {
     this.tabCounter++;
-    const tabId = `tab-${this.tabCounter}`;
     const paneId = `pane-${this.tabCounter}`;
 
     const tabLink = $(`
             <li class="nav-item" role="presentation">
-                <a class="nav-link" id="${tabId}-link" data-bs-toggle="tab" href="#${paneId}" role="tab">
+                <a class="nav-link" id="tab-${paneId}-link" data-bs-toggle="tab" href="#${paneId}" role="tab">
                     Query ${this.tabCounter}
                     <button type="button" class="tab-close-btn" aria-label="Close">&times;</button>
                 </a>
@@ -63,13 +73,13 @@ const TabManager = {
   },
 
   /**
-   * Inicializa os componentes de uma nova aba.
+   * Inicializa os componentes de uma nova aba (editor, split.js, eventos).
    */
   initTab: function (paneId) {
     const $pane = $(`#${paneId}`);
     const editor = CodeMirror.fromTextArea($pane.find(".query-editor")[0], {
       lineNumbers: true,
-      mode: "text/x-mssql",
+      mode: DB_TYPE === "mysql" ? "text/x-mysql" : "text/x-mssql",
       theme: document.body.classList.contains("light-theme")
         ? "default"
         : "material-darker",
@@ -117,79 +127,35 @@ const TabManager = {
     this.attachTabEvents(paneId);
     this.initializeIntellisense(paneId);
   },
-
   /**
-   * Anexa todos os manipuladores de eventos para uma aba específica.
+   * Anexa todos os manipuladores de eventos para os botões de uma aba específica.
    */
   attachTabEvents: function (paneId) {
     const $pane = $(`#${paneId}`);
     const tab = this.tabs[paneId];
     const $resultsPanel = $pane.find(".results-panel");
 
+    // Mapeamento de botões para funções
     $pane
       .find(".execute-query-btn")
       .on("click", () => this.executeQuery(paneId));
     $pane
       .find(".explain-query-btn")
       .on("click", () => this.explainQuery(paneId));
-    $pane.find(".format-sql-btn").on("click", () => {
-      try {
-        tab.editor.setValue(
-          sqlFormatter.format(tab.editor.getValue(), {
-            language: "tsql",
-            tabWidth: 4,
-            keywordCase: "upper",
-          }),
-        );
-      } catch (e) {
-        notifier.show(LANG.format_fail, "error");
-      }
-    });
-    $pane.find(".export-csv-btn").on("click", () => {
-      const activeResult = this.getActiveResultData(paneId);
-      if (activeResult) {
-        const filename = `export_${new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-")}.csv`;
-        exportToCsv(filename, activeResult.headers, activeResult.data);
-      }
-    });
-    $pane.find(".export-json-btn").on("click", () => {
-      const activeResult = this.getActiveResultData(paneId);
-      if (activeResult) {
-        const filename = `export_${new Date().toISOString().slice(0, 19).replace(/[:T]/g, "-")}.json`;
-        exportToJson(filename, activeResult.data);
-      }
-    });
-    $pane.find(".save-script-btn").on("click", () => {
-      const sql = tab.editor.getValue();
-      if (!sql.trim()) return notifier.show(LANG.empty_alert, "error");
-      const name = prompt(LANG.prompt_name, LANG.default_name);
-      if (name) {
-        const scripts = getSavedScripts();
-        scripts.unshift({ name, sql });
-        localStorage.setItem("querysphere_scripts", JSON.stringify(scripts));
-        renderSavedScripts();
-      }
-    });
-    $pane.find(".share-script-btn").on("click", () => {
-      const sql = tab.editor.getValue();
-      if (!sql.trim()) return notifier.show(LANG.empty_shared_alert, "error");
-      const name = prompt(LANG.prompt_shared_name, LANG.shared_default_name);
-      if (!name) return;
-      const author = prompt(LANG.prompt_author, LANG.author_default);
-      if (!author) return;
-      $.post(site_url + "api/shared-queries", {
-        name,
-        author,
-        sql,
-        [this.csrfTokenName]: this.csrfTokenValue,
-      })
-        .done(() => renderSharedScripts())
-        .fail(() => notifier.show(LANG.share_fail, "error"));
-    });
+    $pane.find(".format-sql-btn").on("click", () => this.formatSql(paneId));
+    $pane
+      .find(".export-csv-btn")
+      .on("click", () => this.exportResult(paneId, "csv"));
+    $pane
+      .find(".export-json-btn")
+      .on("click", () => this.exportResult(paneId, "json"));
+    $pane.find(".save-script-btn").on("click", () => this.saveScript(paneId));
+    $pane.find(".share-script-btn").on("click", () => this.shareScript(paneId));
     $pane
       .find(".save-changes-btn")
       .on("click", () => this.saveGridChanges(paneId));
 
+    // Eventos do painel de resultados
     $resultsPanel.on("click", ".pagination-prev", () => {
       const result = tab.lastResultData?.results?.[0];
       if (result && result.currentPage > 1)
@@ -214,30 +180,51 @@ const TabManager = {
     );
   },
 
+  /**
+   * Obtém a aba que está atualmente ativa.
+   * @returns {object|null} O objeto da aba ativa.
+   */
   getActiveTab: function () {
-    return this.tabs[this.activeTabId];
+    if (!this.activeTabId) {
+      const firstTabLink = $("#editor-tabs .nav-link.active");
+      if (firstTabLink.length) {
+        this.activeTabId = firstTabLink.attr("href").substring(1);
+      }
+    }
+    return this.tabs[this.activeTabId] || null;
   },
-
+  /**
+   * Fecha uma aba específica.
+   */
   closeTab: function (paneId) {
-    if (Object.keys(this.tabs).length <= 1) return;
+    if (Object.keys(this.tabs).length <= 1) {
+      notifier.show(LANG.feedback.cannot_close_last_tab, "warning");
+      return;
+    }
+
     const $tabLinkContainer = $(
       `#editor-tabs .nav-link[href="#${paneId}"]`,
     ).closest(".nav-item");
     const $tabPane = $(`#${paneId}`);
+
     if (this.activeTabId === paneId) {
-      const nextTab = $tabLinkContainer
+      const nextTabLink = $tabLinkContainer
         .next()
         .not("#new-tab-btn-container")
         .find("a");
-      const prevTab = $tabLinkContainer.prev().find("a");
-      if (nextTab.length) {
-        new bootstrap.Tab(nextTab[0]).show();
-      } else if (prevTab.length) {
-        new bootstrap.Tab(prevTab[0]).show();
+      const prevTabLink = $tabLinkContainer.prev().find("a");
+      if (nextTabLink.length) {
+        new bootstrap.Tab(nextTabLink[0]).show();
+      } else if (prevTabLink.length) {
+        new bootstrap.Tab(prevTabLink[0]).show();
       }
     }
+
     if (this.tabs[paneId]) {
       this.tabs[paneId].split.destroy();
+      if (this.tabs[paneId].resultsDataTable) {
+        this.tabs[paneId].resultsDataTable.destroy();
+      }
       delete this.tabs[paneId];
     }
     $tabLinkContainer.remove();
