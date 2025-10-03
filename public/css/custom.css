@@ -143,3 +143,12 @@ body {
   padding-right: 0.75rem;
   font-weight: bold;
 }
+
+.tab-rename-input {
+    border: 1px solid #0d6efd;
+    outline: none;
+    background-color: inherit;
+    color: inherit;
+    padding: 0 2px;
+    max-width: 100px;
+}

@@ -17,7 +17,6 @@ const TabManager = {
   init: function () {
     this.addTab(); // Adiciona a primeira aba ao iniciar
 
-    // **CORREÇÃO:** Agenda uma atualização para o primeiro editor.
     // O timeout dá tempo para que a UI (Split.js, etc.) se processe completamente.
     setTimeout(() => this.getActiveTab()?.editor.refresh(), 100);
 
@@ -44,6 +43,31 @@ const TabManager = {
         activeTab.editor.focus();
       }
     });
+
+    // Lógica para renomear abas com duplo clique
+    $('#editor-tabs').on('dblclick', '.tab-title', (e) => {
+        e.preventDefault();
+        const $span = $(e.currentTarget);
+        const originalName = $span.text();
+        const $input = $('<input type="text" class="tab-rename-input">').val(originalName);
+        
+        $span.html($input);
+        $input.focus().select();
+
+        const finishEditing = () => {
+            const newName = $input.val().trim();
+            $span.text(newName || originalName); // Reverte se o nome for vazio
+        };
+
+        $input.on('blur', finishEditing);
+        $input.on('keydown', (ev) => {
+            if (ev.key === 'Enter') {
+                $input.blur();
+            } else if (ev.key === 'Escape') {
+                $span.text(originalName); // Cancela a edição
+            }
+        });
+    });
   },
 
   /**
@@ -51,31 +75,33 @@ const TabManager = {
    */
   addTab: function () {
     this.tabCounter++;
-    const paneId = `pane-${this.tabCounter}`;
+        const paneId = `pane-${this.tabCounter}`;
+        const tabTitle = `Query ${this.tabCounter}`;
 
-    const tabLink = $(`
+        // O título da aba agora está dentro de um <span> para ser editável
+        const tabLink = $(`
             <li class="nav-item" role="presentation">
                 <a class="nav-link" id="tab-${paneId}-link" data-bs-toggle="tab" href="#${paneId}" role="tab">
-                    Query ${this.tabCounter}
+                    <span class="tab-title">${tabTitle}</span>
                     <button type="button" class="tab-close-btn" aria-label="Close">&times;</button>
                 </a>
             </li>
         `);
-    $("#new-tab-btn-container").before(tabLink);
+        $('#new-tab-btn-container').before(tabLink);
 
-    const template = document.getElementById("editor-tab-template");
-    const newPane = $(template.content.cloneNode(true).firstElementChild);
-    newPane.attr("id", paneId).addClass("h-100");
-    $("#editor-panes").append(newPane);
+        const template = document.getElementById('editor-tab-template');
+        const newPane = $(template.content.cloneNode(true).firstElementChild);
+        newPane.attr('id', paneId).addClass('h-100');
+        $('#editor-panes').append(newPane);
 
-    this.initTab(paneId);
-    new bootstrap.Tab(tabLink.find("a")[0]).show();
+        this.initTab(paneId, tabTitle);
+        new bootstrap.Tab(tabLink.find('a')[0]).show();
   },
 
   /**
    * Inicializa os componentes de uma nova aba (editor, split.js, eventos).
    */
-  initTab: function (paneId) {
+  initTab: function (paneId, tabTitle) {
     const $pane = $(`#${paneId}`);
     const editor = CodeMirror.fromTextArea($pane.find(".query-editor")[0], {
       lineNumbers: true,
@@ -108,6 +134,7 @@ const TabManager = {
 
     this.tabs[paneId] = {
       id: paneId,
+      name: tabTitle,
       editor: editor,
       split: split,
       lastResultData: null,
@@ -198,7 +225,7 @@ const TabManager = {
    */
   closeTab: function (paneId) {
     if (Object.keys(this.tabs).length <= 1) {
-      notifier.show(LANG.feedback.cannot_close_last_tab, "warning");
+      notifier.show(LANG.cannot_close_last_tab, "warning");
       return;
     }
 
@@ -389,12 +416,10 @@ const TabManager = {
               },
             });
 
-            // *** INÍCIO DA CORREÇÃO ***
-            // Ligamos o evento de duplo clique diretamente na tabela recém-criada.
+            // Evento de duplo clique diretamente na tabela recém-criada.
             $table.on("dblclick", "tbody td", (e) =>
               this.handleCellDoubleClick(e.currentTarget, paneId),
             );
-            // *** FIM DA CORREÇÃO ***
           } else {
             $tableContainer.html(
               `<p class="p-2 text-muted">${LANG.empty_result}</p>`,

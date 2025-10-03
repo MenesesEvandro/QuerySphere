@@ -242,6 +242,7 @@ return [
             'Por favor, selecione uma base de dados no menu superior antes de tentar editar os dados.',
         'data_saved' => 'Sucesso! Todas as alterações foram salvas.',
         'no_pk_edit' => 'A coluna de chave primária não pode ser editada.',
+        'cannot_close_last_tab' => 'Pelo menos uma aba deve estar ativa',
     ],
 
     //--------------------------------------------------------------------

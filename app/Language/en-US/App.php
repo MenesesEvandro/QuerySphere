@@ -238,6 +238,7 @@ return [
             'Please select a database from the top menu before attempting to edit data.',
         'data_saved' => '¡Éxito! Todos los cambios han sido guardados.',
         'no_pk_edit' => 'Primary key column cannot be edited.',
+        'cannot_close_last_tab' => 'At least one tab must be active',
     ],
 
     //--------------------------------------------------------------------
