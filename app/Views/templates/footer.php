@@ -266,8 +266,17 @@
 
             localStorage.setItem("querysphere_theme", theme);
 
-            if (typeof editor !== "undefined" && editor) {
-                editor.setOption("theme", isLight ? "default" : "material-darker");
+            // Percorre todas as abas existentes e atualiza o tema de cada editor.
+            if (typeof TabManager !== 'undefined' && TabManager.tabs) {
+                const newTheme = isLight ? "default" : "material-darker";
+                for (const paneId in TabManager.tabs) {
+                    if (TabManager.tabs.hasOwnProperty(paneId)) {
+                        const tab = TabManager.tabs[paneId];
+                        if (tab && tab.editor) {
+                            tab.editor.setOption("theme", newTheme);
+                        }
+                    }
+                }
             }
         },
 
