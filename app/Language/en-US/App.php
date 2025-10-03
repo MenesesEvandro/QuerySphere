@@ -144,6 +144,7 @@ return [
         'confirm_discard_changes' =>
             'You have unsaved changes. Are you sure you want to discard them?',
         'maxEditor' => 'Maximize editor',
+        'no_tab_history' => 'No history for this tab.', 
     ],
 
     //--------------------------------------------------------------------

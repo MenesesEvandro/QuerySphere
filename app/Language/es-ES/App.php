@@ -150,6 +150,7 @@ return [
         'confirm_discard_changes' =>
             'Tienes cambios no guardados. ¿Estás seguro de que quieres descartarlos?',
         'maxEditor' => 'Maximizar editor',
+        'no_tab_history' => 'No hay historial para esta pestaña.', 
     ],
 
     //--------------------------------------------------------------------

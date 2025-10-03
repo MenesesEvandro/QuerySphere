@@ -23,8 +23,6 @@
                 </a></li>
             <?php endif; ?>
 
-            <li class="nav-item"><a class="nav-link" data-bs-toggle="tab"
-                    href="#history-tab"><?= lang('App.workspace.history') ?></a></li>
             <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#saved-tab"><?= lang('App.workspace.saved') ?></a>
             </li>
             <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#shared-tab"><?= lang('App.workspace.shared') ?></a></li>

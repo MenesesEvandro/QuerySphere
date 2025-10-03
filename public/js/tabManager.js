@@ -16,6 +16,10 @@ const TabManager = {
    * Inicializa o TabManager, cria a primeira aba e anexa os eventos globais.
    */
   init: function () {
+    $(window).on("beforeunload", () => {
+      this._saveStateImmediately();
+    });
+
     const stateLoaded = this.loadTabsState();
 
     // Se nenhum estado foi carregado, cria a primeira aba padrão
@@ -99,11 +103,31 @@ const TabManager = {
     });
   },
 
+  /**
+   * Dispara o salvamento do estado das abas com um debounce para otimizar o desempenho.
+   */
   saveTabsState: function () {
+    if (this.saveTimeout) clearTimeout(this.saveTimeout);
+    this.saveTimeout = setTimeout(() => {
+      this._saveStateImmediately();
+    }, 500);
+  },
+
+  /**
+   * Guarda o estado atual de todas as abas imediatamente no localStorage.
+   * @private
+   */
+  _saveStateImmediately: function () {
+    if (!Object.keys(this.tabs).length) {
+      localStorage.removeItem("querysphere_tabs_state");
+      return;
+    }
+
     const stateToSave = Object.values(this.tabs).map((tab) => ({
       name: tab.name,
       sql: tab.editor.getValue(),
       isDirty: tab.isDirty,
+      history: tab.history,
     }));
     localStorage.setItem("querysphere_tabs_state", JSON.stringify(stateToSave));
   },
@@ -112,7 +136,7 @@ const TabManager = {
    * Adiciona uma nova aba ao editor. Aceita um estado inicial para restaurar abas.
    * @param {object} initialState - Opcional. Contém { name, sql, isDirty }.
    */
-  addTab: function (initialState = { name: null, sql: '', isDirty: false }) {
+  addTab: function (initialState = { name: null, sql: "", isDirty: false }) {
     this.tabCounter++;
     const paneId = `pane-${this.tabCounter}`;
     // Usa o nome do estado inicial ou gera um novo
@@ -126,17 +150,17 @@ const TabManager = {
             </a>
         </li>
     `);
-    $('#new-tab-btn-container').before(tabLink);
+    $("#new-tab-btn-container").before(tabLink);
 
-    const template = document.getElementById('editor-tab-template');
+    const template = document.getElementById("editor-tab-template");
     const newPane = $(template.content.cloneNode(true).firstElementChild);
-    newPane.attr('id', paneId).addClass('h-100');
-    $('#editor-panes').append(newPane);
+    newPane.attr("id", paneId).addClass("h-100");
+    $("#editor-panes").append(newPane);
 
     // Passa o estado inicial para a função de inicialização da aba
     this.initTab(paneId, tabTitle, initialState);
-    
-    new bootstrap.Tab(tabLink.find('a')[0]).show();
+
+    new bootstrap.Tab(tabLink.find("a")[0]).show();
     // A chamada para saveTabsState foi movida para o final de init() para evitar execuções múltiplas ao carregar
   },
 
@@ -164,9 +188,9 @@ const TabManager = {
       hintOptions: { tables: {} },
     });
     editor.setSize("100%", "100%");
-    
+
     // Define o conteúdo SQL inicial a partir do estado
-    editor.setValue(initialState.sql || ''); 
+    editor.setValue(initialState.sql || "");
 
     const split = Split(
       [`#${paneId} .query-editor-panel`, `#${paneId} .results-panel`],
@@ -186,6 +210,7 @@ const TabManager = {
       editor: editor,
       split: split,
       isDirty: initialState.isDirty || false, // Define o estado 'dirty' inicial
+      history: initialState.history || [],
       lastResultData: null,
       currentSql: "",
       resultsDataTable: null,
@@ -199,20 +224,20 @@ const TabManager = {
         changedData: {},
       },
     };
-    
+
     if (this.tabs[paneId].isDirty) {
-        const $tabTitle = $(`#tab-${paneId}-link .tab-title`);
-        $tabTitle.text($tabTitle.text() + ' *');
+      const $tabTitle = $(`#tab-${paneId}-link .tab-title`);
+      $tabTitle.text($tabTitle.text() + " *");
     }
 
-    editor.on('change', () => {
-        const tab = this.tabs[paneId];
-        if (tab && !tab.isDirty) {
-            tab.isDirty = true;
-            const $tabTitle = $(`#tab-${paneId}-link .tab-title`);
-            $tabTitle.text($tabTitle.text() + ' *');
-        }
-        this.saveTabsState(); // Salva o estado a cada alteração
+    editor.on("change", () => {
+      const tab = this.tabs[paneId];
+      if (tab && !tab.isDirty) {
+        tab.isDirty = true;
+        const $tabTitle = $(`#tab-${paneId}-link .tab-title`);
+        $tabTitle.text($tabTitle.text() + " *");
+      }
+      this.saveTabsState(); // Salva o estado a cada alteração
     });
 
     this.attachTabEvents(paneId);
@@ -380,6 +405,32 @@ const TabManager = {
     const $pane = $(`#${paneId}`);
     const tab = this.tabs[paneId];
     const $resultsPanel = $pane.find(".results-panel");
+    const $historyDropdown = $pane.find(".tab-history-btn");
+    const $historyMenu = $pane.find(".tab-history-dropdown");
+
+    $historyDropdown.on("show.bs.dropdown", () => {
+      $historyMenu.empty(); // Limpa itens antigos
+      if (tab.history && tab.history.length > 0) {
+        tab.history.forEach((query) => {
+          const shortQuery =
+            query.length > 100 ? query.substring(0, 100) + "..." : query;
+          const $item = $(
+            `<li><a class="dropdown-item" href="#" title="${escapeHtml(query)}">${escapeHtml(shortQuery)}</a></li>`,
+          );
+
+          $item.on("click", (e) => {
+            e.preventDefault();
+            tab.editor.setValue(query);
+          });
+
+          $historyMenu.append($item);
+        });
+      } else {
+        $historyMenu.append(
+          `<li><span class="dropdown-item-text text-muted">${LANG.no_tab_history}</span></li>`,
+        );
+      }
+    });
 
     // Mapeamento de botões para funções
     $pane
@@ -576,8 +627,24 @@ const TabManager = {
       method: "POST",
       data: { sql: sql, page: page, [this.csrfTokenName]: this.csrfTokenValue },
       success: (response) => {
+        const tab = this.tabs[paneId];
+        if (tab) {
+          // Remove a query se já existir para a colocar no topo
+          const index = tab.history.indexOf(sql);
+          if (index > -1) {
+            tab.history.splice(index, 1);
+          }
+          // Adiciona a query mais recente no início do histórico
+          tab.history.unshift(sql);
+          // Limita o histórico a 30 entradas
+          if (tab.history.length > 30) {
+            tab.history.pop();
+          }
+        }
+
+        this.saveTabsState();
         $messagesContent.html(`<pre class="p-2 m-0">${response.message}</pre>`);
-        refreshHistory();
+        //refreshHistory();
 
         if (!response.results?.length) {
           $placeholder.html(LANG.no_results_found).show();
@@ -671,9 +738,11 @@ const TabManager = {
         }
 
         if ($resultsTabNav.find(".dynamic-tab button").length) {
-          new bootstrap.Tab(
-            $resultsTabNav.find(".dynamic-tab button")[0],
-          ).show();
+          $pane.find(".messages-pane").removeClass("show active");
+          $pane.find(".execution-plan-pane").removeClass("show active");
+
+          const firstResultTab = $resultsTabNav.find(".dynamic-tab button")[0];
+          new bootstrap.Tab(firstResultTab).show();
         }
         this.updateChartOptions(paneId, 0);
 

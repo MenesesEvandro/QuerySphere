@@ -21,6 +21,20 @@ function formatDuration(duration) {
   return `${str.substring(0, 2)}:${str.substring(2, 4)}:${str.substring(4, 6)}`;
 }
 
+/**
+ * Escapa caracteres HTML para evitar XSS.
+ *
+ * @param {string} str - A string a ser escapada.
+ */
+function escapeHtml(str) {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 $(async function () {
   $("#format-sql-btn").on("click", () => {
     const activeTab = TabManager.getActiveTab();

@@ -195,6 +195,13 @@
                         <i class="fa fa-expand"></i>
                     </button>
                     <div class="btn-group me-3 mb-1 mb-md-0">
+                        <button class="btn btn-outline-secondary btn-sm dropdown-toggle tab-history-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Histórico da Aba">
+                            <i class="fa fa-history"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-dark tab-history-dropdown">
+                            </ul>
+                    </div>
+                    <div class="btn-group me-3 mb-1 mb-md-0">
                         <button class="btn btn-outline-secondary btn-sm export-csv-btn" disabled>
                             <i class="fa fa-file-csv me-1"></i> <?= lang('App.workspace.exportCSV') ?>
                         </button>

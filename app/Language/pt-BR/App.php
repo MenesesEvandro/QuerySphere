@@ -146,6 +146,7 @@ return [
         'confirm_discard_changes' =>
             'Você tem alterações não salvas. Tem certeza de que deseja descartá-las?',
         'maxEditor' => 'Maximizar editor',
+        'no_tab_history' => 'Nenhum histórico para esta aba.',
     ],
 
     //--------------------------------------------------------------------
