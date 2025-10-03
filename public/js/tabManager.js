@@ -16,23 +16,12 @@ const TabManager = {
    * Inicializa o TabManager, cria a primeira aba e anexa os eventos globais.
    */
   init: function () {
-    const savedState = localStorage.getItem("querysphere_tabs_state");
-    if (savedState) {
-      const tabsToRestore = JSON.parse(savedState);
-      if (tabsToRestore.length > 0) {
-        this.tabCounter = 0; // Resetar o contador
-        $("#editor-tabs")
-          .find(".nav-item:not(#new-tab-btn-container)")
-          .remove(); // Limpar abas padrão
-        $("#editor-panes").empty();
+    const stateLoaded = this.loadTabsState();
 
-        tabsToRestore.forEach((tabState) => {
-          this.addTab(tabState.name, tabState.sql); // Modificar addTab para aceitar valores iniciais
-        });
-        return; // Impede a criação da aba padrão
-      }
+    // Se nenhum estado foi carregado, cria a primeira aba padrão
+    if (!stateLoaded) {
+      this.addTab();
     }
-    this.addTab(); // Cria a primeira aba se não houver estado salvo
 
     // O timeout dá tempo para que a UI (Split.js, etc.) se processe completamente.
     setTimeout(() => this.getActiveTab()?.editor.refresh(), 100);
@@ -59,13 +48,24 @@ const TabManager = {
         activeTab.editor.refresh();
         activeTab.editor.focus();
       }
+      this.saveTabsState();
     });
 
+    // Lógica para renomear abas com duplo clique
     // Lógica para renomear abas com duplo clique
     $("#editor-tabs").on("dblclick", ".tab-title", (e) => {
       e.preventDefault();
       const $span = $(e.currentTarget);
-      const originalName = $span.text();
+      const $tabLink = $span.closest("a.nav-link");
+      const paneId = $tabLink.attr("href").substring(1); // Obter o paneId corretamente
+      const tab = this.tabs[paneId];
+
+      // Impede o duplo clique se já estiver a editar
+      if ($span.find("input").length > 0) {
+        return;
+      }
+
+      const originalName = $span.text().replace(" *", "");
       const $input = $('<input type="text" class="tab-rename-input">').val(
         originalName,
       );
@@ -75,9 +75,15 @@ const TabManager = {
 
       const finishEditing = () => {
         const newName = $input.val().trim() || originalName;
-        $span.text(newName);
+        $span.text(newName + (tab.isDirty ? " *" : "")); // Mantém o indicador '*' se necessário
 
-        this.tabs[paneId].name = newName;
+        // Atualiza o nome no objeto da aba
+        if (tab) {
+          tab.name = newName;
+        }
+
+        // Salva o estado de todas as abas
+        this.saveTabsState();
       };
 
       $input.on("blur", finishEditing);
@@ -85,7 +91,9 @@ const TabManager = {
         if (ev.key === "Enter") {
           $input.blur();
         } else if (ev.key === "Escape") {
-          $span.text(originalName); // Cancela a edição
+          // Cancela a edição sem salvar
+          $input.off("blur"); // Remove o listener para não salvar ao desfocar
+          $span.text(originalName + (tab.isDirty ? " *" : ""));
         }
       });
     });
@@ -101,37 +109,44 @@ const TabManager = {
   },
 
   /**
-   * Adiciona uma nova aba ao editor.
+   * Adiciona uma nova aba ao editor. Aceita um estado inicial para restaurar abas.
+   * @param {object} initialState - Opcional. Contém { name, sql, isDirty }.
    */
-  addTab: function () {
+  addTab: function (initialState = { name: null, sql: '', isDirty: false }) {
     this.tabCounter++;
     const paneId = `pane-${this.tabCounter}`;
-    const tabTitle = `Query ${this.tabCounter}`;
+    // Usa o nome do estado inicial ou gera um novo
+    const tabTitle = initialState.name || `Query ${this.tabCounter}`;
 
-    // O título da aba agora está dentro de um <span> para ser editável
     const tabLink = $(`
-            <li class="nav-item" role="presentation">
-                <a class="nav-link" id="tab-${paneId}-link" data-bs-toggle="tab" href="#${paneId}" role="tab">
-                    <span class="tab-title">${tabTitle}</span>
-                    <button type="button" class="tab-close-btn" aria-label="Close">&times;</button>
-                </a>
-            </li>
-        `);
-    $("#new-tab-btn-container").before(tabLink);
+        <li class="nav-item" role="presentation">
+            <a class="nav-link" id="tab-${paneId}-link" data-bs-toggle="tab" href="#${paneId}" role="tab">
+                <span class="tab-title" title="Dê um duplo clique para renomear">${tabTitle}</span>
+                <button type="button" class="tab-close-btn" aria-label="Close">&times;</button>
+            </a>
+        </li>
+    `);
+    $('#new-tab-btn-container').before(tabLink);
 
-    const template = document.getElementById("editor-tab-template");
+    const template = document.getElementById('editor-tab-template');
     const newPane = $(template.content.cloneNode(true).firstElementChild);
-    newPane.attr("id", paneId).addClass("h-100");
-    $("#editor-panes").append(newPane);
+    newPane.attr('id', paneId).addClass('h-100');
+    $('#editor-panes').append(newPane);
 
-    this.initTab(paneId, tabTitle);
-    new bootstrap.Tab(tabLink.find("a")[0]).show();
+    // Passa o estado inicial para a função de inicialização da aba
+    this.initTab(paneId, tabTitle, initialState);
+    
+    new bootstrap.Tab(tabLink.find('a')[0]).show();
+    // A chamada para saveTabsState foi movida para o final de init() para evitar execuções múltiplas ao carregar
   },
 
   /**
    * Inicializa os componentes de uma nova aba (editor, split.js, eventos).
+   * @param {string} paneId - O ID do painel da aba.
+   * @param {string} tabTitle - O título inicial da aba.
+   * @param {object} initialState - Contém o estado a ser restaurado.
    */
-  initTab: function (paneId, tabTitle) {
+  initTab: function (paneId, tabTitle, initialState) {
     const $pane = $(`#${paneId}`);
     const editor = CodeMirror.fromTextArea($pane.find(".query-editor")[0], {
       lineNumbers: true,
@@ -149,6 +164,9 @@ const TabManager = {
       hintOptions: { tables: {} },
     });
     editor.setSize("100%", "100%");
+    
+    // Define o conteúdo SQL inicial a partir do estado
+    editor.setValue(initialState.sql || ''); 
 
     const split = Split(
       [`#${paneId} .query-editor-panel`, `#${paneId} .results-panel`],
@@ -167,7 +185,7 @@ const TabManager = {
       name: tabTitle,
       editor: editor,
       split: split,
-      isDirty: false,
+      isDirty: initialState.isDirty || false, // Define o estado 'dirty' inicial
       lastResultData: null,
       currentSql: "",
       resultsDataTable: null,
@@ -181,19 +199,65 @@ const TabManager = {
         changedData: {},
       },
     };
+    
+    if (this.tabs[paneId].isDirty) {
+        const $tabTitle = $(`#tab-${paneId}-link .tab-title`);
+        $tabTitle.text($tabTitle.text() + ' *');
+    }
 
-    // Após a inicialização do editor CodeMirror
-    editor.on("change", () => {
-      const tab = this.tabs[paneId];
-      if (!tab.isDirty) {
-        tab.isDirty = true;
-        const $tabLink = $(`#tab-${paneId}-link .tab-title`);
-        $tabLink.text($tabLink.text() + " *");
-      }
+    editor.on('change', () => {
+        const tab = this.tabs[paneId];
+        if (tab && !tab.isDirty) {
+            tab.isDirty = true;
+            const $tabTitle = $(`#tab-${paneId}-link .tab-title`);
+            $tabTitle.text($tabTitle.text() + ' *');
+        }
+        this.saveTabsState(); // Salva o estado a cada alteração
     });
 
     this.attachTabEvents(paneId);
     this.initializeIntellisense(paneId);
+  },
+
+  /**
+   * Guarda o estado de todas as abas abertas (nome e conteúdo) no localStorage.
+   */
+  saveTabsState: function () {
+    // Usa um debounce para evitar salvar em excesso a cada tecla pressionada
+    if (this.saveTimeout) clearTimeout(this.saveTimeout);
+    this.saveTimeout = setTimeout(() => {
+      const stateToSave = Object.values(this.tabs).map((tab) => ({
+        name: tab.name,
+        sql: tab.editor.getValue(),
+        isDirty: tab.isDirty,
+      }));
+      localStorage.setItem(
+        "querysphere_tabs_state",
+        JSON.stringify(stateToSave),
+      );
+    }, 500); // Salva 500ms após a última alteração
+  },
+
+  /**
+   * Carrega o estado das abas a partir do localStorage.
+   */
+  loadTabsState: function () {
+    const savedState = localStorage.getItem("querysphere_tabs_state");
+    if (savedState) {
+      try {
+        const tabsToRestore = JSON.parse(savedState);
+        if (tabsToRestore && tabsToRestore.length > 0) {
+          tabsToRestore.forEach((tabState) => {
+            this.addTab(tabState);
+          });
+          return true; // Indica que o estado foi carregado
+        }
+      } catch (e) {
+        console.error("Failed to parse saved tab state:", e);
+        localStorage.removeItem("querysphere_tabs_state"); // Limpa estado corrompido
+      }
+    }
+    return false; // Nenhum estado para carregar
   },
 
   /**
