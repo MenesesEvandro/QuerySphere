@@ -178,12 +178,21 @@ const TabManager = {
       theme: document.body.classList.contains("light-theme")
         ? "default"
         : "material-darker",
+      matchBrackets: true,
+      autoCloseBrackets: true,
+      styleActiveLine: true,
+      matchBrackets: true,
+      autoCloseBrackets: true,
       indentWithTabs: true,
       smartIndent: true,
       extraKeys: {
         "Ctrl-Space": "autocomplete",
         F5: () => $pane.find(".execute-query-btn").trigger("click"),
         "Ctrl-Enter": () => $pane.find(".execute-query-btn").trigger("click"),
+        "Ctrl-F": "findPersistent",
+        "Ctrl-H": "replace",
+        F3: "findNext",
+        "Shift-F3": "findPrev",
       },
       hintOptions: { tables: {} },
     });
