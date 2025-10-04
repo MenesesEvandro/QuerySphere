@@ -76,6 +76,12 @@ $(async function () {
             icon: "fa fa-edit",
             action: () => schemaEditor.open("design", nodeData),
           };
+          menu.viewData = {
+            label: LANG.view_data,
+            icon: "fa fa-search",
+            _separator_before: true,
+            action: () => TabManager.openDataViewerTab(nodeData),
+          };
           menu.dropTable = {
             label: LANG.drop_table,
             icon: "fa fa-trash-alt",

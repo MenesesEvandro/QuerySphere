@@ -254,6 +254,33 @@ const TabManager = {
   },
 
   /**
+   * Abre uma nova aba dedicada para visualização e edição de dados de uma tabela.
+   * @param {object} nodeData - Os dados do nó da árvore (tabela).
+   */
+  openDataViewerTab: function (nodeData) {
+    this.addTab({ name: nodeData.table, sql: "", isDirty: false });
+    const newTabId = this.activeTabId;
+    const tab = this.tabs[newTabId];
+
+    let sql;
+    const limit = 200;
+    const tableName =
+      DB_TYPE === "mysql"
+        ? `\`${nodeData.db}\`.\`${nodeData.table}\``
+        : `[${nodeData.db}].[${nodeData.schema}].[${nodeData.table}]`;
+
+    if (DB_TYPE === "mysql") {
+      sql = `SELECT * FROM ${tableName}\nLIMIT ${limit};`;
+    } else {
+      sql = `SELECT TOP ${limit} * FROM ${tableName};`;
+    }
+
+    tab.editor.setValue(sql);
+    this.executeQuery(newTabId);
+    this._resetDirtyState(newTabId);
+  },
+
+  /**
    * Guarda o estado de todas as abas abertas (nome e conteúdo) no localStorage.
    */
   saveTabsState: function () {

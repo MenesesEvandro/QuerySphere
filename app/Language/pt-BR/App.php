@@ -368,6 +368,7 @@ return [
         'index_columns' => 'Colunas',
         'index_unique' => 'Único',
         'index_type' => 'Tipo',
+        'view_data' => 'Ver Dados (Top 200)',
     ],
 
     //--------------------------------------------------------------------
