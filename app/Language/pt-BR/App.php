@@ -369,6 +369,14 @@ return [
         'index_unique' => 'Único',
         'index_type' => 'Tipo',
         'view_data' => 'Ver Dados (Top 200)',
+        'add_index' => 'Adicionar Índice',
+        'index_name_placeholder' => 'ex: idx_nome_coluna',
+        'confirm_drop_index' => 'Tem a certeza de que deseja excluir o índice {0}?',
+        'index_dropped_successfully' => 'Índice {0} excluído com sucesso.',
+        'index_created_successfully' => 'Índice {0} criado com sucesso.',
+        'index_creation_failed' => 'A criação do índice falhou.',
+        'index_drop_failed' => 'A exclusão do índice falhou.',
+        'select_columns' => 'Selecione as colunas',
     ],
 
     //--------------------------------------------------------------------

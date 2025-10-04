@@ -1212,4 +1212,34 @@ class SqlServerModel extends BaseDatabaseModel
         }
         return $indexes;
     }
+
+    public function createIndex(string $database, string $schema, string $table, string $indexName, array $columns, bool $isUnique): array
+    {
+        if (!$this->hasConnection()) {
+            return ['status' => 'error', 'message' => lang('App.feedback.session_lost')];
+        }
+        $unique = $isUnique ? 'UNIQUE' : '';
+        $cols = implode(', ', array_map(fn ($c) => "[{$c}]", $columns));
+        $sql = "CREATE {$unique} NONCLUSTERED INDEX [{$indexName}] ON [{$database}].[{$schema}].[{$table}] ({$cols});";
+
+        $stmt = sqlsrv_query($this->conn, $sql);
+        if ($stmt) {
+            return ['status' => 'success'];
+        }
+        return ['status' => 'error', 'message' => sqlsrv_errors()[0]['message']];
+    }
+
+    public function dropIndex(string $database, string $schema, string $table, string $indexName): array
+    {
+        if (!$this->hasConnection()) {
+            return ['status' => 'error', 'message' => lang('App.feedback.session_lost')];
+        }
+        $sql = "DROP INDEX [{$indexName}] ON [{$database}].[{$schema}].[{$table}];";
+
+        $stmt = sqlsrv_query($this->conn, $sql);
+        if ($stmt) {
+            return ['status' => 'success'];
+        }
+        return ['status' => 'error', 'message' => sqlsrv_errors()[0]['message']];
+    }
 }

@@ -64,4 +64,7 @@ interface DatabaseModelInterface
         string $schema,
         string $table,
     ): array;
+
+    public function createIndex(string $database, string $schema, string $table, string $indexName, array $columns, bool $isUnique): array;
+    public function dropIndex(string $database, string $schema, string $table, string $indexName): array;
 }

@@ -103,5 +103,7 @@ $routes->group('', ['filter' => 'auth'], static function ($routes) {
             'schema/indexes/(:any)/(:any)/(:any)',
             'Api\SchemaEditor::getIndexes/$1/$2/$3',
         );
+        $routes->post('schema/create_index', 'Api\SchemaEditor::createIndex');
+        $routes->delete('schema/drop_index', 'Api\SchemaEditor::dropIndex');
     }); // API GROUP
 });

@@ -365,6 +365,14 @@ return [
         'index_unique' => 'Unique',
         'index_type' => 'Type',
         'view_data' => 'View Data (Top 200)',
+        'add_index': 'Add Index',
+        'index_name_placeholder': 'e.g., idx_column_name',
+        'confirm_drop_index': 'Are you sure you want to drop the index {0}?',
+        'index_dropped_successfully': 'Index {0} dropped successfully.',
+        'index_created_successfully': 'Index {0} created successfully.',
+        'index_creation_failed': 'Index creation failed.',
+        'index_drop_failed': 'Index drop failed.',
+        'select_columns': 'Select the columns',
     ],
 
     //--------------------------------------------------------------------

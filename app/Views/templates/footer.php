@@ -131,6 +131,28 @@
                             <tbody id="indexes-container">
                             </tbody>
                         </table>
+                        <hr>
+                        <h5><?= lang('App.schema_editor.add_index') ?></h5>
+                        <form id="add-index-form" class="row g-3 align-items-end">
+                            <div class="col-md-4">
+                                <label for="new-index-name" class="form-label"><?= lang('App.schema_editor.index_name') ?></label>
+                                <input type="text" class="form-control form-control-sm" id="new-index-name" placeholder="<?= lang('App.schema_editor.index_name_placeholder') ?>" required>
+                            </div>
+                            <div class="col-md-5">
+                                <label for="new-index-columns" class="form-label"><?= lang('App.schema_editor.select_columns') ?></label>
+                                <select id="new-index-columns" class="form-select form-select-sm" multiple required>
+                                    </select>
+                            </div>
+                            <div class="col-md-1">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="new-index-unique">
+                                    <label class="form-check-label" for="new-index-unique"><?= lang('App.schema_editor.index_unique') ?></label>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-sm btn-success w-100"><?= lang('App.schema_editor.add_index') ?></button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>

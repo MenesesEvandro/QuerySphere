@@ -137,4 +137,46 @@ class SchemaEditor extends BaseController
         );
         return $this->respond($indexes);
     }
+
+    /**
+     * Handles the API request to create a new index on a table.
+     * @return \CodeIgniter\HTTP\ResponseInterface
+     */
+    public function createIndex()
+    {
+        $data = $this->request->getJSON(true);
+        $result = $this->model->createIndex(
+            $data['database'],
+            $data['schema'],
+            $data['table'],
+            $data['index_name'],
+            $data['columns'],
+            $data['is_unique']
+        );
+
+        if ($result['status'] === 'success') {
+            return $this->respondCreated(['message' => 'Index created successfully.']);
+        }
+        return $this->fail($result['message']);
+    }
+
+    /**
+     * Handles the API request to drop an index from a table.
+     * @return \CodeIgniter\HTTP\ResponseInterface
+     */
+    public function dropIndex()
+    {
+        $data = $this->request->getJSON(true);
+        $result = $this->model->dropIndex(
+            $data['database'],
+            $data['schema'],
+            $data['table'],
+            $data['index_name']
+        );
+
+        if ($result['status'] === 'success') {
+            return $this->respondDeleted(['message' => 'Index dropped successfully.']);
+        }
+        return $this->fail($result['message']);
+    }
 }

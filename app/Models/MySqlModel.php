@@ -993,4 +993,32 @@ class MySqlModel extends BaseDatabaseModel
         }
         return $indexes;
     }
+
+    public function createIndex(string $database, string $schema, string $table, string $indexName, array $columns, bool $isUnique): array
+    {
+        if (!$this->hasConnection()) {
+            return ['status' => 'error', 'message' => lang('App.feedback.session_lost')];
+        }
+        $unique = $isUnique ? 'UNIQUE' : '';
+        $cols = implode(', ', array_map(fn ($c) => "`{$c}`", $columns));
+        $sql = "CREATE {$unique} INDEX `{$indexName}` ON `{$database}`.`{$table}` ({$cols});";
+
+        if ($this->conn->query($sql)) {
+            return ['status' => 'success'];
+        }
+        return ['status' => 'error', 'message' => $this->conn->error];
+    }
+
+    public function dropIndex(string $database, string $schema, string $table, string $indexName): array
+    {
+        if (!$this->hasConnection()) {
+            return ['status' => 'error', 'message' => lang('App.feedback.session_lost')];
+        }
+        $sql = "DROP INDEX `{$indexName}` ON `{$database}`.`{$table}`;";
+
+        if ($this->conn->query($sql)) {
+            return ['status' => 'success'];
+        }
+        return ['status' => 'error', 'message' => $this->conn->error];
+    }
 }
