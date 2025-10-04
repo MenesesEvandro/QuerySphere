@@ -67,4 +67,8 @@ interface DatabaseModelInterface
 
     public function createIndex(string $database, string $schema, string $table, string $indexName, array $columns, bool $isUnique): array;
     public function dropIndex(string $database, string $schema, string $table, string $indexName): array;
+    public function getAllTables(string $database): array;
+    public function getForeignKeys(string $database, string $schema, string $table): array;
+    public function createForeignKey(string $database, string $schema, string $table, string $fkName, array $columns, string $refTable, array $refColumns): array;
+    public function dropForeignKey(string $database, string $schema, string $table, string $fkName): array;
 }

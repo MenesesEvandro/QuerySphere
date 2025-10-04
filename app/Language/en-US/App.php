@@ -21,7 +21,7 @@ return [
         'language' => 'Language',
         'theme' => 'Theme',
         'toggleTheme' => 'Toggle Theme',
-        'select' => 'Select...',
+        'select' => 'Select ...',
         'status' => 'Status',
         'unknown' => 'Unknown',
         'enable' => 'Enable',
@@ -36,7 +36,7 @@ return [
         'canceled' => 'Canceled',
         'retry' => 'Retry',
         'https_warning' =>
-            'Warning: This page should be accessed via HTTPS to ensure security.',
+            'Warning: This page must be accessed via HTTPS to ensure security.',
         'crypto_warning' =>
             'Error: This browser does not support the Web Crypto API. Please use a modern browser.',
         'confirmation' => 'Confirmation',
@@ -52,7 +52,7 @@ return [
         'connecting' => 'Connecting...',
         'disconnect' => 'Disconnect',
         'connectedTo' => 'Connected to',
-        'changing' => 'Changing...',
+        'changing' => 'Changing ...',
         'db_type' => 'Database Type',
         'sql_server' => 'SQL Server',
         'mysql' => 'MySQL',
@@ -64,8 +64,9 @@ return [
         'password' => 'Password',
         'show_password' => 'Show Password',
         'hide_password' => 'Hide Password',
-        'rememberConnection' => 'Save connection data',
-        'trust_cert' => 'Trust server certificate (for localhost/self-signed)',
+        'rememberConnection' => 'Save connection details',
+        'trust_cert' =>
+            'Trust server certificate (for localhost/self-signed)',
         'new_connection' => '-- New Connection --',
         'manage_connections' => 'Manage Connections',
         'select_connection' =>
@@ -108,7 +109,7 @@ return [
         'ask_prompt' =>
             'Please enter your Master Password to load the password.',
         'error_decrypting' =>
-            'Error decrypting password. Incorrect Master Password?',
+            'Error decrypting the password. Incorrect Master Password?',
         'no_saved_passwords' => 'No saved passwords.',
         'saved_passwords' => 'Saved Passwords',
     ],
@@ -129,14 +130,15 @@ return [
         'shared' => 'Shared',
         'results' => 'Results',
         'messages' => 'Messages',
-        'queryResultsPlaceholder' => 'Execute a query to see the results.',
+        'queryResultsPlaceholder' =>
+            'Execute a query to see the results.',
         'search_placeholder' => 'Search in {0}...',
         'templates' => 'Templates',
         'save_changes' => 'Save Changes',
         'saving_changes' => 'Saving...',
         'error_saving' => 'Error saving changes.',
         'no_primary_key' =>
-            'This table cannot be edited because it does not have a primary key.',
+            'This table cannot be edited because it lacks a primary key.',
         'multiple_tables_not_supported' =>
             'Editing is not supported for results from multiple tables.',
         'no_table_detected' =>
@@ -144,11 +146,11 @@ return [
         'confirm_discard_changes' =>
             'You have unsaved changes. Are you sure you want to discard them?',
         'maxEditor' => 'Maximize editor',
-        'no_tab_history' => 'No history for this tab.', 
+        'no_tab_history' => 'No history for this tab.',
     ],
 
     //--------------------------------------------------------------------
-    // Objects Browser
+    // Object Browser
     //--------------------------------------------------------------------
     'objects_browser' => [
         'search' => 'Search objects',
@@ -177,7 +179,7 @@ return [
         'prompt_author' => 'Your name:',
         'author_default' => 'User',
         'share_fail' => 'Failed to share the script.',
-        'share_success' => 'Script \"{0}\" shared successfully.',
+        'share_success' => 'Script "{0}" shared successfully.',
         'confirm_delete_shared' =>
             'Are you sure you want to delete this shared query for everyone?',
         'delete_shared_fail' => 'Failed to delete the query.',
@@ -205,13 +207,14 @@ return [
         'connection_success' => 'Connection established successfully!',
         'connection_failed' => 'Connection failed.',
         'check_credentials' => 'Check the host, port, and credentials.',
-        'logout_success' => 'You have been disconnected.',
+        'logout_success' => 'You have been logged out.',
         'session_lost' => 'Connection session lost.',
         'query_empty' => 'The SQL query cannot be empty.',
         'noquery_to_export' => 'No query to export.',
         'no_results_found' => 'No results found.',
         'empty_result' => 'Empty result.',
-        'commands_executed_successfully' => 'Command(s) executed successfully.',
+        'commands_executed_successfully' =>
+            'Command(s) executed successfully.',
         'result_sets_returned' => 'Result set(s) returned: ',
         'rows_affected' => 'Row(s) affected: ',
         'execution_time' => 'Execution time',
@@ -220,9 +223,10 @@ return [
         'exec_error' => 'Execution error.',
         'format_fail' => 'Failed to format SQL. Check the syntax.',
         'execution_plan_generation_failed' =>
-            'Execution plan generation failed.',
-        'intellisense_error' => 'Failed to load IntelliSense dictionary.',
-        'error_alter_database' => 'Failed to alter database.',
+            'Failed to generate the execution plan.',
+        'intellisense_error' =>
+            'Failed to load the IntelliSense dictionary.',
+        'error_alter_database' => 'Failed to alter the database.',
         'error_loading_definition' =>
             'ERROR: Could not load the object definition.',
         'language_not_supported' => 'Language not supported.',
@@ -232,23 +236,23 @@ return [
             'This feature is not supported for the connected database.',
         'db_invalid_operation' => 'Invalid operation.',
         'db_object_type_not_supported' =>
-            'Object type \"{0}\" is not supported for definition lookup.',
+            'The object type "{0}" is not supported for definition retrieval.',
         'db_could_not_retrieve_definition' =>
-            'Could not retrieve definition for object `{0}`.',
+            'Could not retrieve the definition for the object `{0}`.',
         'db_event_not_found' =>
-            'Could not retrieve definition for event `{0}`.',
+            'Could not retrieve the definition for the event `{0}`.',
         'error_no_db_selected_for_edit' =>
             'Please select a database from the top menu before attempting to edit data.',
-        'data_saved' => '¡Éxito! Todos los cambios han sido guardados.',
-        'no_pk_edit' => 'Primary key column cannot be edited.',
-        'cannot_close_last_tab' => 'At least one tab must be active',
+        'data_saved' => 'Success! All changes were saved.',
+        'no_pk_edit' => 'The primary key column cannot be edited.',
+        'cannot_close_last_tab' => 'At least one tab must remain active',
     ],
 
     //--------------------------------------------------------------------
-    // Server Requirements Check
+    // Server Requirements Validation
     //--------------------------------------------------------------------
     'server_check' => [
-        'title' => 'Server Requirements Check',
+        'title' => 'Server Requirements Validation',
         'trigger_button' => 'Test Compatibility',
         'header_item' => 'Requirement',
         'header_status' => 'Status',
@@ -259,14 +263,14 @@ return [
         'status_fail' => 'FAIL',
         'ok_title' => 'All Good!',
         'ok_message' =>
-            'Your server meets all the critical requirements to run the application.',
+            'Your server meets all critical requirements to run the application.',
         'warn_title' => 'Warning!',
         'warn_message' =>
-            'Your server has some warnings, but the critical requirements are met. The application should work, but please check the points below.',
-        'fail_title' => 'Issues Found!',
+            'Your server has some warnings, but critical requirements are met. The application should work, but check the points below.',
+        'fail_title' => 'Problems Found!',
         'fail_message' =>
-            'Your server does not meet one or more critical requirements. The application will not work correctly until the items marked as FAIL are fixed.',
-        'go_to_app' => 'Go to Application',
+            'Your server does not meet one or more critical requirements. The application will not function properly until the items marked as FAIL are fixed.',
+        'go_to_app' => 'Go to the Application',
         'php_version' => 'PHP Version',
         'php_version_note' =>
             'The minimum recommended version for the project is 8.0.',
@@ -278,13 +282,13 @@ return [
             'Critical: Essential for multibyte string manipulation.',
         'note_json' => 'Critical: Essential for API responses.',
         'note_xml' =>
-            'Important: Required for the Execution Plan functionality.',
-        'writable_folder' => 'Write permission in "writable" folder',
+            'Important: Required for Execution Plan functionality.',
+        'writable_folder' => 'Write permission on the "writable" folder',
         'writable' => 'Writable',
-        'not_writable' => 'Not Writable',
+        'not_writable' => 'Not writable',
         'writable_note' =>
             'CodeIgniter needs permission to write logs, cache, and sessions.',
-        'env_file' => '".env" environment file',
+        'env_file' => 'Environment file ".env"',
         'found' => 'Found',
         'env_file_note' =>
             'Recommended for configuring the production/development environment.',
@@ -308,9 +312,9 @@ return [
         'start_job' => 'Start Job',
         'stop_job' => 'Stop Job',
         'job_started' => 'Job started successfully.',
-        'job_start_failed' => 'Failed to start job.',
+        'job_start_failed' => 'Failed to start the job.',
         'job_stopped' => 'Job stopped successfully.',
-        'job_stop_failed' => 'Failed to stop job.',
+        'job_stop_failed' => 'Failed to stop the job.',
         'history' => 'Job History',
         'no_history_found' => 'No history found for this job.',
         'error_retrieving_history' => 'Error retrieving job history.',
@@ -342,7 +346,7 @@ return [
     //--------------------------------------------------------------------
     'schema_editor' => [
         'new_table' => 'New Table',
-        'design_table' => 'Design Table',
+        'design_table' => 'Table Design',
         'drop_table' => 'Drop Table',
         'table_name' => 'Table Name',
         'columns' => 'Columns',
@@ -353,26 +357,39 @@ return [
         'primary_key' => 'Primary Key',
         'add_column' => 'Add Column',
         'confirm_drop_table' =>
-            'Are you sure you want to drop the table "{0}"? This action cannot be undone.',
-        'table_drop_successfully' => 'The table {0} was successfully deleted',
+            'Are you sure you want to drop the table {0}? This action cannot be undone.',
+        'table_drop_successfully' => 'Table {0} dropped successfully.',
         'table_creation_failed' => 'Table creation failed.',
-        'table_created_successfully' => 'Table "{0}" created successfully.',
-        'script_alter' => 'Display edit script',
-        'script_create' => 'Display creation script',
+        'table_created_successfully' => 'Table {0} created successfully.',
+        'script_alter' => 'Show alter script',
+        'script_create' => 'Show create script',
         'indexes' => 'Indexes',
         'index_name' => 'Index Name',
         'index_columns' => 'Columns',
         'index_unique' => 'Unique',
         'index_type' => 'Type',
         'view_data' => 'View Data (Top 200)',
-        'add_index': 'Add Index',
-        'index_name_placeholder': 'e.g., idx_column_name',
-        'confirm_drop_index': 'Are you sure you want to drop the index {0}?',
-        'index_dropped_successfully': 'Index {0} dropped successfully.',
-        'index_created_successfully': 'Index {0} created successfully.',
-        'index_creation_failed': 'Index creation failed.',
-        'index_drop_failed': 'Index drop failed.',
-        'select_columns': 'Select the columns',
+        'add_index' => 'Add Index',
+        'index_name_placeholder' => 'e.g., idx_column_name',
+        'confirm_drop_index' => 'Are you sure you want to drop the index {0}?',
+        'index_dropped_successfully' => 'Index {0} dropped successfully.',
+        'index_created_successfully' => 'Index {0} created successfully.',
+        'index_creation_failed' => 'Index creation failed.',
+        'index_drop_failed' => 'Index drop failed.',
+        'select_columns' => 'Select columns',
+        'constraints' => 'Constraints',
+        'foreign_keys' => 'Foreign Keys',
+        'add_foreign_key' => 'Add Foreign Key',
+        'fk_name' => 'Constraint Name',
+        'fk_name_placeholder' => 'e.g., fk_table_ref_table',
+        'fk_columns' => 'Columns in This Table',
+        'fk_references_table' => 'Reference Table',
+        'fk_references_columns' => 'Columns in Reference Table',
+        'confirm_drop_fk' => 'Are you sure you want to drop the foreign key {0}?',
+        'fk_dropped_successfully' => 'Foreign key {0} dropped successfully.',
+        'fk_created_successfully' => 'Foreign key {0} created successfully.',
+        'fk_creation_failed' => 'Foreign key creation failed.',
+        'fk_drop_failed' => 'Foreign key drop failed.',
     ],
 
     //--------------------------------------------------------------------
@@ -386,17 +403,17 @@ return [
                     '10_active_queries.sql' => [
                         'title' => 'Monitor Active Queries',
                         'description' =>
-                            'Shows all queries currently being executed on the server.',
+                            'Shows all queries currently executing on the server.',
                     ],
                     '20_slowest_queries_history.sql' => [
                         'title' => 'Top 10 Slowest Queries (History)',
                         'description' =>
-                            'Analyzes the cache to find queries that consumed the most CPU time.',
+                            'Analyzes the cache to find queries consuming the most CPU time.',
                     ],
                     '30_wait_stats.sql' => [
                         'title' => 'Wait Statistics',
                         'description' =>
-                            'Shows the main server bottlenecks, indicating what the SQL Server is waiting on.',
+                            'Shows the main server bottlenecks, indicating what SQL Server is waiting for.',
                     ],
                 ],
             ],
@@ -411,7 +428,7 @@ return [
                     '20_space_by_database.sql' => [
                         'title' => 'Space Usage by Database',
                         'description' =>
-                            'Shows the total size, used space, and free space for all databases.',
+                            'Shows the total size, used, and free space for all databases.',
                     ],
                 ],
             ],
@@ -446,7 +463,7 @@ return [
                     '10_active_locks.sql' => [
                         'title' => 'Query Active Locks',
                         'description' =>
-                            'Shows which processes (sessions) are blocking other processes.',
+                            'Shows which processes (sessions) are blocking others.',
                     ],
                     '20_active_connections.sql' => [
                         'title' => 'List Active Connections',
@@ -481,10 +498,10 @@ return [
                     '10_list_sysadmin_logins.sql' => [
                         'title' => 'List Logins with Sysadmin',
                         'description' =>
-                            'Security audit that lists all logins with full server control.',
+                            'Security audit listing all logins with full server control.',
                     ],
                     '20_find_orphan_users.sql' => [
-                        'title' => 'Find Orphan Users',
+                        'title' => 'Find Orphaned Users',
                         'description' =>
                             'Finds users in a database that are no longer linked to a valid server login.',
                     ],
@@ -525,55 +542,55 @@ return [
                     ],
                 ],
             ],
-            'mysql' => [
-                '10_performance' => [
-                    'title' => 'Performance',
-                    'scripts' => [
-                        '10_active_processes.sql' => [
-                            'title' => 'Monitor Active Processes',
-                            'description' =>
-                                'Shows all active processes and queries on the MySQL server.',
-                        ],
-                        '20_slowest_queries_history.sql' => [
-                            'title' => 'Top 10 Slowest Queries (History)',
-                            'description' =>
-                                'Analyzes the Performance Schema to find the slowest queries.',
-                        ],
+        ],
+        'mysql' => [
+            '10_performance' => [
+                'title' => 'Performance',
+                'scripts' => [
+                    '10_active_processes.sql' => [
+                        'title' => 'Monitor Active Processes',
+                        'description' =>
+                            'Shows all active processes and queries on the MySQL server.',
+                    ],
+                    '20_slowest_queries_history.sql' => [
+                        'title' => 'Top 10 Slowest Queries (History)',
+                        'description' =>
+                            'Analyzes the Performance Schema to find the slowest queries.',
                     ],
                 ],
-                '20_space_usage' => [
-                    'title' => 'Space Usage',
-                    'scripts' => [
-                        '10_largest_tables.sql' => [
-                            'title' => 'List Largest Tables',
-                            'description' =>
-                                'Lists the largest tables in the current database by size.',
-                        ],
+            ],
+            '20_space_usage' => [
+                'title' => 'Space Usage',
+                'scripts' => [
+                    '10_largest_tables.sql' => [
+                        'title' => 'List Largest Tables',
+                        'description' =>
+                            'Lists the largest tables in the current database by size.',
                     ],
                 ],
-                '30_indexes' => [
-                    'title' => 'Indexes',
-                    'scripts' => [
-                        '10_index_usage.sql' => [
-                            'title' => 'Analyze Index Usage',
-                            'description' =>
-                                'Shows read statistics for each index, helping to identify those that are not used.',
-                        ],
-                        '20_duplicate_indexes.sql' => [
-                            'title' => 'Find Duplicate Indexes',
-                            'description' =>
-                                'Lists any indexes that are duplicated or redundant and may be candidates for removal.',
-                        ],
+            ],
+            '30_indexes' => [
+                'title' => 'Indexes',
+                'scripts' => [
+                    '10_index_usage.sql' => [
+                        'title' => 'Analyze Index Usage',
+                        'description' =>
+                            'Shows read statistics for each index, helping identify those not used.',
+                    ],
+                    '20_duplicate_indexes.sql' => [
+                        'title' => 'Find Duplicate Indexes',
+                        'description' =>
+                            'Lists any duplicate or redundant indexes that may be candidates for removal.',
                     ],
                 ],
-                '60_security' => [
-                    'title' => 'Security',
-                    'scripts' => [
-                        '10_users_with_all_privileges.sql' => [
-                            'title' => 'List Users with Elevated Privileges',
-                            'description' =>
-                                'Security audit that lists all users with SUPER or GRANT privileges.',
-                        ],
+            ],
+            '60_security' => [
+                'title' => 'Security',
+                'scripts' => [
+                    '10_users_with_all_privileges.sql' => [
+                        'title' => 'List Users with Elevated Privileges',
+                        'description' =>
+                            'Security audit listing all users with SUPER or GRANT privileges.',
                     ],
                 ],
             ],

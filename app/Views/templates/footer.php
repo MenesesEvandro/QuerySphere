@@ -74,6 +74,11 @@
                             'App.schema_editor.indexes',
                         ) ?></button>
                     </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="constraints-tab" data-bs-toggle="tab" data-bs-target="#constraints-pane" type="button" role="tab"><?= lang(
+                            'App.schema_editor.constraints',
+                        ) ?></button>
+                    </li>
                 </ul>
 
                 <div class="tab-content" id="schema-editor-tab-content">
@@ -141,7 +146,7 @@
                             <div class="col-md-5">
                                 <label for="new-index-columns" class="form-label"><?= lang('App.schema_editor.select_columns') ?></label>
                                 <select id="new-index-columns" class="form-select form-select-sm" multiple required>
-                                    </select>
+                                </select>
                             </div>
                             <div class="col-md-1">
                                 <div class="form-check">
@@ -151,6 +156,45 @@
                             </div>
                             <div class="col-md-2">
                                 <button type="submit" class="btn btn-sm btn-success w-100"><?= lang('App.schema_editor.add_index') ?></button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="tab-pane fade" id="constraints-pane" role="tabpanel">
+                        <h5 class="mt-3"><?= lang('App.schema_editor.foreign_keys') ?></h5>
+                        <table class="table table-sm table-hover mt-2">
+                            <thead>
+                                <tr>
+                                    <th><?= lang('App.schema_editor.fk_name') ?></th>
+                                    <th><?= lang('App.schema_editor.fk_columns') ?></th>
+                                    <th><?= lang('App.schema_editor.fk_references_table') ?></th>
+                                    <th><?= lang('App.schema_editor.fk_references_columns') ?></th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="constraints-container">
+                                </tbody>
+                        </table>
+                        <hr>
+                        <h6><?= lang('App.schema_editor.add_foreign_key') ?></h6>
+                        <form id="add-fk-form" class="row g-3 align-items-end">
+                            <div class="col-md-3">
+                                <label class="form-label"><?= lang('App.schema_editor.fk_name') ?></label>
+                                <input type="text" class="form-control form-control-sm" id="new-fk-name" placeholder="<?= lang('App.schema_editor.fk_name_placeholder') ?>">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label"><?= lang('App.schema_editor.fk_columns') ?></label>
+                                <select id="new-fk-columns" class="form-select form-select-sm" multiple></select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label"><?= lang('App.schema_editor.fk_references_table') ?></label>
+                                <select id="new-fk-references-table" class="form-select form-select-sm"></select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label"><?= lang('App.schema_editor.fk_references_columns') ?></label>
+                                <select id="new-fk-references-columns" class="form-select form-select-sm" multiple></select>
+                            </div>
+                            <div class="col-12 text-end">
+                                <button type="submit" class="btn btn-sm btn-success"><?= lang('App.schema_editor.add_foreign_key') ?></button>
                             </div>
                         </form>
                     </div>

@@ -105,5 +105,9 @@ $routes->group('', ['filter' => 'auth'], static function ($routes) {
         );
         $routes->post('schema/create_index', 'Api\SchemaEditor::createIndex');
         $routes->delete('schema/drop_index', 'Api\SchemaEditor::dropIndex');
+        $routes->get('schema/tables/(:any)', 'Api\SchemaEditor::getTables/$1');
+        $routes->get('schema/foreign_keys/(:any)/(:any)/(:any)', 'Api\SchemaEditor::getForeignKeys/$1/$2/$3');
+        $routes->post('schema/create_foreign_key', 'Api\SchemaEditor::createForeignKey');
+        $routes->delete('schema/drop_foreign_key', 'Api\SchemaEditor::dropForeignKey');
     }); // API GROUP
 });

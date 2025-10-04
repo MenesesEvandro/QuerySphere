@@ -1021,4 +1021,73 @@ class MySqlModel extends BaseDatabaseModel
         }
         return ['status' => 'error', 'message' => $this->conn->error];
     }
+
+    public function getAllTables(string $database): array
+    {
+        if (!$this->hasConnection()) {
+            return [];
+        }
+        $sql = 'SELECT TABLE_NAME AS name FROM information_schema.TABLES WHERE TABLE_SCHEMA = ? ORDER BY TABLE_NAME;';
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param('s', $database);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $tables = [];
+        if ($result) {
+            while ($row = $result->fetch_assoc()) {
+                $tables[] = $row;
+            }
+        }
+        return $tables;
+    }
+
+    public function getForeignKeys(string $database, string $schema, string $table): array
+    {
+        $sql = "
+            SELECT
+                kcu.constraint_name as fk_name,
+                kcu.column_name as columns,
+                kcu.referenced_table_name as references_table,
+                kcu.referenced_column_name as references_columns
+            FROM information_schema.key_column_usage AS kcu
+            JOIN information_schema.table_constraints AS tc
+                ON kcu.constraint_name = tc.constraint_name
+                AND kcu.table_schema = tc.table_schema
+            WHERE tc.constraint_type = 'FOREIGN KEY'
+            AND kcu.table_schema = ? AND kcu.table_name = ?;
+        ";
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param('ss', $database, $table);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $fks = [];
+        if ($result) {
+            while ($row = $result->fetch_assoc()) {
+                $fks[] = $row;
+            }
+        }
+        return $fks;
+    }
+
+    public function createForeignKey(string $database, string $schema, string $table, string $fkName, array $columns, string $refTable, array $refColumns): array
+    {
+        $cols = implode(', ', array_map(fn ($c) => "`{$c}`", $columns));
+        $refCols = implode(', ', array_map(fn ($c) => "`{$c}`", $refColumns));
+        $sql = "ALTER TABLE `{$database}`.`{$table}` ADD CONSTRAINT `{$fkName}` FOREIGN KEY ({$cols}) REFERENCES `{$refTable}`({$refCols});";
+
+        if ($this->conn->query($sql)) {
+            return ['status' => 'success'];
+        }
+        return ['status' => 'error', 'message' => $this->conn->error];
+    }
+
+    public function dropForeignKey(string $database, string $schema, string $table, string $fkName): array
+    {
+        $sql = "ALTER TABLE `{$database}`.`{$table}` DROP FOREIGN KEY `{$fkName}`;";
+
+        if ($this->conn->query($sql)) {
+            return ['status' => 'success'];
+        }
+        return ['status' => 'error', 'message' => $this->conn->error];
+    }
 }

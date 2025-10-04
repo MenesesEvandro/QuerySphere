@@ -35,8 +35,15 @@ const schemaEditor = {
       );
       $("#table-name").val(this.tableName).prop("disabled", true);
       $("#indexes-tab").show();
+      $("#constraints-tab").show();
 
       const $indexColumnsSelect = $("#new-index-columns").empty();
+
+      $("#constraints-container").empty();
+      $("#add-fk-form")[0].reset();
+      $("#new-fk-columns").empty();
+      $("#new-fk-references-table").empty();
+      $("#new-fk-references-columns").empty();
 
       // Carregar Estrutura das Colunas
       $.get(
@@ -56,6 +63,7 @@ const schemaEditor = {
             this.addColumnRow();
           }
           this.loadIndexes();
+          this.loadConstraints();
         })
         .fail(() => {
           notifier.show("Error: Could not load table structure.", "error");
@@ -93,6 +101,65 @@ const schemaEditor = {
     // Garante que o primeiro separador esteja ativo
     new bootstrap.Tab($("#columns-tab")[0]).show();
     this.modal.show();
+  },
+
+  loadConstraints: function () {
+    $.get(
+      `${site_url}api/schema/foreign_keys/${encodeURIComponent(this.dbName)}/${encodeURIComponent(this.schemaName)}/${encodeURIComponent(this.tableName)}`,
+    ).done((fks) => {
+      const container = $("#constraints-container").empty();
+      if (fks && fks.length > 0) {
+        fks.forEach((fk) => {
+          const row = `
+                    <tr>
+                        <td>${fk.fk_name}</td>
+                        <td>${fk.columns}</td>
+                        <td>${fk.references_table}</td>
+                        <td>${fk.references_columns}</td>
+                        <td class="text-center">
+                            <button type="button" class="btn btn-sm btn-outline-danger drop-fk-btn" data-fk-name="${fk.fk_name}" title="Drop Foreign Key"><i class="fa fa-trash"></i></button>
+                        </td>
+                    </tr>`;
+          container.append(row);
+        });
+      } else {
+        container.html(
+          `<tr><td colspan="5" class="text-muted text-center">Nenhuma chave estrangeira encontrada.</td></tr>`,
+        );
+      }
+    });
+
+    // Popula os formulários para criar novas FKs
+    this.populateTableColumnsForFK();
+    this.populateReferencedTables();
+  },
+
+  populateTableColumnsForFK: function () {
+    const $select = $("#new-fk-columns").empty();
+    if (this.originalColumns && this.originalColumns.length > 0) {
+      this.originalColumns.forEach((colName) => {
+        $select.append(`<option value="${colName}">${colName}</option>`);
+      });
+    }
+  },
+
+  populateReferencedTables: function () {
+    const $select = $("#new-fk-references-table").empty();
+    $select.append(`<option value="">${LANG.select}</option>`);
+
+    // Chama a nova API para listar todas as tabelas
+    $.get(
+      `${site_url}api/schema/tables/${encodeURIComponent(this.dbName)}`,
+      (tables) => {
+        tables.forEach((table) => {
+          const tableName =
+            DB_TYPE === "sqlsrv" ? `${table.schema}.${table.name}` : table.name;
+          $select.append(
+            `<option value="${table.name}" data-schema="${table.schema}">${tableName}</option>`,
+          );
+        });
+      },
+    );
   },
 
   loadIndexes: function () {
@@ -350,6 +417,108 @@ $(function () {
       });
     } catch (e) {
       console.log("Drop index operation canceled.");
+    }
+  });
+
+  // Evento para popular as colunas da tabela de referência quando uma tabela é selecionada
+  $("#new-fk-references-table").on("change", function () {
+    const tableName = $(this).val();
+    const schemaName =
+      $(this).find("option:selected").data("schema") || schemaEditor.schemaName;
+    const $columnsSelect = $("#new-fk-references-columns").empty();
+
+    if (!tableName) return;
+
+    $.get(
+      `${site_url}api/schema/structure/${encodeURIComponent(schemaEditor.dbName)}/${encodeURIComponent(schemaName)}/${encodeURIComponent(tableName)}`,
+    ).done((columns) => {
+      columns.forEach((col) => {
+        $columnsSelect.append(
+          `<option value="${col.name}">${col.name}</option>`,
+        );
+      });
+    });
+  });
+
+  // Manipulador para o formulário de adicionar Chave Estrangeira
+  $("#add-fk-form").on("submit", function (e) {
+    e.preventDefault();
+    const fkName = $("#new-fk-name").val();
+    const columns = $("#new-fk-columns").val();
+    const refTable = $("#new-fk-references-table").val();
+    const refColumns = $("#new-fk-references-columns").val();
+
+    if (!fkName || !columns.length || !refTable || !refColumns.length) {
+      notifier.show("Todos os campos são obrigatórios.", "warning");
+      return;
+    }
+
+    const payload = {
+      database: schemaEditor.dbName,
+      schema: schemaEditor.schemaName,
+      table: schemaEditor.tableName,
+      fk_name: fkName,
+      columns: columns,
+      references_table: refTable,
+      references_columns: refColumns,
+    };
+
+    $.ajax({
+      url: site_url + "api/schema/create_foreign_key",
+      method: "POST",
+      contentType: "application/json",
+      data: JSON.stringify(payload),
+      headers: { [schemaEditor.csrfTokenName]: schemaEditor.csrfTokenValue },
+      success: () => {
+        notifier.show(
+          LANG.fk_created_successfully.replace("{0}", fkName),
+          "success",
+        );
+        schemaEditor.loadConstraints();
+        $("#add-fk-form")[0].reset();
+      },
+      error: (xhr) => {
+        const errorMsg =
+          xhr.responseJSON?.messages?.error || LANG.fk_creation_failed;
+        notifier.show(errorMsg, "error");
+      },
+    });
+  });
+
+  // Manipulador para o botão de apagar Chave Estrangeira
+  $("#schema-editor-modal").on("click", ".drop-fk-btn", async function () {
+    const fkName = $(this).data("fk-name");
+    try {
+      await showConfirmModal(LANG.confirm_drop_fk.replace("{0}", fkName));
+
+      const payload = {
+        database: schemaEditor.dbName,
+        schema: schemaEditor.schemaName,
+        table: schemaEditor.tableName,
+        fk_name: fkName,
+      };
+
+      $.ajax({
+        url: site_url + "api/schema/drop_foreign_key",
+        method: "DELETE",
+        contentType: "application/json",
+        data: JSON.stringify(payload),
+        headers: { [schemaEditor.csrfTokenName]: schemaEditor.csrfTokenValue },
+        success: () => {
+          notifier.show(
+            LANG.fk_dropped_successfully.replace("{0}", fkName),
+            "success",
+          );
+          schemaEditor.loadConstraints();
+        },
+        error: (xhr) => {
+          const errorMsg =
+            xhr.responseJSON?.messages?.error || LANG.fk_drop_failed;
+          notifier.show(errorMsg, "error");
+        },
+      });
+    } catch (e) {
+      console.log("Drop foreign key operation canceled.");
     }
   });
 });

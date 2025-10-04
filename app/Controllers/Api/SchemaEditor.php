@@ -179,4 +179,77 @@ class SchemaEditor extends BaseController
         }
         return $this->fail($result['message']);
     }
+
+    /**
+     * Retrieves a list of all tables for a given database.
+     *
+     * @param string $database The URL-encoded database name.
+     * @return \CodeIgniter\HTTP\ResponseInterface
+     */
+    public function getTables($database)
+    {
+        $tables = $this->model->getAllTables(urldecode($database));
+        return $this->respond($tables);
+    }
+
+    /**
+     * Retrieves all foreign key constraints for a specific table.
+     *
+     * @param string $database The URL-encoded database name.
+     * @param string $schema   The URL-encoded schema name.
+     * @param string $table    The URL-encoded table name.
+     * @return \CodeIgniter\HTTP\ResponseInterface
+     */
+    public function getForeignKeys($database, $schema, $table)
+    {
+        $fks = $this->model->getForeignKeys(urldecode($database), urldecode($schema), urldecode($table));
+        return $this->respond($fks);
+    }
+
+    /**
+     * Handles the API request to create a new foreign key constraint.
+     * Expects a JSON payload with all necessary details for the FK.
+     *
+     * @return \CodeIgniter\HTTP\ResponseInterface
+     */
+    public function createForeignKey()
+    {
+        $data = $this->request->getJSON(true);
+        $result = $this->model->createForeignKey(
+            $data['database'],
+            $data['schema'],
+            $data['table'],
+            $data['fk_name'],
+            $data['columns'],
+            $data['references_table'],
+            $data['references_columns']
+        );
+
+        if ($result['status'] === 'success') {
+            return $this->respondCreated(['message' => 'Foreign key created successfully.']);
+        }
+        return $this->fail($result['message']);
+    }
+
+    /**
+     * Handles the API request to drop a foreign key constraint.
+     * Expects a JSON payload identifying the constraint to be dropped.
+     *
+     * @return \CodeIgniter\HTTP\ResponseInterface
+     */
+    public function dropForeignKey()
+    {
+        $data = $this->request->getJSON(true);
+        $result = $this->model->dropForeignKey(
+            $data['database'],
+            $data['schema'],
+            $data['table'],
+            $data['fk_name']
+        );
+
+        if ($result['status'] === 'success') {
+            return $this->respondDeleted(['message' => 'Foreign key dropped successfully.']);
+        }
+        return $this->fail($result['message']);
+    }
 }

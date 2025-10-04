@@ -1242,4 +1242,84 @@ class SqlServerModel extends BaseDatabaseModel
         }
         return ['status' => 'error', 'message' => sqlsrv_errors()[0]['message']];
     }
+
+    public function getAllTables(string $database): array
+    {
+        if (!$this->hasConnection()) {
+            return [];
+        }
+        $sql = "SELECT TABLE_SCHEMA AS [schema], TABLE_NAME AS [name] FROM [{$database}].INFORMATION_SCHEMA.TABLES ORDER BY TABLE_SCHEMA, TABLE_NAME;";
+        $stmt = sqlsrv_query($this->conn, $sql);
+        $results = [];
+        if ($stmt) {
+            while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+                $results[] = $row;
+            }
+        }
+        return $results;
+    }
+
+    public function getForeignKeys(string $database, string $schema, string $table): array
+    {
+        // Esta query é complexa, mas obtém todos os detalhes necessários sobre as FKs
+        $sql = "
+            SELECT
+                fk.name AS fk_name,
+                tp.name AS parent_table,
+                cp.name AS parent_column,
+                tr.name AS referenced_table,
+                cr.name AS referenced_column
+            FROM [{$database}].sys.foreign_keys AS fk
+            INNER JOIN [{$database}].sys.tables AS tp ON fk.parent_object_id = tp.object_id
+            INNER JOIN [{$database}].sys.tables AS tr ON fk.referenced_object_id = tr.object_id
+            INNER JOIN [{$database}].sys.foreign_key_columns AS fkc ON fkc.constraint_object_id = fk.object_id
+            INNER JOIN [{$database}].sys.columns AS cp ON fkc.parent_column_id = cp.column_id AND fkc.parent_object_id = cp.object_id
+            INNER JOIN [{$database}].sys.columns AS cr ON fkc.referenced_column_id = cr.column_id AND fkc.referenced_object_id = cr.object_id
+            WHERE tp.name = ? AND SCHEMA_NAME(tp.schema_id) = ?
+            ORDER BY fk.name, fkc.constraint_column_id;
+        ";
+        $params = [$table, $schema];
+        $stmt = sqlsrv_query($this->conn, $sql, $params);
+        $fks = [];
+        if ($stmt) {
+            while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+                // Agrupa as colunas por nome da constraint
+                $fks[$row['fk_name']]['columns'][] = $row['parent_column'];
+                $fks[$row['fk_name']]['references_table'] = $row['referenced_table'];
+                $fks[$row['fk_name']]['references_columns'][] = $row['referenced_column'];
+            }
+        }
+        return array_map(function ($key, $value) {
+            return [
+                'fk_name' => $key,
+                'columns' => implode(', ', $value['columns']),
+                'references_table' => $value['references_table'],
+                'references_columns' => implode(', ', $value['references_columns'])
+            ];
+        }, array_keys($fks), $fks);
+    }
+
+    public function createForeignKey(string $database, string $schema, string $table, string $fkName, array $columns, string $refTable, array $refColumns): array
+    {
+        $cols = implode(', ', array_map(fn ($c) => "[{$c}]", $columns));
+        $refCols = implode(', ', array_map(fn ($c) => "[{$c}]", $refColumns));
+        $sql = "ALTER TABLE [{$database}].[{$schema}].[{$table}] ADD CONSTRAINT [{$fkName}] FOREIGN KEY ({$cols}) REFERENCES [{$schema}].[{$refTable}]({$refCols});";
+
+        $stmt = sqlsrv_query($this->conn, $sql);
+        if ($stmt) {
+            return ['status' => 'success'];
+        }
+        return ['status' => 'error', 'message' => sqlsrv_errors()[0]['message'] ?? 'Unknown error'];
+    }
+
+    public function dropForeignKey(string $database, string $schema, string $table, string $fkName): array
+    {
+        $sql = "ALTER TABLE [{$database}].[{$schema}].[{$table}] DROP CONSTRAINT [{$fkName}];";
+
+        $stmt = sqlsrv_query($this->conn, $sql);
+        if ($stmt) {
+            return ['status' => 'success'];
+        }
+        return ['status' => 'error', 'message' => sqlsrv_errors()[0]['message'] ?? 'Unknown error'];
+    }
 }
