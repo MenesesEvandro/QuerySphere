@@ -400,10 +400,12 @@
 <script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
 <script src="<?= base_url('libs/qp/qp.js') ?>"></script>
 
-<script src="<?= base_url('js/export.js') ?>"></script>
 <script src="<?= base_url('js/utility.js') ?>"></script>
+<script src="<?= base_url('js/tabManager.js') ?>"></script>
+<script src="<?= base_url('js/export.js') ?>"></script>
 <script src="<?= base_url('js/dbSelectorHandler.js') ?>"></script>
 <script src="<?= base_url('js/schemaEditor.js') ?>"></script>
 <script src="<?= base_url('js/scriptGenerator.js') ?>"></script>
@@ -419,7 +421,7 @@
 <script src="<?= base_url('js/objectExplorer.js') ?>"></script>
 <script src="<?= base_url('js/jobsHandlers.js') ?>"></script>
 <script src="<?= base_url('js/localEventHandlers.js') ?>"></script>
-<script src="<?= base_url('js/tabManager.js') ?>"></script>
+
 
 
 <script>

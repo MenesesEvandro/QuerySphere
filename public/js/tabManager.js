@@ -27,6 +27,17 @@ const TabManager = {
       this.addTab();
     }
 
+    // Inicializa o SortableJS para reordenar abas
+    const tabList = document.getElementById("editor-tabs");
+    new Sortable(tabList, {
+      animation: 150,
+      filter: "#new-tab-btn-container", // Impede que o botão "+" seja arrastado
+      onEnd: () => {
+        // Salva a nova ordem das abas quando o utilizador termina de arrastar
+        this.saveTabsState();
+      },
+    });
+
     // O timeout dá tempo para que a UI (Split.js, etc.) se processe completamente.
     setTimeout(() => this.getActiveTab()?.editor.refresh(), 100);
 
@@ -55,7 +66,6 @@ const TabManager = {
       this.saveTabsState();
     });
 
-    // Lógica para renomear abas com duplo clique
     // Lógica para renomear abas com duplo clique
     $("#editor-tabs").on("dblclick", ".tab-title", (e) => {
       e.preventDefault();
@@ -118,17 +128,33 @@ const TabManager = {
    * @private
    */
   _saveStateImmediately: function () {
-    if (!Object.keys(this.tabs).length) {
+    const orderedTabIds = [];
+    $("#editor-tabs .nav-item")
+      .not("#new-tab-btn-container")
+      .each(
+        function () {
+          const paneId = $(this).find("a.nav-link").attr("href").substring(1);
+          if (paneId && this.tabs.hasOwnProperty(paneId)) {
+            orderedTabIds.push(paneId);
+          }
+        }.bind(this),
+      );
+
+    if (orderedTabIds.length === 0) {
       localStorage.removeItem("querysphere_tabs_state");
       return;
     }
 
-    const stateToSave = Object.values(this.tabs).map((tab) => ({
-      name: tab.name,
-      sql: tab.editor.getValue(),
-      isDirty: tab.isDirty,
-      history: tab.history,
-    }));
+    const stateToSave = orderedTabIds.map((paneId) => {
+      const tab = this.tabs[paneId];
+      return {
+        name: tab.name,
+        sql: tab.editor.getValue(),
+        isDirty: tab.isDirty,
+        history: tab.history,
+      };
+    });
+
     localStorage.setItem("querysphere_tabs_state", JSON.stringify(stateToSave));
   },
 
