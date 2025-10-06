@@ -1,11 +1,11 @@
 window.confirmModal = {
-  modal: new bootstrap.Modal(document.getElementById("confirmModal")),
-  show: function (message, title = "Confirmation") {
+  modal: new bootstrap.Modal(document.getElementById('confirmModal')),
+  show: function (message, title = 'Confirmation') {
     return new Promise((resolve, reject) => {
-      const modalTitle = document.getElementById("confirmModalLabel");
-      const modalBody = document.getElementById("confirmModalBody");
-      const okBtn = document.getElementById("confirmModalOkBtn");
-      const cancelBtn = document.getElementById("confirmModalCancelBtn");
+      const modalTitle = document.getElementById('confirmModalLabel');
+      const modalBody = document.getElementById('confirmModalBody');
+      const okBtn = document.getElementById('confirmModalOkBtn');
+      const cancelBtn = document.getElementById('confirmModalCancelBtn');
 
       modalTitle.textContent = title;
       modalBody.textContent = message;
@@ -22,12 +22,12 @@ window.confirmModal = {
 
       const cleanup = () => {
         this.modal.hide();
-        okBtn.removeEventListener("click", onOk);
-        cancelBtn.removeEventListener("click", onCancel);
+        okBtn.removeEventListener('click', onOk);
+        cancelBtn.removeEventListener('click', onCancel);
       };
 
-      okBtn.addEventListener("click", onOk, { once: true });
-      cancelBtn.addEventListener("click", onCancel, { once: true });
+      okBtn.addEventListener('click', onOk, { once: true });
+      cancelBtn.addEventListener('click', onCancel, { once: true });
 
       this.modal.show();
     });

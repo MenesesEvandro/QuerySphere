@@ -1,6 +1,6 @@
 window.refreshHistory = function () {
-  $.get(site_url + "api/history/get", (history) => {
-    const $list = $("#query-history-list").empty();
+  $.get(site_url + 'api/history/get', (history) => {
+    const $list = $('#query-history-list').empty();
     if (history?.length) {
       $.each(history, (i, query) => {
         $list.append(`

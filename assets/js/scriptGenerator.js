@@ -22,7 +22,7 @@ window.scriptGenerator = {
   selectTop1000: function (nodeData) {
     const activeTab = this.tabManager.getActiveTab();
     if (!activeTab) {
-      notifier.show("No active editor tab found.", "error");
+      notifier.show('No active editor tab found.', 'error');
       return;
     }
 
@@ -36,10 +36,10 @@ window.scriptGenerator = {
           columns?.length > 0
             ? `\n${columns
                 .map((col) => `    ${this._quoteIdentifier(col)}`)
-                .join(",\n")}\n`
-            : " * ";
+                .join(',\n')}\n`
+            : ' * ';
 
-        if (DB_TYPE === "mysql") {
+        if (DB_TYPE === 'mysql') {
           sql = `SELECT${columnList}FROM ${this._quoteIdentifier(db)}.${this._quoteIdentifier(table)}\nLIMIT 1000;`;
         } else {
           sql = `SELECT TOP 1000${columnList}FROM ${this._quoteIdentifier(db)}.${this._quoteIdentifier(schema)}.${this._quoteIdentifier(table)}`;
@@ -48,11 +48,11 @@ window.scriptGenerator = {
       })
       .fail(() => {
         const tableName =
-          DB_TYPE === "mysql"
+          DB_TYPE === 'mysql'
             ? `${this._quoteIdentifier(db)}.${this._quoteIdentifier(table)}`
             : `${this._quoteIdentifier(db)}.${this._quoteIdentifier(schema)}.${this._quoteIdentifier(table)}`;
         activeTab.editor.setValue(
-          `-- ${LANG.feedback.error_loading_definition}\n\nSELECT * FROM ${tableName} LIMIT 1000;`,
+          `-- ${LANG.feedback.error_loading_definition}\n\nSELECT * FROM ${tableName} LIMIT 1000;`
         );
       });
   },
@@ -72,8 +72,8 @@ window.scriptGenerator = {
       let script = `EXEC ${routineName}\n`;
       if (params?.length > 0 && params[0].id) {
         script += params
-          .map((p) => `    ${p.text.split(" ")[0]} = ?`)
-          .join(",\n");
+          .map((p) => `    ${p.text.split(' ')[0]} = ?`)
+          .join(',\n');
       }
       activeTab.editor.setValue(script);
     });
@@ -90,10 +90,10 @@ window.scriptGenerator = {
     const { db, schema, routine, type, table } = nodeData;
     const objectName = routine || table;
     const objectFullName =
-      DB_TYPE === "mysql" ? `${objectName}` : `${schema}.${objectName}`;
+      DB_TYPE === 'mysql' ? `${objectName}` : `${schema}.${objectName}`;
 
     activeTab.editor.setValue(
-      `-- ${LANG.feedback.loading_definition_for.replace("{0}", objectFullName)}`,
+      `-- ${LANG.feedback.loading_definition_for.replace('{0}', objectFullName)}`
     );
 
     $.get(`${site_url}api/objects/source`, {
@@ -105,17 +105,17 @@ window.scriptGenerator = {
       .done((data) => {
         let script = data.sql;
         if (
-          DB_TYPE !== "mysql" &&
-          script.trim().toUpperCase().startsWith("CREATE")
+          DB_TYPE !== 'mysql' &&
+          script.trim().toUpperCase().startsWith('CREATE')
         ) {
-          script = script.replace(/CREATE/i, "ALTER");
+          script = script.replace(/CREATE/i, 'ALTER');
         }
         activeTab.editor.setValue(script);
       })
       .fail(() =>
         activeTab.editor.setValue(
-          `-- ${LANG.feedback.error_loading_definition}`,
-        ),
+          `-- ${LANG.feedback.error_loading_definition}`
+        )
       );
   },
 
@@ -124,7 +124,7 @@ window.scriptGenerator = {
    * @param {string} identifier - O nome do objeto.
    */
   _quoteIdentifier: function (identifier) {
-    if (!identifier) return "";
-    return DB_TYPE === "mysql" ? `\`${identifier}\`` : `[${identifier}]`;
+    if (!identifier) return '';
+    return DB_TYPE === 'mysql' ? `\`${identifier}\`` : `[${identifier}]`;
   },
 };

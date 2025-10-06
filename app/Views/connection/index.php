@@ -24,7 +24,7 @@
         <div class="alert alert-danger crypto-warning" role="alert">
             <?= lang('App.general.crypto_warning') ?>
         </div>
-        <h2 class="card-title text-center mb-1"><i class="fa fa-database text-primary" aria-hidden="true"></i> QuerySphere</h2>
+        <h2 class="card-title text-center mb-1"><i class="fa-solid fa-database text-primary" aria-hidden="true"></i> QuerySphere</h2>
         <p class="card-subtitle mb-4 text-center text-muted"><?= lang(
             'App.connection.screenTitle',
         ) ?></p>
@@ -55,7 +55,7 @@
                 ) ?>" aria-label="<?= lang(
                     'App.connection.manage_connections',
                 ) ?>">
-                    <i class="fa fa-cog" aria-hidden="true"></i>
+                    <i class="fa-solid fa-cog" aria-hidden="true"></i>
                 </button>
             </div>
             <small id="connection-select-help" class="form-text text-muted"><?= lang(
@@ -152,7 +152,7 @@
             <a href="<?= site_url(
                 'check',
             ) ?>" class="text-decoration-none text-muted" style="font-size: 0.9em;">
-                <i class="fa fa-check-circle me-1" aria-hidden="true"></i> <?= lang(
+                <i class="fa-solid fa-check-circle me-1" aria-hidden="true"></i> <?= lang(
                     'App.server_check.title',
                 ) ?>
             </a>
@@ -162,7 +162,7 @@
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
                             aria-expanded="false">
-                            <i class="fa fa-language"></i>
+                            <i class="fa-solid fa-language"></i>
                         </a>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="<?= site_url(
@@ -471,7 +471,7 @@
                     .data('index', index)
                     .attr('title', LANG.delete)
                     .attr('aria-label', `Delete ${escapeHtml(conn.name)}`)
-                    .html('<i class="fa fa-trash" aria-hidden="true"></i>');
+                    .html('<i class="fa-solid fa-trash" aria-hidden="true"></i>');
                 
                 const $tr = $('<tr>').append(
                     $('<td>').text(conn.name),

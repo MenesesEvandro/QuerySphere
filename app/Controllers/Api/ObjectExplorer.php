@@ -47,7 +47,7 @@ class ObjectExplorer extends BaseController
             $response[] = [
                 'id' => 'db_' . $db['name'],
                 'text' => $db['name'],
-                'icon' => 'fa fa-database',
+                'icon' => 'fa-solid fa-database',
                 'children' => true,
                 'data' => ['type' => 'database'],
             ];
@@ -126,28 +126,28 @@ class ObjectExplorer extends BaseController
                     [
                         'id' => 'folder-tables_' . $dbName,
                         'text' => lang('App.objects_browser.tables'),
-                        'icon' => 'fa fa-folder',
+                        'icon' => 'fa-solid fa-folder',
                         'children' => true,
                         'data' => ['type' => 'folder_tables'],
                     ],
                     [
                         'id' => 'folder-views_' . $dbName,
                         'text' => lang('App.objects_browser.views'),
-                        'icon' => 'fa fa-folder',
+                        'icon' => 'fa-solid fa-folder',
                         'children' => true,
                         'data' => ['type' => 'folder_views'],
                     ],
                     [
                         'id' => 'folder-procs_' . $dbName,
                         'text' => lang('App.objects_browser.stored_procedures'),
-                        'icon' => 'fa fa-folder',
+                        'icon' => 'fa-solid fa-folder',
                         'children' => true,
                         'data' => ['type' => 'folder_procs'],
                     ],
                     [
                         'id' => 'folder-funcs_' . $dbName,
                         'text' => lang('App.objects_browser.functions'),
-                        'icon' => 'fa fa-folder',
+                        'icon' => 'fa-solid fa-folder',
                         'children' => true,
                         'data' => ['type' => 'folder_funcs'],
                     ],
@@ -173,7 +173,7 @@ class ObjectExplorer extends BaseController
                                 esc($item['TABLE_SCHEMA']) .
                                 '.' .
                                 esc($item['TABLE_NAME']),
-                            'icon' => $is_table ? 'fa fa-table' : 'fa fa-eye',
+                            'icon' => $is_table ? 'fa-solid fa-table' : 'fa-solid fa-eye',
                             'children' => $is_table,
                             'data' => [
                                 'type' => $is_table ? 'table' : 'view',
@@ -205,7 +205,7 @@ class ObjectExplorer extends BaseController
                                 esc($item['ROUTINE_SCHEMA']) .
                                 '.' .
                                 esc($item['ROUTINE_NAME']),
-                            'icon' => $is_proc ? 'fa fa-cog' : 'fa fa-cogs',
+                            'icon' => $is_proc ? 'fa-solid fa-cog' : 'fa-solid fa-cogs',
                             'children' => true, // Allows expansion to see parameters
                             'data' => [
                                 'type' => $is_proc ? 'procedure' : 'function',
@@ -239,7 +239,7 @@ class ObjectExplorer extends BaseController
                                 $table .
                                 '.' .
                                 $column['COLUMN_NAME'],
-                            'icon' => 'fa fa-columns',
+                            'icon' => 'fa-solid fa-columns',
                             'children' => false,
                         ];
                     }
@@ -262,7 +262,7 @@ class ObjectExplorer extends BaseController
                                 '<em class="text-muted">' .
                                 lang('App.objects_browser.no_parameters') .
                                 '</em>',
-                            'icon' => 'fa fa-ellipsis-h',
+                            'icon' => 'fa-solid fa-ellipsis-h',
                             'children' => false,
                         ];
                     } else {
@@ -278,7 +278,7 @@ class ObjectExplorer extends BaseController
                                     $dbName .
                                     '.' .
                                     $param['PARAMETER_NAME'],
-                                'icon' => 'fa fa-arrow-right',
+                                'icon' => 'fa-solid fa-arrow-right',
                                 'children' => false,
                             ];
                         }

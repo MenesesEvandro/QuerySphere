@@ -1,5 +1,5 @@
 window.getSavedScripts = function () {
-  return JSON.parse(localStorage.getItem("querysphere_scripts")) || [];
+  return JSON.parse(localStorage.getItem('querysphere_scripts')) || [];
 };
 
 window.formatRunStatus = function (status) {
@@ -16,8 +16,8 @@ window.formatRunStatus = function (status) {
 };
 
 window.formatDuration = function (duration) {
-  if (!duration) return "N/A";
-  const str = duration.toString().padStart(6, "0");
+  if (!duration) return 'N/A';
+  const str = duration.toString().padStart(6, '0');
   return `${str.substring(0, 2)}:${str.substring(2, 4)}:${str.substring(4, 6)}`;
 };
 
@@ -28,33 +28,33 @@ window.formatDuration = function (duration) {
  */
 window.escapeHtml = function (str) {
   return str
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 };
 
 $(async function () {
-  $("#format-sql-btn").on("click", () => {
+  $('#format-sql-btn').on('click', () => {
     const activeTab = TabManager.getActiveTab();
     try {
       activeTab.editor.setValue(
         sqlFormatter.format(activeTab.editor.getValue(), {
-          language: "tsql",
+          language: 'tsql',
           tabWidth: 4,
-          keywordCase: "upper",
-        }),
+          keywordCase: 'upper',
+        })
       );
     } catch (e) {
-      notifier.show(LANG.format_fail, "error");
+      notifier.show(LANG.format_fail, 'error');
     }
   });
 
-  $("#templates-tab").on("click", ".load-template", function (e) {
+  $('#templates-tab').on('click', '.load-template', function (e) {
     e.preventDefault();
-    const categoryKey = $(this).data("category");
-    const filename = $(this).data("filename");
+    const categoryKey = $(this).data('category');
+    const filename = $(this).data('filename');
     const activeTab = TabManager.getActiveTab();
 
     $.get(
@@ -66,12 +66,12 @@ $(async function () {
 
         if (placeholders.length) {
           const objectName = prompt(
-            "Este script requer um nome de objeto (ex: dbo.MinhaTabela):",
+            'Este script requer um nome de objeto (ex: dbo.MinhaTabela):'
           );
           if (objectName) {
             finalSql = finalSql.replace(
               /'NOME_DA_SUA_TABELA'|'schema.NomeDoObjeto'/g,
-              objectName,
+              objectName
             );
           } else {
             return;
@@ -79,7 +79,7 @@ $(async function () {
         }
         activeTab.editor.setValue(finalSql);
         isTemplateQuery = true;
-      },
+      }
     );
   });
 });

@@ -15,7 +15,7 @@
 <div class="container my-5">
     <div class="card shadow-sm">
         <div class="card-header bg-dark text-white">
-            <h3 class="mb-0"><i class="fa fa-server me-2"></i> <?= esc(
+            <h3 class="mb-0"><i class="fa-solid fa-server me-2"></i> <?= esc(
                 $title,
             ) ?></h3>
         </div>
@@ -23,7 +23,7 @@
 
             <?php if ($overall_status === 'success'): ?>
                 <div class="alert alert-success">
-                    <h4><i class="fa fa-check-circle me-2"></i><?= lang(
+                    <h4><i class="fa-solid fa-check-circle me-2"></i><?= lang(
                         'App.server_check.title',
                     ) ?></h4>
                     <p class="mb-0"><?= lang(
@@ -32,7 +32,7 @@
                 </div>
             <?php elseif ($overall_status === 'warning'): ?>
                 <div class="alert alert-warning">
-                    <h4><i class="fa fa-exclamation-triangle me-2"></i><?= lang(
+                    <h4><i class="fa-solid fa-exclamation-triangle me-2"></i><?= lang(
                         'App.server_check.warn_title',
                     ) ?></h4>
                     <p class="mb-0"><?= lang(
@@ -41,7 +41,7 @@
                 </div>
             <?php else: ?>
                 <div class="alert alert-danger">
-                    <h4><i class="fa fa-times-circle me-2"></i><?= lang(
+                    <h4><i class="fa-solid fa-times-circle me-2"></i><?= lang(
                         'App.server_check.fail_title',
                     ) ?></h4>
                     <p class="mb-0"><?= lang(
@@ -100,7 +100,7 @@
             <div class="text-center mt-4">
                 <a href="<?= site_url(
                     '/',
-                ) ?>" class="btn btn-primary"><i class="fa fa-home me-2"></i><?= lang(
+                ) ?>" class="btn btn-primary"><i class="fa-solid fa-home me-2"></i><?= lang(
                     'App.server_check.go_to_app',
                 ) ?></a>
             </div>

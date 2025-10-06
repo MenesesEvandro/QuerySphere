@@ -1,16 +1,16 @@
 window.displayJobHistory = function (jobName) {
-  const $tabContainer = $("#resultsTab");
-  const $contentContainer = $("#resultsTabContent");
-  const tabId = `job-history-tab-${jobName.replace(/\s/g, "-")}`;
-  const paneId = `job-history-pane-${jobName.replace(/\s/g, "-")}`;
+  const $tabContainer = $('#resultsTab');
+  const $contentContainer = $('#resultsTabContent');
+  const tabId = `job-history-tab-${jobName.replace(/\s/g, '-')}`;
+  const paneId = `job-history-pane-${jobName.replace(/\s/g, '-')}`;
 
-  $(`#${tabId}`).closest(".nav-item").remove();
+  $(`#${tabId}`).closest('.nav-item').remove();
   $(`#${paneId}`).remove();
 
   $tabContainer.append(`
             <li class="nav-item dynamic-tab" role="presentation">
                 <button class="nav-link" id="${tabId}" data-bs-toggle="tab" data-bs-target="#${paneId}" type="button" role="tab">
-                    History: ${$("<div>").text(jobName).html()}
+                    History: ${$('<div>').text(jobName).html()}
                 </button>
             </li>
         `);
@@ -33,18 +33,18 @@ window.displayJobHistory = function (jobName) {
       const $container = $(`#${paneId}`).empty();
       if (history?.length) {
         const $table = $(
-          '<table class="table table-sm table-bordered table-striped"></table>',
+          '<table class="table table-sm table-bordered table-striped"></table>'
         )
           .append(
-            `<thead><tr><th>Run Datetime</th><th>Step Name</th><th>Duration</th><th>Outcome</th><th>Message</th></tr></thead>`,
+            `<thead><tr><th>Run Datetime</th><th>Step Name</th><th>Duration</th><th>Outcome</th><th>Message</th></tr></thead>`
           )
-          .append("<tbody></tbody>");
+          .append('<tbody></tbody>');
 
         $.each(history, (i, item) => {
           const runDateTime = item.run_datetime
             ? new Date(item.run_datetime.date).toLocaleString()
-            : "N/A";
-          $table.find("tbody").append(`
+            : 'N/A';
+          $table.find('tbody').append(`
                         <tr>
                             <td>${runDateTime}</td>
                             <td>${item.step_name}</td>
@@ -57,13 +57,13 @@ window.displayJobHistory = function (jobName) {
         $container.append($table);
       } else {
         $container.html(
-          `<p class="text-muted p-2">${LANG.no_history_found}</p>`,
+          `<p class="text-muted p-2">${LANG.no_history_found}</p>`
         );
       }
-    },
+    }
   ).fail(() => {
     $(`#${paneId}`).html(
-      `<p class="text-danger p-2">${LANG.error_retrieving_history}</p>`,
+      `<p class="text-danger p-2">${LANG.error_retrieving_history}</p>`
     );
   });
 };

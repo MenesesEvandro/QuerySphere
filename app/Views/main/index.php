@@ -3,7 +3,7 @@
 <div class="main-content">
     <aside id="object-explorer-panel" class="p-2 d-flex flex-column">
         <div class="input-group input-group-sm mb-2">
-            <span class="input-group-text"><i class="fa fa-search"></i></span>
+            <span class="input-group-text"><i class="fa-solid fa-search"></i></span>
             <input type="text" id="object-search-input" class="form-control"
                 placeholder="<?= lang('App.objects_browser.search') ?>">
         </div>

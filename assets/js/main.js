@@ -13,7 +13,7 @@ window.Split = Split;
 import Sortable from 'sortablejs';
 window.Sortable = Sortable;
 
-import DataTable from 'datatables.net'; 
+import DataTable from 'datatables.net';
 import 'datatables.net-bs5';
 window.DataTable = DataTable;
 
@@ -60,12 +60,12 @@ import './localEventHandlers.js';
 
 // Bloco de inicialização da aplicação
 $(function () {
-  $("#theme-toggle-btn").on("click", () => {
+  $('#theme-toggle-btn').on('click', () => {
     themeManager.applyTheme(
-      $("body").hasClass("light-theme") ? "dark" : "light",
+      $('body').hasClass('light-theme') ? 'dark' : 'light'
     );
   });
-  
+
   // Initial setup
   refreshHistory();
   renderSavedScripts();

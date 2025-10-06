@@ -11,7 +11,7 @@ class Throttler extends BaseConfig
      *
      * @var int
      */
-    public int $maxRequests = env('throttler.maxRequests', 10);
+    public int $maxRequests;
 
     /**
      * The time interval in seconds for the Token Bucket.
@@ -19,4 +19,16 @@ class Throttler extends BaseConfig
      * @var int
      */
     public int $timeInterval = MINUTE;
+
+    /**
+     * Constructor.
+     * Reads the configuration from the .env file.
+     */
+    public function __construct()
+    {
+        parent::__construct(); // Chama o construtor da classe pai
+
+        // Atribui o valor do .env aqui, dentro do método
+        $this->maxRequests = (int) env('throttler.maxRequests', 10);
+    }
 }

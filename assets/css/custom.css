@@ -8,6 +8,7 @@
   --tab-bg-active: var(--bg-color-main);
   --tab-bg: #343a40;
 }
+
 body.light-theme {
   --bg-color-main: #ffffff;
   --bg-color-panel: #f8f9fa;
@@ -18,6 +19,7 @@ body.light-theme {
   --tab-bg-active: var(--bg-color-main);
   --tab-bg: #e9ecef;
 }
+
 body,
 html {
   height: 100vh;
@@ -25,6 +27,7 @@ html {
   overflow: hidden;
   font-size: 0.95rem;
 }
+
 body {
   background-color: var(--bg-color-panel);
   color: var(--text-color-primary);
@@ -169,4 +172,49 @@ body.editor-maximized .main-panel {
 
 body.editor-maximized .query-editor-panel {
   height: 100% !important;
+}
+
+.nav-tabs .nav-item .nav-link {
+  display: flex;
+  align-items: center;
+}
+
+.tab-pin-btn {
+  background: transparent;
+  border: none;
+  color: var(--bs-secondary-text);
+  padding: 0 5px;
+  margin-left: 8px;
+  opacity: 0.6;
+  transition:
+    opacity 0.2s,
+    color 0.2s;
+  border-radius: 4px;
+}
+
+.nav-tabs .nav-link:hover .tab-pin-btn {
+  opacity: 1;
+}
+
+.tab-pin-btn:hover {
+  color: var(--bs-primary);
+  background-color: var(--bs-tertiary-bg);
+}
+
+.nav-item.pinned .tab-pin-btn i {
+  color: var(--bs-primary);
+}
+
+.nav-item.pinned .tab-pin-btn {
+  opacity: 1;
+}
+
+.nav-item.pinned .nav-link {
+  padding-left: 12px;
+  padding-right: 8px;
+}
+
+/* Esconde APENAS o botão de fechar na aba afixada */
+.nav-item.pinned .tab-close-btn {
+  display: none;
 }

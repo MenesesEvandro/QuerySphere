@@ -109,7 +109,7 @@
                                 </tbody>
                             </table>
                             <button type="button" class="btn btn-sm btn-outline-secondary" id="add-column-btn">
-                                <i class="fa fa-plus me-1"></i> <?= lang(
+                                <i class="fa-solid fa-plus me-1"></i> <?= lang(
                                     'App.schema_editor.add_column',
                                 ) ?>
                             </button>
@@ -244,46 +244,46 @@
             <section class="query-editor-panel d-flex flex-column">
                 <div class="p-2 border-bottom d-flex align-items-center flex-wrap">
                     <button class="btn btn-success btn-sm me-2 mb-1 mb-md-0 execute-query-btn">
-                        <i class="fa fa-play me-1"></i> <?= lang('App.workspace.execute') ?> (Ctrl+Enter)
+                        <i class="fa-solid fa-play me-1"></i> <?= lang('App.workspace.execute') ?> (Ctrl+Enter)
                     </button>
                     <button class="btn btn-warning btn-sm me-2 mb-1 mb-md-0 save-changes-btn" style="display: none;">
-                        <i class="fa fa-save me-1"></i> <?= lang('App.workspace.save_changes') ?>
+                        <i class="fa-solid fa-save me-1"></i> <?= lang('App.workspace.save_changes') ?>
                     </button>
                     <button class="btn btn-info btn-sm me-2 mb-1 mb-md-0 explain-query-btn">
-                        <i class="fa fa-sitemap me-1"></i> <?= lang('App.workspace.explain') ?>
+                        <i class="fa-solid fa-sitemap me-1"></i> <?= lang('App.workspace.explain') ?>
                     </button>
                     <button class="btn btn-outline-secondary btn-sm me-3 mb-1 mb-md-0 format-sql-btn"
                         title="<?= lang('App.workspace.formatSQL') ?>">
-                        <i class="fa fa-align-left"></i>
+                        <i class="fa-solid fa-align-left"></i>
                     </button>
                     <button class="btn btn-outline-secondary btn-sm me-2 mb-1 mb-md-0 maximize-editor-btn"
                         title="<?= lang('App.workspace.maxEditor') ?>">
-                        <i class="fa fa-expand"></i>
+                        <i class="fa-solid fa-expand"></i>
                     </button>
                     <div class="btn-group me-3 mb-1 mb-md-0">
                         <button class="btn btn-outline-secondary btn-sm dropdown-toggle tab-history-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="Histórico da Aba">
-                            <i class="fa fa-history"></i>
+                            <i class="fa-solid fa-history"></i>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-dark tab-history-dropdown">
                             </ul>
                     </div>
                     <div class="btn-group me-3 mb-1 mb-md-0">
                         <button class="btn btn-outline-secondary btn-sm export-csv-btn" disabled>
-                            <i class="fa fa-file-csv me-1"></i> <?= lang('App.workspace.exportCSV') ?>
+                            <i class="fa-solid fa-file-csv me-1"></i> <?= lang('App.workspace.exportCSV') ?>
                         </button>
                         <button class="btn btn-outline-secondary btn-sm export-json-btn" disabled>
-                            <i class="fa fa-file-code me-1"></i> <?= lang('App.workspace.exportJSON') ?>
+                            <i class="fa-solid fa-file-code me-1"></i> <?= lang('App.workspace.exportJSON') ?>
                         </button>
                     </div>
                     <button class="btn btn-outline-primary btn-sm mb-1 mb-md-0 show-chart-btn" disabled
                         data-bs-toggle="modal" data-bs-target="#chartModal">
-                        <i class="fa fa-chart-bar me-1"></i> <?= lang('App.charts.title') ?>
+                        <i class="fa-solid fa-chart-bar me-1"></i> <?= lang('App.charts.title') ?>
                     </button>
                     <button class="btn btn-outline-info btn-sm ms-auto mb-1 mb-md-0 save-script-btn">
-                        <i class="fa fa-save me-1"></i> <?= lang('App.scripts.save') ?>
+                        <i class="fa-solid fa-save me-1"></i> <?= lang('App.scripts.save') ?>
                     </button>
                     <button class="btn btn-outline-success btn-sm ms-2 mb-1 mb-md-0 share-script-btn">
-                        <i class="fa fa-users me-1"></i> <?= lang('App.scripts.share') ?>
+                        <i class="fa-solid fa-users me-1"></i> <?= lang('App.scripts.share') ?>
                     </button>
                 </div>
                 <textarea class="query-editor flex-grow-1"></textarea>
@@ -334,8 +334,8 @@
             document.body.classList.toggle("light-theme", isLight);
 
             document.getElementById("theme-toggle-btn").innerHTML = isLight ?
-                '<i class="fa fa-moon-o"></i>' :
-                '<i class="fa fa-sun-o"></i>';
+                '<i class="fa-solid fa-moon"></i>' :
+                '<i class="fa-solid fa-sun"></i>';
 
             localStorage.setItem("querysphere_theme", theme);
 

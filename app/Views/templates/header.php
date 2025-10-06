@@ -18,14 +18,14 @@
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark py-2">
             <div class="container-fluid">
                 <a class="navbar-brand" href="#">
-                    <i class="fa fa-database"></i> QuerySphere
+                    <i class="fa-solid fa-database"></i> QuerySphere
                 </a>
 
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
                             aria-expanded="false">
-                            <i class="fa fa-language"></i>
+                            <i class="fa-solid fa-language"></i>
                         </a>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="<?= site_url(
@@ -43,7 +43,7 @@
 
                 <div class="dropdown me-3">
                     <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fa fa-database me-1"></i>
+                        <i class="fa-solid fa-database me-1"></i>
                         <span id="active-database-name">
                             <?= esc(
                                 $db_database ?: lang('App.general.select'),
@@ -66,7 +66,7 @@
                 <div class="d-flex align-items-center">
                     <button id="theme-toggle-btn" class="btn btn-outline-secondary btn-sm me-3"
                         title="<?= lang('App.general.toggleTheme') ?>">
-                        <i class="fa fa-sun-o"></i> </button>
+                        <i class="fa-solid fa-sun"></i> </button>
 
                     <span class="navbar-text text-white-50 me-3">
                         <?= lang(
@@ -78,7 +78,7 @@
                     <a href="<?= site_url(
                         'logout',
                     ) ?>" class="btn btn-outline-danger btn-sm">
-                        <i class="fa fa-sign-out-alt"></i> <?= lang(
+                        <i class="fa-solid fa-sign-out-alt"></i> <?= lang(
                             'App.connection.disconnect',
                         ) ?>
                     </a>

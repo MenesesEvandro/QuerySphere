@@ -5,44 +5,62 @@ import markdown from "@eslint/markdown";
 import css from "@eslint/css";
 import prettier from "eslint-plugin-prettier";
 import prettierConfig from "eslint-config-prettier";
-import { defineConfig } from "eslint/config";
 
-export default defineConfig([
+export default [
+  // JavaScript, Module, and CommonJS files
   {
     files: ["**/*.{js,mjs,cjs}"],
-    plugins: { js, prettier },
-    extends: ["js/recommended", "plugin:prettier/recommended"],
-    languageOptions: { globals: globals.browser },
+    plugins: { prettier },
+    ...js.configs.recommended,
+    ...prettierConfig,
+    languageOptions: {
+      globals: globals.browser,
+      sourceType: "module", // Default to ES modules for .js, .mjs, .cjs
+    },
   },
-  { files: ["**/*.js"], languageOptions: { sourceType: "commonjs" } },
+  // Override for CommonJS files (if any)
+  {
+    files: ["**/*.cjs"],
+    languageOptions: { sourceType: "commonjs" },
+  },
+  // JSON files
   {
     files: ["**/*.json"],
     plugins: { json },
     language: "json/json",
-    extends: ["json/recommended", "plugin:prettier/recommended"],
+    ...json.configs.recommended,
+    ...prettierConfig,
   },
+  // JSONC files
   {
     files: ["**/*.jsonc"],
     plugins: { json },
     language: "json/jsonc",
-    extends: ["json/recommended", "plugin:prettier/recommended"],
+    ...json.configs.recommended,
+    ...prettierConfig,
   },
+  // JSON5 files
   {
     files: ["**/*.json5"],
     plugins: { json },
     language: "json/json5",
-    extends: ["json/recommended", "plugin:prettier/recommended"],
+    ...json.configs.recommended,
+    ...prettierConfig,
   },
+  // Markdown files
   {
     files: ["**/*.md"],
     plugins: { markdown },
     language: "markdown/gfm",
-    extends: ["markdown/recommended", "plugin:prettier/recommended"],
+    ...markdown.configs.recommended,
+    ...prettierConfig,
   },
+  // CSS files
   {
     files: ["**/*.css"],
     plugins: { css },
     language: "css/css",
-    extends: ["css/recommended", "plugin:prettier/recommended"],
+    ...css.configs.recommended,
+    ...prettierConfig,
   },
-]);
+];

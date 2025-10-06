@@ -1,6 +1,6 @@
 @import '~bootstrap/dist/css/bootstrap.min.css';
 @import '~jstree/dist/themes/default/style.min.css';
-@import '~font-awesome/css/font-awesome.min.css';
+@import '~@fortawesome/fontawesome-free/css/all.min.css';
 @import '~codemirror/lib/codemirror.css';
 @import '~codemirror/theme/material-darker.css';
 @import '~codemirror/addon/hint/show-hint.css';
