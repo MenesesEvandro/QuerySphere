@@ -165,7 +165,6 @@ const TabManager = {
   addTab: function (initialState = { name: null, sql: "", isDirty: false }) {
     this.tabCounter++;
     const paneId = `pane-${this.tabCounter}`;
-    // Usa o nome do estado inicial ou gera um novo
     const tabTitle = initialState.name || `Query ${this.tabCounter}`;
 
     const tabLink = $(`
@@ -183,11 +182,9 @@ const TabManager = {
     newPane.attr("id", paneId).addClass("h-100");
     $("#editor-panes").append(newPane);
 
-    // Passa o estado inicial para a função de inicialização da aba
     this.initTab(paneId, tabTitle, initialState);
 
     new bootstrap.Tab(tabLink.find("a")[0]).show();
-    // A chamada para saveTabsState foi movida para o final de init() para evitar execuções múltiplas ao carregar
   },
 
   /**
@@ -207,8 +204,6 @@ const TabManager = {
       matchBrackets: true,
       autoCloseBrackets: true,
       styleActiveLine: true,
-      matchBrackets: true,
-      autoCloseBrackets: true,
       indentWithTabs: true,
       smartIndent: true,
       extraKeys: {
@@ -223,8 +218,6 @@ const TabManager = {
       hintOptions: { tables: {} },
     });
     editor.setSize("100%", "100%");
-
-    // Define o conteúdo SQL inicial a partir do estado
     editor.setValue(initialState.sql || "");
 
     const split = Split(
@@ -244,7 +237,8 @@ const TabManager = {
       name: tabTitle,
       editor: editor,
       split: split,
-      isDirty: initialState.isDirty || false, // Define o estado 'dirty' inicial
+      isDirty: initialState.isDirty || false,
+      savedSql: initialState.sql || "", // Armazena o estado "limpo"
       history: initialState.history || [],
       lastResultData: null,
       currentSql: "",
@@ -266,13 +260,8 @@ const TabManager = {
     }
 
     editor.on("change", () => {
-      const tab = this.tabs[paneId];
-      if (tab && !tab.isDirty) {
-        tab.isDirty = true;
-        const $tabTitle = $(`#tab-${paneId}-link .tab-title`);
-        $tabTitle.text($tabTitle.text() + " *");
-      }
-      this.saveTabsState(); // Salva o estado a cada alteração
+      this._updateDirtyState(paneId);
+      this.saveTabsState();
     });
 
     this.attachTabEvents(paneId);
@@ -284,10 +273,6 @@ const TabManager = {
    * @param {object} nodeData - Os dados do nó da árvore (tabela).
    */
   openDataViewerTab: function (nodeData) {
-    this.addTab({ name: nodeData.table, sql: "", isDirty: false });
-    const newTabId = this.activeTabId;
-    const tab = this.tabs[newTabId];
-
     let sql;
     const limit = 200;
     const tableName =
@@ -301,9 +286,9 @@ const TabManager = {
       sql = `SELECT TOP ${limit} * FROM ${tableName};`;
     }
 
-    tab.editor.setValue(sql);
+    this.addTab({ name: nodeData.table, sql: sql, isDirty: false });
+    const newTabId = this.activeTabId;
     this.executeQuery(newTabId);
-    this._resetDirtyState(newTabId);
   },
 
   /**
@@ -337,14 +322,14 @@ const TabManager = {
           tabsToRestore.forEach((tabState) => {
             this.addTab(tabState);
           });
-          return true; // Indica que o estado foi carregado
+          return true;
         }
       } catch (e) {
         console.error("Failed to parse saved tab state:", e);
-        localStorage.removeItem("querysphere_tabs_state"); // Limpa estado corrompido
+        localStorage.removeItem("querysphere_tabs_state");
       }
     }
-    return false; // Nenhum estado para carregar
+    return false;
   },
 
   /**
@@ -372,12 +357,15 @@ const TabManager = {
     if (scriptName) {
       try {
         const scripts = getSavedScripts();
-        scripts.unshift({ name: scriptName, sql: sql }); // Adiciona no início da lista
+        scripts.unshift({ name: scriptName, sql: sql });
         localStorage.setItem("querysphere_scripts", JSON.stringify(scripts));
 
-        renderSavedScripts(); // Atualiza a lista de scripts salvos na interface
+        renderSavedScripts();
         notifier.show(`Script '${scriptName}' salvo com sucesso.`, "success");
-        this._resetDirtyState(paneId);
+
+        // Atualiza o estado salvo e o indicador visual
+        tab.savedSql = sql;
+        this._updateDirtyState(paneId);
       } catch (e) {
         notifier.show(LANG.error_saving, "error");
         console.error("Failed to save script:", e);
@@ -391,19 +379,16 @@ const TabManager = {
   shareScript: function (paneId) {
     const tab = this.tabs[paneId];
     if (!tab) return;
-
     const sql = tab.editor.getValue().trim();
     if (!sql) {
       notifier.show(LANG.empty_shared_alert, "warning");
       return;
     }
-
     const scriptName = prompt(
       LANG.prompt_shared_name,
       LANG.shared_default_name,
     );
     if (!scriptName) return;
-
     const authorName = prompt(LANG.prompt_author, LANG.author_default);
     if (!authorName) return;
 
@@ -418,8 +403,11 @@ const TabManager = {
       },
       success: () => {
         notifier.show(LANG.share_success.replace("{0}", scriptName), "success");
-        renderSharedScripts(); // Atualiza a lista de scripts partilhados na interface
-        this._resetDirtyState(paneId);
+        renderSharedScripts();
+
+        // Atualiza o estado salvo e o indicador visual
+        tab.savedSql = sql;
+        this._updateDirtyState(paneId);
       },
       error: () => {
         notifier.show(LANG.share_fail, "error");
@@ -540,6 +528,35 @@ const TabManager = {
         }
       },
     );
+  },
+
+  /**
+   * Atualiza o estado "sujo" (dirty) de uma aba, comparando o conteúdo atual
+   * com o último conteúdo salvo e atualizando a UI (adicionando/removendo '*').
+   * @param {string} paneId - O ID da aba a ser atualizada.
+   * @private
+   */
+  _updateDirtyState: function (paneId) {
+    const tab = this.tabs[paneId];
+    if (!tab) return;
+
+    const currentSql = tab.editor.getValue();
+    const isNowDirty = currentSql !== tab.savedSql;
+
+    // Se o estado não mudou, não faz nada
+    if (isNowDirty === tab.isDirty) {
+      return;
+    }
+
+    tab.isDirty = isNowDirty;
+    const $tabTitle = $(`#tab-${paneId}-link .tab-title`);
+    const currentTitle = $tabTitle.text().replace(" *", "");
+
+    if (isNowDirty) {
+      $tabTitle.text(currentTitle + " *");
+    } else {
+      $tabTitle.text(currentTitle);
+    }
   },
 
   /**
