@@ -70,6 +70,17 @@ class ObjectExplorer extends BaseController
         $objectName = $this->request->getGet('object');
         $type = $this->request->getGet('type'); // Obter o tipo do pedido
 
+        $validationRules = [
+            'db'     => 'required|alpha_numeric_punct',
+            'schema' => 'permit_empty|alpha_numeric_punct',
+            'object' => 'required|alpha_numeric_punct',
+            'type'   => 'required|alpha_numeric_punct',
+        ];
+
+        if (! $this->validate($validationRules)) {
+            return $this->failValidationErrors($this->validator->getErrors());
+        }
+
         if (!$database || !$objectName || !$type) {
             return $this->fail(
                 'Missing required parameters: db, object, type.',

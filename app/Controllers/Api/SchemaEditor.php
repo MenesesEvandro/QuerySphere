@@ -14,10 +14,11 @@ class SchemaEditor extends BaseController
 {
     use ResponseTrait;
 
-    /**
-     * @var \App\Interfaces\DatabaseModelInterface The database model instance.
-     */
+    /** @var \App\Interfaces\DatabaseModelInterface The database model instance. */
     private $model;
+
+    /** Validation rules for common database object identifiers. */
+    private const OBJECT_NAME_RULES = 'required|alpha_numeric_punct';
 
     /**
      * Constructor.
@@ -26,6 +27,21 @@ class SchemaEditor extends BaseController
     public function __construct()
     {
         $this->model = DatabaseModelFactory::create();
+    }
+
+    /**
+     * Validates input data against a given set of rules.
+     *
+     * @param array $rules The validation rules.
+     * @param array $data  The data to validate.
+     * @return bool True if validation passes, false otherwise.
+     */
+    private function _validateInput(array $rules, array $data): bool
+    {
+        if (! $this->validate($rules, $data)) {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -38,11 +54,12 @@ class SchemaEditor extends BaseController
      */
     public function getTableStructure($database, $schema, $table)
     {
-        $structure = $this->model->getTableStructure(
-            urldecode($database),
-            urldecode($schema),
-            urldecode($table),
-        );
+        $data = ['database' => $database, 'schema' => $schema, 'table' => $table];
+        if (! $this->_validateInput(array_fill_keys(array_keys($data), self::OBJECT_NAME_RULES), $data)) {
+            return $this->failValidationErrors($this->validator->getErrors());
+        }
+
+        $structure = $this->model->getTableStructure(urldecode($database), urldecode($schema), urldecode($table));
         if (!empty($structure)) {
             return $this->respond($structure);
         }
@@ -51,26 +68,26 @@ class SchemaEditor extends BaseController
 
     /**
      * Handles the API request to create a new table.
-     * Expects a JSON payload with database, schema, table name, columns, and primary key details.
      *
      * @return \CodeIgniter\HTTP\ResponseInterface
      */
     public function createTable()
     {
         $data = $this->request->getJSON(true);
+        $rules = [
+            'database'       => self::OBJECT_NAME_RULES,
+            'schema'         => self::OBJECT_NAME_RULES,
+            'table'          => self::OBJECT_NAME_RULES,
+            'columns.*.name' => self::OBJECT_NAME_RULES,
+        ];
 
-        $result = $this->model->createTable(
-            $data['database'],
-            $data['schema'],
-            $data['table'],
-            $data['columns'],
-            $data['primaryKeys'] ?? [],
-        );
+        if (! $this->_validateInput($rules, $data)) {
+            return $this->failValidationErrors($this->validator->getErrors());
+        }
 
+        $result = $this->model->createTable($data['database'], $data['schema'], $data['table'], $data['columns'], $data['primaryKeys'] ?? []);
         if ($result['status'] === 'success') {
-            return $this->respondCreated([
-                'message' => 'Table created successfully.',
-            ]);
+            return $this->respondCreated(['message' => 'Table created successfully.']);
         }
         return $this->fail($result['message']);
     }
@@ -83,16 +100,19 @@ class SchemaEditor extends BaseController
     public function dropTable()
     {
         $data = $this->request->getJSON(true);
-        $result = $this->model->dropTable(
-            $data['database'],
-            $data['schema'],
-            $data['table'],
-        );
+        $rules = [
+            'database' => self::OBJECT_NAME_RULES,
+            'schema'   => self::OBJECT_NAME_RULES,
+            'table'    => self::OBJECT_NAME_RULES,
+        ];
 
+        if (! $this->_validateInput($rules, $data)) {
+            return $this->failValidationErrors($this->validator->getErrors());
+        }
+
+        $result = $this->model->dropTable($data['database'], $data['schema'], $data['table']);
         if ($result['status'] === 'success') {
-            return $this->respondDeleted([
-                'message' => 'Table dropped successfully.',
-            ]);
+            return $this->respondDeleted(['message' => 'Table dropped successfully.']);
         }
         return $this->fail($result['message']);
     }
@@ -105,17 +125,20 @@ class SchemaEditor extends BaseController
     public function addColumn()
     {
         $data = $this->request->getJSON(true);
-        $result = $this->model->addColumn(
-            $data['database'],
-            $data['schema'],
-            $data['table'],
-            $data['column'],
-        );
+        $rules = [
+            'database'    => self::OBJECT_NAME_RULES,
+            'schema'      => self::OBJECT_NAME_RULES,
+            'table'       => self::OBJECT_NAME_RULES,
+            'column.name' => self::OBJECT_NAME_RULES,
+        ];
 
+        if (! $this->_validateInput($rules, $data)) {
+            return $this->failValidationErrors($this->validator->getErrors());
+        }
+        
+        $result = $this->model->addColumn($data['database'], $data['schema'], $data['table'], $data['column']);
         if ($result['status'] === 'success') {
-            return $this->respondUpdated([
-                'message' => 'Column added successfully.',
-            ]);
+            return $this->respondUpdated(['message' => 'Column added successfully.']);
         }
         return $this->fail($result['message']);
     }
@@ -130,11 +153,12 @@ class SchemaEditor extends BaseController
      */
     public function getIndexes($database, $schema, $table)
     {
-        $indexes = $this->model->getIndexes(
-            urldecode($database),
-            urldecode($schema),
-            urldecode($table),
-        );
+        $data = ['database' => $database, 'schema' => $schema, 'table' => $table];
+        if (! $this->_validateInput(array_fill_keys(array_keys($data), self::OBJECT_NAME_RULES), $data)) {
+            return $this->failValidationErrors($this->validator->getErrors());
+        }
+        
+        $indexes = $this->model->getIndexes(urldecode($database), urldecode($schema), urldecode($table));
         return $this->respond($indexes);
     }
 
@@ -145,15 +169,18 @@ class SchemaEditor extends BaseController
     public function createIndex()
     {
         $data = $this->request->getJSON(true);
-        $result = $this->model->createIndex(
-            $data['database'],
-            $data['schema'],
-            $data['table'],
-            $data['index_name'],
-            $data['columns'],
-            $data['is_unique']
-        );
+        $rules = [
+            'database'   => self::OBJECT_NAME_RULES,
+            'schema'     => self::OBJECT_NAME_RULES,
+            'table'      => self::OBJECT_NAME_RULES,
+            'index_name' => self::OBJECT_NAME_RULES,
+        ];
 
+        if (! $this->_validateInput($rules, $data)) {
+            return $this->failValidationErrors($this->validator->getErrors());
+        }
+        
+        $result = $this->model->createIndex($data['database'], $data['schema'], $data['table'], $data['index_name'], $data['columns'], $data['is_unique']);
         if ($result['status'] === 'success') {
             return $this->respondCreated(['message' => 'Index created successfully.']);
         }
@@ -167,13 +194,18 @@ class SchemaEditor extends BaseController
     public function dropIndex()
     {
         $data = $this->request->getJSON(true);
-        $result = $this->model->dropIndex(
-            $data['database'],
-            $data['schema'],
-            $data['table'],
-            $data['index_name']
-        );
+        $rules = [
+            'database'   => self::OBJECT_NAME_RULES,
+            'schema'     => self::OBJECT_NAME_RULES,
+            'table'      => self::OBJECT_NAME_RULES,
+            'index_name' => self::OBJECT_NAME_RULES,
+        ];
 
+        if (! $this->_validateInput($rules, $data)) {
+            return $this->failValidationErrors($this->validator->getErrors());
+        }
+
+        $result = $this->model->dropIndex($data['database'], $data['schema'], $data['table'], $data['index_name']);
         if ($result['status'] === 'success') {
             return $this->respondDeleted(['message' => 'Index dropped successfully.']);
         }
@@ -188,6 +220,9 @@ class SchemaEditor extends BaseController
      */
     public function getTables($database)
     {
+        if (! $this->_validateInput(['database' => self::OBJECT_NAME_RULES], ['database' => $database])) {
+            return $this->failValidationErrors($this->validator->getErrors());
+        }
         $tables = $this->model->getAllTables(urldecode($database));
         return $this->respond($tables);
     }
@@ -202,29 +237,36 @@ class SchemaEditor extends BaseController
      */
     public function getForeignKeys($database, $schema, $table)
     {
+        $data = ['database' => $database, 'schema' => $schema, 'table' => $table];
+        if (! $this->_validateInput(array_fill_keys(array_keys($data), self::OBJECT_NAME_RULES), $data)) {
+            return $this->failValidationErrors($this->validator->getErrors());
+        }
+
         $fks = $this->model->getForeignKeys(urldecode($database), urldecode($schema), urldecode($table));
         return $this->respond($fks);
     }
 
     /**
      * Handles the API request to create a new foreign key constraint.
-     * Expects a JSON payload with all necessary details for the FK.
      *
      * @return \CodeIgniter\HTTP\ResponseInterface
      */
     public function createForeignKey()
     {
         $data = $this->request->getJSON(true);
-        $result = $this->model->createForeignKey(
-            $data['database'],
-            $data['schema'],
-            $data['table'],
-            $data['fk_name'],
-            $data['columns'],
-            $data['references_table'],
-            $data['references_columns']
-        );
+        $rules = [
+            'database'         => self::OBJECT_NAME_RULES,
+            'schema'           => self::OBJECT_NAME_RULES,
+            'table'            => self::OBJECT_NAME_RULES,
+            'fk_name'          => self::OBJECT_NAME_RULES,
+            'references_table' => self::OBJECT_NAME_RULES,
+        ];
 
+        if (! $this->_validateInput($rules, $data)) {
+            return $this->failValidationErrors($this->validator->getErrors());
+        }
+
+        $result = $this->model->createForeignKey($data['database'], $data['schema'], $data['table'], $data['fk_name'], $data['columns'], $data['references_table'], $data['references_columns']);
         if ($result['status'] === 'success') {
             return $this->respondCreated(['message' => 'Foreign key created successfully.']);
         }
@@ -233,20 +275,24 @@ class SchemaEditor extends BaseController
 
     /**
      * Handles the API request to drop a foreign key constraint.
-     * Expects a JSON payload identifying the constraint to be dropped.
      *
      * @return \CodeIgniter\HTTP\ResponseInterface
      */
     public function dropForeignKey()
     {
         $data = $this->request->getJSON(true);
-        $result = $this->model->dropForeignKey(
-            $data['database'],
-            $data['schema'],
-            $data['table'],
-            $data['fk_name']
-        );
+        $rules = [
+            'database' => self::OBJECT_NAME_RULES,
+            'schema'   => self::OBJECT_NAME_RULES,
+            'table'    => self::OBJECT_NAME_RULES,
+            'fk_name'  => self::OBJECT_NAME_RULES,
+        ];
 
+        if (! $this->_validateInput($rules, $data)) {
+            return $this->failValidationErrors($this->validator->getErrors());
+        }
+
+        $result = $this->model->dropForeignKey($data['database'], $data['schema'], $data['table'], $data['fk_name']);
         if ($result['status'] === 'success') {
             return $this->respondDeleted(['message' => 'Foreign key dropped successfully.']);
         }
