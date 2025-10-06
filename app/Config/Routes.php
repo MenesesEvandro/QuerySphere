@@ -8,7 +8,7 @@ use CodeIgniter\Router\RouteCollection;
  */
 // --- ROTAS PÚBLICAS --- //
 $routes->get('/', 'Connection::index');
-$routes->post('connect', 'Connection::connect');
+$routes->post('connect', 'Connection::connect', ['filter' => 'throttle']);
 $routes->get('logout', 'Connection::logout');
 $routes->get('lang/(:any)', 'Language::set/$1');
 $routes->get('check', 'ServerCheck::index');

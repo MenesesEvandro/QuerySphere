@@ -12,6 +12,7 @@ use CodeIgniter\Filters\InvalidChars;
 use CodeIgniter\Filters\PageCache;
 use CodeIgniter\Filters\PerformanceMetrics;
 use CodeIgniter\Filters\SecureHeaders;
+use CodeIgniter\Filters\Throttler;
 
 class Filters extends BaseFilters
 {
@@ -36,6 +37,7 @@ class Filters extends BaseFilters
         'performance'   => PerformanceMetrics::class,
         'locale'        => \App\Filters\LocaleFilter::class,
         'auth'          => \App\Filters\AuthFilter::class,
+        'throttle'      => Throttler::class,
     ];
 
     /**
