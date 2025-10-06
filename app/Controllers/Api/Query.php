@@ -6,6 +6,7 @@ use App\Controllers\BaseController;
 use CodeIgniter\API\ResponseTrait;
 use App\Factories\DatabaseModelFactory;
 use App\Libraries\QueryLogger;
+use App\Libraries\AuditLogger;
 
 /**
  * Controller responsible for executing SQL queries and explaining execution plans via the API.
@@ -41,6 +42,32 @@ class Query extends BaseController
     }
 
     /**
+     * Checks for and logs critical operations before execution.
+     *
+     * @param string $sql The SQL query to inspect.
+     */
+    private function auditCriticalQuery(string $sql): void
+    {
+        if (filter_var(env('AUDIT_LOGGING'), FILTER_VALIDATE_BOOLEAN) !== true) {
+            return;
+        }
+
+        $keywords = env('AUDIT_KEYWORDS', 'DROP,TRUNCATE,ALTER,DELETE');
+        $keywords = array_map('trim', explode(',', $keywords));
+
+        if (empty($keywords)) {
+            return;
+        }
+
+        $pattern = '/\\b(' . implode('|', $keywords) . ')\\b/i';
+
+        if (preg_match($pattern, $sql)) {
+            $auditLogger = new AuditLogger();
+            $auditLogger->logQuery($sql);
+        }
+    }
+
+    /**
      * Executes an SQL query sent via POST and returns the result.
      *
      * This method retrieves the SQL and an optional page number from the request.
@@ -62,6 +89,9 @@ class Query extends BaseController
         if (empty(trim($sql))) {
             return $this->fail(lang('App.feedback.empty_query'), 400);
         }
+
+        // Log critical query attempt before execution
+        $this->auditCriticalQuery($sql);
 
         $result = $this->model->executeQuery(
             $sql,

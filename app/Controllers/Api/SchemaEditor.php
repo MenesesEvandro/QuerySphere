@@ -135,7 +135,7 @@ class SchemaEditor extends BaseController
         if (! $this->_validateInput($rules, $data)) {
             return $this->failValidationErrors($this->validator->getErrors());
         }
-        
+
         $result = $this->model->addColumn($data['database'], $data['schema'], $data['table'], $data['column']);
         if ($result['status'] === 'success') {
             return $this->respondUpdated(['message' => 'Column added successfully.']);
@@ -157,7 +157,7 @@ class SchemaEditor extends BaseController
         if (! $this->_validateInput(array_fill_keys(array_keys($data), self::OBJECT_NAME_RULES), $data)) {
             return $this->failValidationErrors($this->validator->getErrors());
         }
-        
+
         $indexes = $this->model->getIndexes(urldecode($database), urldecode($schema), urldecode($table));
         return $this->respond($indexes);
     }
@@ -179,7 +179,7 @@ class SchemaEditor extends BaseController
         if (! $this->_validateInput($rules, $data)) {
             return $this->failValidationErrors($this->validator->getErrors());
         }
-        
+
         $result = $this->model->createIndex($data['database'], $data['schema'], $data['table'], $data['index_name'], $data['columns'], $data['is_unique']);
         if ($result['status'] === 'success') {
             return $this->respondCreated(['message' => 'Index created successfully.']);
