@@ -1,4 +1,4 @@
-function renderAgentJobs() {
+window.renderAgentJobs = function () {
   const $container = $("#agent-jobs-container").html(
     `<div class="text-center p-3"><div class="spinner-border" role="status"><span class="visually-hidden">${LANG.loading}</span></div></div>`,
   );
@@ -53,4 +53,4 @@ function renderAgentJobs() {
       $container.html(`<p class="text-muted p-2">${LANG.no_jobs_found}</p>`);
     }
   });
-}
+};

@@ -1,8 +1,8 @@
-function getSavedScripts() {
+window.getSavedScripts = function () {
   return JSON.parse(localStorage.getItem("querysphere_scripts")) || [];
-}
+};
 
-function formatRunStatus(status) {
+window.formatRunStatus = function (status) {
   const statusMap = {
     0: `<span class="badge bg-danger">${LANG.failed}</span>`,
     1: `<span class="badge bg-success">${LANG.success}</span>`,
@@ -13,27 +13,27 @@ function formatRunStatus(status) {
     statusMap[status] ||
     `<span class="badge bg-secondary">${LANG.unknown}</span>`
   );
-}
+};
 
-function formatDuration(duration) {
+window.formatDuration = function (duration) {
   if (!duration) return "N/A";
   const str = duration.toString().padStart(6, "0");
   return `${str.substring(0, 2)}:${str.substring(2, 4)}:${str.substring(4, 6)}`;
-}
+};
 
 /**
  * Escapa caracteres HTML para evitar XSS.
  *
  * @param {string} str - A string a ser escapada.
  */
-function escapeHtml(str) {
+window.escapeHtml = function (str) {
   return str
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
-}
+};
 
 $(async function () {
   $("#format-sql-btn").on("click", () => {

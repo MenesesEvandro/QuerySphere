@@ -1,7 +1,7 @@
 const csrfTokenName = window.csrfTokenName;
 const csrfTokenValue = window.csrfTokenValue;
 
-function renderSharedScripts() {
+window.renderSharedScripts = function () {
   const $list = $("#shared-scripts-list").html(
     `<li class="list-group-item text-muted">${LANG.loading}</li>`,
   );
@@ -30,7 +30,7 @@ function renderSharedScripts() {
       );
     }
   });
-}
+};
 
 $(async function () {
   $("#shared-scripts-list").on("click", ".load-shared-script", function () {

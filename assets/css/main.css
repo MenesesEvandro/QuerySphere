@@ -1,0 +1,11 @@
+@import '~bootstrap/dist/css/bootstrap.min.css';
+@import '~jstree/dist/themes/default/style.min.css';
+@import '~font-awesome/css/font-awesome.min.css';
+@import '~codemirror/lib/codemirror.css';
+@import '~codemirror/theme/material-darker.css';
+@import '~codemirror/addon/hint/show-hint.css';
+@import '~codemirror/addon/dialog/dialog.css';
+@import '~codemirror/addon/search/matchesonscrollbar.css';
+@import '~datatables.net-bs5/css/dataTables.bootstrap5.min.css';
+@import '../../public/libs/qp/qp.css';
+@import './custom.css';

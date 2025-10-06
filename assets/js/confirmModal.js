@@ -1,4 +1,4 @@
-const confirmModal = {
+window.confirmModal = {
   modal: new bootstrap.Modal(document.getElementById("confirmModal")),
   show: function (message, title = "Confirmation") {
     return new Promise((resolve, reject) => {

@@ -4,7 +4,7 @@
  * Este módulo é responsável por toda a gestão das abas do editor,
  * incluindo a criação, exclusão e gestão de estado de cada aba (editor, resultados, etc.).
  */
-const TabManager = {
+window.TabManager = {
   tabCounter: 0,
   activeTabId: null,
   tabs: {},

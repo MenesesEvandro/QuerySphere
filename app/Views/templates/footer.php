@@ -334,8 +334,8 @@
             document.body.classList.toggle("light-theme", isLight);
 
             document.getElementById("theme-toggle-btn").innerHTML = isLight ?
-                '<i class="fa fa-moon"></i>' :
-                '<i class="fa fa-sun"></i>';
+                '<i class="fa fa-moon-o"></i>' :
+                '<i class="fa fa-sun-o"></i>';
 
             localStorage.setItem("querysphere_theme", theme);
 
@@ -376,53 +376,7 @@
     <?= view('templates/scripts/lang') ?>
 </script>
 
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/jstree.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/sql/sql.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/hint/show-hint.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/hint/sql-hint.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/dialog/dialog.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/search/searchcursor.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/search/search.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/scroll/annotatescrollbar.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/search/matchesonscrollbar.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/search/jump-to-line.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/selection/active-line.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sql-formatter@15.3.1/dist/sql-formatter.min.js"></script>
-<script src="https://unpkg.com/split.js/dist/split.min.js"></script>
-<script src="https://cdn.datatables.net/2.0.8/js/dataTables.min.js"></script>
-<script src="https://cdn.datatables.net/2.0.8/js/dataTables.bootstrap5.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
-<script src="<?= base_url('libs/qp/qp.js') ?>"></script>
-
-<script src="<?= base_url('js/utility.js') ?>"></script>
-<script src="<?= base_url('js/tabManager.js') ?>"></script>
-<script src="<?= base_url('js/export.js') ?>"></script>
-<script src="<?= base_url('js/dbSelectorHandler.js') ?>"></script>
-<script src="<?= base_url('js/schemaEditor.js') ?>"></script>
-<script src="<?= base_url('js/scriptGenerator.js') ?>"></script>
-<script src="<?= base_url('js/notifier.js') ?>"></script>
-<script src="<?= base_url('js/confirmModal.js') ?>"></script>
-<script src="<?= base_url('js/renderAgentJobs.js') ?>"></script>
-<script src="<?= base_url('js/displayJobHistory.js') ?>"></script>
-<script src="<?= base_url('js/renderMySqlEvents.js') ?>"></script>
-<script src="<?= base_url('js/renderSavedScripts.js') ?>"></script>
-<script src="<?= base_url('js/refreshHistory.js') ?>"></script>
-<script src="<?= base_url('js/renderSharedScripts.js') ?>"></script>
-<script src="<?= base_url('js/renderQueryTemplates.js') ?>"></script>
-<script src="<?= base_url('js/objectExplorer.js') ?>"></script>
-<script src="<?= base_url('js/jobsHandlers.js') ?>"></script>
-<script src="<?= base_url('js/localEventHandlers.js') ?>"></script>
-
-
+<script src="<?= base_url('dist/bundle.js') ?>"></script>
 
 <script>
 const DB_TYPE = '<?= $db_type ?? '' ?>';
@@ -431,23 +385,6 @@ var resultsDataTable = null;
 const site_url = '<?= site_url('/') ?>';
 window.csrfTokenName = '<?= csrf_token() ?>';
 window.csrfTokenValue = '<?= csrf_hash() ?>';
-
-$(async function () {
-  $("#theme-toggle-btn").on("click", () => {
-    themeManager.applyTheme(
-      $("body").hasClass("light-theme") ? "dark" : "light",
-    );
-  });
-  // Initial setup
-  refreshHistory();
-  renderSavedScripts();
-  renderQueryTemplates();
-  renderSharedScripts();
-  TabManager.init();
-  scriptGenerator.init(TabManager);
-  if (DB_TYPE === 'sqlsrv') renderAgentJobs();
-  if (DB_TYPE === 'mysql') renderMySqlEvents();
-});
 </script>
 
 </body>

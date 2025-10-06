@@ -1,4 +1,4 @@
-const schemaEditor = {
+window.schemaEditor = {
   modal: new bootstrap.Modal(document.getElementById("schema-editor-modal")),
   mode: "create",
   dbName: null,

@@ -1,4 +1,4 @@
-function renderSavedScripts() {
+window.renderSavedScripts = function () {
   const scripts = getSavedScripts();
   const $list = $("#saved-scripts-list").empty();
   if (scripts?.length) {
@@ -19,4 +19,4 @@ function renderSavedScripts() {
       '<li class="list-group-item text-muted">Nenhum script salvo.</li>',
     );
   }
-}
+};

@@ -6,18 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QuerySphere</title>
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.12/themes/default/style.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/hint/show-hint.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/dialog/dialog.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/search/matchesonscrollbar.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/2.0.8/css/dataTables.bootstrap5.min.css">
-    <link href="<?= base_url('libs/qp/qp.css') ?>" rel="stylesheet">
-
-    <link href="<?= base_url('css/custom.css') ?>" rel="stylesheet">
+    <link href="<?= base_url('dist/bundle.css') ?>" rel="stylesheet">
 
    <style>
         
@@ -77,7 +66,7 @@
                 <div class="d-flex align-items-center">
                     <button id="theme-toggle-btn" class="btn btn-outline-secondary btn-sm me-3"
                         title="<?= lang('App.general.toggleTheme') ?>">
-                        <i class="fa fa-sun"></i> </button>
+                        <i class="fa fa-sun-o"></i> </button>
 
                     <span class="navbar-text text-white-50 me-3">
                         <?= lang(

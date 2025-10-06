@@ -1,4 +1,4 @@
-function displayJobHistory(jobName) {
+window.displayJobHistory = function (jobName) {
   const $tabContainer = $("#resultsTab");
   const $contentContainer = $("#resultsTabContent");
   const tabId = `job-history-tab-${jobName.replace(/\s/g, "-")}`;
@@ -66,4 +66,4 @@ function displayJobHistory(jobName) {
       `<p class="text-danger p-2">${LANG.error_retrieving_history}</p>`,
     );
   });
-}
+};

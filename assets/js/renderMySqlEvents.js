@@ -1,4 +1,4 @@
-function renderMySqlEvents() {
+window.renderMySqlEvents = function () {
   const $container = $("#mysql-events-container").html(
     `<div class="text-center p-3"><div class="spinner-border" role="status"><span class="visually-hidden">${LANG.loading}</span></div></div>`,
   );
@@ -48,7 +48,7 @@ function renderMySqlEvents() {
       $container.html(`<p class="text-muted p-2">${LANG.no_events_found}</p>`);
     }
   });
-}
+};
 
 $(async function () {
   $("body").on("click", ".toggle-event-status", function () {

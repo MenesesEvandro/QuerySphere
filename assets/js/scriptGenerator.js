@@ -4,7 +4,7 @@
  * Este módulo é responsável por gerar scripts SQL dinâmicos
  * com base no tipo de SGBD e nas ações do usuário no menu de contexto.
  */
-const scriptGenerator = {
+window.scriptGenerator = {
   tabManager: null, // A instância do TabManager injetada aqui.
 
   /**

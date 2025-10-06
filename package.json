@@ -8,12 +8,13 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "lint-js": "eslint public/js/**/*.js --fix",
-    "lint-css": "eslint public/css/**/*.css --fix",
+    "lint-js": "eslint assets/js/**/*.js --fix",
+    "lint-css": "eslint assets/css/**/*.css --fix",
     "lint-all": "npm run lint-js && npm run lint-css",
-    "pretty-js": "npx prettier public/js/**/*.js --write",
-    "pretty-css": "npx prettier public/css/**/*.css --write",
-    "pretty-all": "npm run pretty-js && npm run pretty-css"
+    "pretty-js": "npx prettier assets/js/**/*.js --write",
+    "pretty-css": "npx prettier assets/css/**/*.css --write",
+    "pretty-all": "npm run pretty-js && npm run pretty-css",
+    "build": "webpack --mode=production"
   },
   "repository": {
     "type": "git",
@@ -22,20 +23,42 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
   "bugs": {
     "url": "https://github.com/MenesesEvandro/QuerySphere/issues"
   },
   "homepage": "https://github.com/MenesesEvandro/QuerySphere#readme",
   "devDependencies": {
+    "@babel/core": "^7.24.7",
+    "@babel/preset-env": "^7.24.7",
     "@eslint/css": "^0.11.0",
     "@eslint/js": "^9.35.0",
     "@eslint/json": "^0.13.2",
     "@eslint/markdown": "^7.2.0",
+    "babel-loader": "^9.1.3",
+    "bootstrap": "^5.3.8",
+    "chart.js": "^4.5.0",
+    "codemirror": "^5.65.20",
+    "crypto-js": "^4.2.0",
+    "css-loader": "^7.1.2",
+    "datatables.net-bs5": "^2.3.4",
     "eslint": "^9.35.0",
+    "font-awesome": "^4.7.0",
     "globals": "^16.4.0",
+    "jquery": "^3.7.1",
+    "jstree": "^3.3.17",
+    "mini-css-extract-plugin": "^2.9.0",
     "prettier": "^3.6.2",
+    "sortablejs": "^1.15.6",
+    "split.js": "^1.6.5",
+    "sql-formatter": "^15.6.10",
+    "style-loader": "^4.0.0",
     "stylelint": "^16.24.0",
-    "stylelint-config-standard": "^39.0.0"
+    "stylelint-config-standard": "^39.0.0",
+    "terser-webpack-plugin": "^5.3.10",
+    "webpack": "^5.93.0",
+    "webpack-cli": "^5.1.4"
+  },
+  "dependencies": {
+    "@popperjs/core": "^2.11.8"
   }
 }

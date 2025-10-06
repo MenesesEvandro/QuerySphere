@@ -1,4 +1,4 @@
-const notifier = {
+window.notifier = {
   toastContainer: $(".toast-container"),
   show: function (message, type = "info", delay = 5000) {
     const iconMap = {

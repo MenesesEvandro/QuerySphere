@@ -1,4 +1,4 @@
-function renderQueryTemplates() {
+window.renderQueryTemplates = function () {
   const $accordion = $("#query-templates-accordion").html(
     `<div class="p-2 text-muted">${LANG.loading}</div>`,
   );
@@ -36,4 +36,4 @@ function renderQueryTemplates() {
       $accordion.html(`<div class="p-2 text-muted">${LANG.no_templates}</div>`);
     }
   });
-}
+};

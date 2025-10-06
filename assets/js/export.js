@@ -4,7 +4,7 @@
  * @param {string[]} headers - Um array com os nomes das colunas.
  * @param {object[]} data - Um array de objetos, onde cada objeto é uma linha.
  */
-function exportToCsv(filename, headers, data) {
+window.exportToCsv = function (filename, headers, data) {
   const csvRows = [headers.join(",")]; // Cabeçalho
 
   // Adiciona as linhas
@@ -28,14 +28,14 @@ function exportToCsv(filename, headers, data) {
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
-}
+};
 
 /**
  * Gera e baixa um arquivo JSON a partir dos dados fornecidos.
  * @param {string} filename - O nome do arquivo a ser baixado.
  * @param {object[]} data - Um array de objetos.
  */
-function exportToJson(filename, data) {
+window.exportToJson = function (filename, data) {
   const jsonString = JSON.stringify(data, null, 2);
   const blob = new Blob([jsonString], {
     type: "application/json;charset=utf-8;",
@@ -49,4 +49,4 @@ function exportToJson(filename, data) {
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
-}
+};

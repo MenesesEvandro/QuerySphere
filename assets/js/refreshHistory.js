@@ -1,4 +1,4 @@
-function refreshHistory() {
+window.refreshHistory = function () {
   $.get(site_url + "api/history/get", (history) => {
     const $list = $("#query-history-list").empty();
     if (history?.length) {
@@ -14,4 +14,4 @@ function refreshHistory() {
       });
     }
   });
-}
+};

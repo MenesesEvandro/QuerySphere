@@ -137,5 +137,8 @@ _modules/*
 /results/
 /phpunit*.xml
 
+# Build Artifacts
+public/dist/
+
 # ToDo Files
 *.todo
