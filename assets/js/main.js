@@ -38,7 +38,10 @@ import 'sql-formatter';
 import 'crypto-js';
 import '../../public/libs/qp/qp.js';
 
-// Agora importe os scripts da sua aplicação
+// scripts da aplicação (atualizados)
+import SessionTimeout from './sessionTimeout.js';
+
+// scripts da sua aplicação (ainda para atualizar)
 import './notifier.js';
 import './confirmModal.js';
 import './utility.js';
@@ -75,4 +78,5 @@ $(function () {
   scriptGenerator.init(TabManager);
   if (DB_TYPE === 'sqlsrv') renderAgentJobs();
   if (DB_TYPE === 'mysql') renderMySqlEvents();
+  SessionTimeout.init(window.sessionTimeoutConfig);
 });

@@ -9,7 +9,8 @@ use CodeIgniter\Router\RouteCollection;
 // --- ROTAS PÚBLICAS --- //
 $routes->get('/', 'Connection::index');
 $routes->post('connect', 'Connection::connect', ['filter' => 'throttle']);
-$routes->get('logout', 'Connection::logout');
+$routes->get('logout', 'Connection::logout'); // Rota sem parâmetro
+$routes->get('logout/(:segment)', 'Connection::logout/$1'); // Rota com parâmetro
 $routes->get('lang/(:any)', 'Language::set/$1');
 $routes->get('check', 'ServerCheck::index');
 

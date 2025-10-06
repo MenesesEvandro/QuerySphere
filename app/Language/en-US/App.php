@@ -40,6 +40,11 @@ return [
         'crypto_warning' =>
             'Error: This browser does not support the Web Crypto API. Please use a modern browser.',
         'confirmation' => 'Confirmation',
+        'session_expired_title' => 'Session About to Expire',
+        'session_expired_message' => 'Your session will be terminated due to inactivity.',
+        'session_countdown_message' => 'You will be disconnected in {0} seconds.',
+        'session_stay_connected' => 'Stay Connected',
+        'session_logged_out_inactivity' => 'Disconnected due to inactivity.',
     ],
 
     //--------------------------------------------------------------------

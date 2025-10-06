@@ -238,6 +238,23 @@
     </div>
 </div>
 
+<div class="modal fade" id="sessionTimeoutModal" tabindex="-1" aria-labelledby="sessionTimeoutModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="sessionTimeoutModalLabel"></h5>
+            </div>
+            <div class="modal-body">
+                <p id="sessionTimeoutModalBody"></p>
+                <p id="sessionTimeoutCountdown"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="stayLoggedInBtn"></button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <template id="editor-tab-template">
     <div class="tab-pane fade" role="tabpanel">
         <div class="d-flex flex-column h-100">
@@ -385,6 +402,19 @@ var resultsDataTable = null;
 const site_url = '<?= site_url('/') ?>';
 window.csrfTokenName = '<?= csrf_token() ?>';
 window.csrfTokenValue = '<?= csrf_hash() ?>';
+
+window.sessionTimeoutConfig = {
+    enabled: <?= json_encode(filter_var(env('SESSION_TIMEOUT_ENABLED', false), FILTER_VALIDATE_BOOLEAN)) ?>,
+    timeoutMinutes: <?= (int) env('SESSION_TIMEOUT_MINUTES', 15) ?>,
+    warningSeconds: <?= (int) env('SESSION_TIMEOUT_WARNING_SECONDS', 30) ?>,
+    logoutUrl: '<?= site_url('logout') ?>',
+    lang: {
+            title: '<?= lang('App.general.session_expired_title') ?>',
+            message: '<?= lang('App.general.session_expired_message') ?>',
+            countdown: '<?= lang('App.general.session_countdown_message') ?>',
+            stayConnected: '<?= lang('App.general.session_stay_connected') ?>'
+        }
+};
 </script>
 
 </body>

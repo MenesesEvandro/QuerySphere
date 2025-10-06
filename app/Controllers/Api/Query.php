@@ -87,7 +87,7 @@ class Query extends BaseController
             $this->request->getPost('disable_pagination') ?? false;
 
         if (empty(trim($sql))) {
-            return $this->fail(lang('App.feedback.empty_query'), 400);
+            return $this->fail(lang('App.feedback.query_empty'), 400);
         }
 
         // Log critical query attempt before execution

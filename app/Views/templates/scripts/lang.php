@@ -1,4 +1,4 @@
-const LANG = {
+window.LANG = {
       <?php
       // Carrega o arquivo de linguagem manualmente
       $languageFile =
@@ -49,3 +49,4 @@ const LANG = {
       echo "\n";
       ?>
     };
+

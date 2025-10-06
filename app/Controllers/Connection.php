@@ -15,16 +15,21 @@ use App\Libraries\ConnectionManager;
 class Connection extends BaseController
 {
     /**
-     * Displays the connection screen and cleans up any previous connection data from the session.
+     * If the user is already connected, redirects to the main page.
+     * Otherwise, it displays the connection screen and cleans up any previous connection data from the session.
      *
      * Instead of destroying the entire session (which would clear language preferences),
      * it surgically removes only the keys related to an active database connection,
      * ensuring a clean state for a new login attempt.
      *
-     * @return string Returns the rendered connection view.
+     * @return string|\CodeIgniter\HTTP\RedirectResponse
      */
     public function index()
     {
+        if (session()->get('is_connected')) {
+            return redirect()->to('main');
+        }
+
         // Surgically remove connection-specific keys, preserving language preference.
         session()->remove([
             'is_connected',
@@ -36,8 +41,10 @@ class Connection extends BaseController
             'last_successful_query',
             'query_history',
         ]);
+        
+        $data['logout_message'] = session()->getFlashdata('logout_message');
 
-        return view('connection/index');
+        return view('connection/index', $data);
     }
 
     /**
@@ -98,18 +105,34 @@ class Connection extends BaseController
     }
 
     /**
-     * Logs the user out by destroying their entire session.
+     * Logs the user out by removing connection-specific session data.
      *
-     * This action completely clears all session data and redirects the user
-     * back to the initial connection screen.
+     * This action preserves user preferences like language while ensuring
+     * the connection is terminated. It then redirects the user to the
+     * initial connection screen.
      *
+     * @param string|null $reason Optional reason for logout (e.g., 'inactivity').
      * @return \CodeIgniter\HTTP\RedirectResponse
      */
-    public function logout()
+    public function logout($reason = null)
     {
-        session()->destroy();
-        return redirect()
-            ->to('/')
-            ->with('success', lang('App.feedback.logout_success'));
+        session()->remove([
+            'is_connected',
+            'db_type',
+            'db_host',
+            'db_database',
+            'db_user',
+            'db_password',
+            'last_successful_query',
+            'query_history',
+        ]);
+
+        if ($reason === 'inactivity') {
+            session()->setFlashdata('logout_message', lang('App.general.session_logged_out_inactivity'));
+        } else {
+            session()->setFlashdata('logout_message', lang('App.feedback.logout_success'));
+        }
+
+        return redirect()->to('/');
     }
 }

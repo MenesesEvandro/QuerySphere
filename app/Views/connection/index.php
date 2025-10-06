@@ -39,7 +39,11 @@
                 'success',
             ) ?></div>
         <?php endif; ?>
-
+        <?php if (session()->getFlashdata('logout_message')): ?>
+            <div class="alert alert-warning" role="alert"><?= session()->getFlashdata(
+                'logout_message',
+            ) ?></div>
+        <?php endif; ?>
         <div class="mb-3">
             <label for="connection-select" class="form-label"><?= lang(
                 'App.connection.saved_connections',
