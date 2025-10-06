@@ -111,6 +111,35 @@ const TabManager = {
         }
       });
     });
+
+    // Adiciona o listener global para atalhos de teclado
+    $(document).on("keydown", (e) => {
+      // Usa e.metaKey para a tecla Command no Mac
+      if (e.ctrlKey || e.metaKey) {
+        if (e.shiftKey) {
+          switch (e.key.toLowerCase()) {
+            case "t": // Nova Aba
+              e.preventDefault();
+              this.addTab();
+              break;
+            case "n": // Próxima Aba
+              e.preventDefault();
+              this.nextTab();
+              break;
+            case "p": // Aba Anterior
+              e.preventDefault();
+              this.previousTab();
+              break;
+            case "q": // Fechar Aba
+              e.preventDefault();
+              if (this.activeTabId) {
+                this.closeTab(this.activeTabId);
+              }
+              break;
+          }
+        }
+      }
+    });
   },
 
   /**
@@ -266,6 +295,40 @@ const TabManager = {
 
     this.attachTabEvents(paneId);
     this.initializeIntellisense(paneId);
+  },
+
+  /**
+   * Navega para a próxima aba (à direita).
+   */
+  nextTab: function () {
+    const $tabs = $("#editor-tabs .nav-item").not("#new-tab-btn-container");
+    const $active = $("#editor-tabs .nav-item .nav-link.active").parent();
+    let $next = $active.nextAll().not("#new-tab-btn-container").first();
+
+    if (!$next.length) {
+      $next = $tabs.first(); // Volta para a primeira
+    }
+
+    if ($next.length) {
+      new bootstrap.Tab($next.find("a")[0]).show();
+    }
+  },
+
+  /**
+   * Navega para a aba anterior (à esquerda).
+   */
+  previousTab: function () {
+    const $tabs = $("#editor-tabs .nav-item").not("#new-tab-btn-container");
+    const $active = $("#editor-tabs .nav-item .nav-link.active").parent();
+    let $prev = $active.prev();
+
+    if (!$prev.length) {
+      $prev = $tabs.last(); // Vai para a última
+    }
+
+    if ($prev.length) {
+      new bootstrap.Tab($prev.find("a")[0]).show();
+    }
   },
 
   /**
