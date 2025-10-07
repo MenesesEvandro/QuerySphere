@@ -1,3 +1,5 @@
+import { showConfirmModal } from './confirmModal.js';
+
 $('#query-history-list').on('click', 'li', function () {
   const query = $(this).data('query');
   const activeTab = TabManager.getActiveTab();

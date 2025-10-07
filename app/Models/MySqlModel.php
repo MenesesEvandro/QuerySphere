@@ -1090,4 +1090,23 @@ class MySqlModel extends BaseDatabaseModel
         }
         return ['status' => 'error', 'message' => $this->conn->error];
     }
+
+    /**
+     * Checks if the current MySQLi connection is active and responsive.
+     *
+     * This method uses the most efficient way to check a MySQLi connection
+     * by calling the `ping()` method on the connection object. It's used
+     * by the API's "ping" endpoint to provide a lightweight connection health check.
+     *
+     * @return bool True if the connection is alive, false otherwise.
+     */
+    public function checkConnection(): bool
+    {
+        if (!$this->hasConnection()) {
+            return false;
+        }
+
+        // The ping method is the most efficient way to check a MySQLi connection
+        return $this->conn->ping();
+    }
 }

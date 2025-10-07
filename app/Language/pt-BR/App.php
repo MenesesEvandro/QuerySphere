@@ -251,6 +251,10 @@ return [
         'data_saved' => 'Sucesso! Todas as alterações foram salvas.',
         'no_pk_edit' => 'A coluna de chave primária não pode ser editada.',
         'cannot_close_last_tab' => 'Pelo menos uma aba deve estar ativa',
+        'connection_restored' => 'A conexão com o banco de dados foi restabelecida.',
+        'connection_lost_reconnect' => 'A conexão com o banco de dados foi perdida. Por favor, reconecte-se para continuar.',
+        'connection_lost_title' => 'Conexão Perdida',
+        'connection_active' => 'Conexão Ativa',
     ],
 
     //--------------------------------------------------------------------

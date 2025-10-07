@@ -24,6 +24,9 @@ $routes->group('', ['filter' => 'auth'], static function ($routes) {
         $routes->get('objects/databases', 'Api\ObjectExplorer::databases');
         $routes->get('objects/children', 'Api\ObjectExplorer::children');
 
+        // Connection Status
+        $routes->get('connection/ping', 'Api\ConnectionStatus::ping');
+
         // Query Execution
         $routes->post('query/execute', 'Api\Query::execute');
         $routes->post('query/explain', 'Api\Query::explain');

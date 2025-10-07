@@ -1,3 +1,5 @@
+import { showConfirmModal } from './confirmModal.js';
+
 $(async function () {
   const csrfTokenName = window.csrfTokenName;
   const csrfTokenValue = window.csrfTokenValue;

@@ -1,3 +1,5 @@
+import { showConfirmModal } from './confirmModal.js';
+
 window.schemaEditor = {
   modal: new bootstrap.Modal(document.getElementById('schema-editor-modal')),
   mode: 'create',

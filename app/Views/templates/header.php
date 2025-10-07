@@ -65,6 +65,7 @@
                         <i class="fa-solid fa-sun"></i> </button>
 
                     <span class="navbar-text text-white-50 me-3">
+                        <i id="connection-status-icon" class="fa-solid fa-circle text-success me-2" title="<?= lang('App.feedback.connection_active') ?>"></i>
                         <?= lang(
                             'App.connection.connectedTo',
                         ) ?>: <strong><?= esc($db_host) ?></strong> (<?= esc(

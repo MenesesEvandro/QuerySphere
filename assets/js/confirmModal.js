@@ -1,4 +1,4 @@
-window.confirmModal = {
+const confirmModal = {
   modal: new bootstrap.Modal(document.getElementById('confirmModal')),
   show: function (message, title = 'Confirmation') {
     return new Promise((resolve, reject) => {
@@ -34,5 +34,8 @@ window.confirmModal = {
   },
 };
 
-// Alias
+// Alias para facilitar o uso
 const showConfirmModal = (message, title) => confirmModal.show(message, title);
+
+// Exporta tanto o objeto principal quanto o atalho
+export { confirmModal, showConfirmModal };

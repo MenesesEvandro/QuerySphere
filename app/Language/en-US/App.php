@@ -251,6 +251,10 @@ return [
         'data_saved' => 'Success! All changes were saved.',
         'no_pk_edit' => 'The primary key column cannot be edited.',
         'cannot_close_last_tab' => 'At least one tab must remain active',
+        'connection_restored' => 'Database connection has been restored.',
+        'connection_lost_reconnect' => 'The database connection was lost. Please reconnect to continue.',
+        'connection_lost_title' => 'Connection Lost',
+        'connection_active' => 'Connection Active',
     ],
 
     //--------------------------------------------------------------------

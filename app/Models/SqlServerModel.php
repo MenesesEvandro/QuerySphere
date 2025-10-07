@@ -1322,4 +1322,30 @@ class SqlServerModel extends BaseDatabaseModel
         }
         return ['status' => 'error', 'message' => sqlsrv_errors()[0]['message'] ?? 'Unknown error'];
     }
+
+    /**
+     * Checks if the current SQL Server connection is active.
+     *
+     * This method performs a lightweight query (`SELECT 1`) against the server
+     * to ensure the connection is still valid and responsive. It is used by the
+     * API's "ping" endpoint for periodic connection health checks.
+     * Suppresses errors with `@` to handle cases where the connection is already lost.
+     *
+     * @return bool True if the query is successful and the connection is active, false otherwise.
+     */
+    public function checkConnection(): bool
+    {
+        if (!$this->hasConnection()) {
+            return false;
+        }
+
+        // A lightweight query to check the connection status
+        $stmt = @sqlsrv_query($this->conn, 'SELECT 1');
+        if ($stmt) {
+            sqlsrv_free_stmt($stmt);
+            return true;
+        }
+
+        return false;
+    }
 }

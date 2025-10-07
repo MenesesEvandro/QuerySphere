@@ -251,6 +251,10 @@ return [
         'data_saved' => '¡Éxito! Todos los cambios fueron guardados.',
         'no_pk_edit' => 'La columna de clave primaria no puede ser editada.',
         'cannot_close_last_tab' => 'Al menos una pestaña debe permanecer activa',
+        'connection_restored' => 'Se ha restablecido la conexión con la base de datos.',
+        'connection_lost_reconnect' => 'Se perdió la conexión con la base de datos. Por favor, vuelva a conectarse para continuar.',
+        'connection_lost_title' => 'Conexión Perdida',
+        'connection_active' => 'Conexión Activa',
     ],
 
     //--------------------------------------------------------------------

@@ -38,12 +38,8 @@ import 'sql-formatter';
 import 'crypto-js';
 import '../../public/libs/qp/qp.js';
 
-// scripts da aplicação (atualizados)
-import SessionTimeout from './sessionTimeout.js';
-
 // scripts da sua aplicação (ainda para atualizar)
 import './notifier.js';
-import './confirmModal.js';
 import './utility.js';
 import './tabManager.js';
 import './export.js';
@@ -60,6 +56,11 @@ import './renderQueryTemplates.js';
 import './objectExplorer.js';
 import './jobsHandlers.js';
 import './localEventHandlers.js';
+
+// scripts da aplicação (atualizados)
+import SessionTimeout from './sessionTimeout.js';
+import ConnectionStatus from './connectionStatus.js';
+import { confirmModal, showConfirmModal } from './confirmModal.js';
 
 const themeManager = {
   applyTheme: function (theme) {
@@ -113,4 +114,5 @@ $(function () {
   if (DB_TYPE === 'sqlsrv') renderAgentJobs();
   if (DB_TYPE === 'mysql') renderMySqlEvents();
   SessionTimeout.init(window.sessionTimeoutConfig);
+  ConnectionStatus.init({ lang: window.LANG });
 });
