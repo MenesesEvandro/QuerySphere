@@ -29,7 +29,7 @@
             <li class="nav-item"><a class="nav-link" data-bs-toggle="tab" href="#templates-tab"><?= lang('App.workspace.templates') ?></a></li>
         </ul>
 
-        <div class="tab-content flex-grow-1" style="overflow-y: auto; overflow-x: hidden;">
+        <div class="panelTab tab-content flex-grow-1">
             <div class="tab-pane active h-100" id="objects-tab">
                 <div id="object-explorer-tree" class="h-100"></div>
             </div>

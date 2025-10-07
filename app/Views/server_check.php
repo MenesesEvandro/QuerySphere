@@ -6,7 +6,7 @@
     <title>QuerySphere - <?= esc($title) ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
-    <style>
+    <style {csp-style-nonce}>
         body { background-color: #f4f6f9; }
     </style>
 </head>
@@ -88,7 +88,7 @@
                                 </td>
                                 <td><?= esc($check['current']) ?></td>
                                 <td><?= esc($check['required']) ?></td>
-                                <td class="text-muted" style="font-size: 0.9em;"><?= esc(
+                                <td class="text-muted tdNotes"><?= esc(
                                     $check['notes'],
                                 ) ?></td>
                             </tr>

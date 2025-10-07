@@ -62,12 +62,12 @@ class ContentSecurityPolicy extends BaseConfig
         'https://cdnjs.cloudflare.com',
         'https://unpkg.com',
         'https://cdn.datatables.net',
+        'unsafe-eval',
     ];
 
     /**
      * Lists allowed stylesheets' URLs.
      * Nonce is automatically added by the framework.
-     * 'unsafe-inline' is added for compatibility with inline style attributes.
      *
      * @var list<string>|string
      */
@@ -76,7 +76,6 @@ class ContentSecurityPolicy extends BaseConfig
         'https://cdn.jsdelivr.net',
         'https://cdnjs.cloudflare.com',
         'https://cdn.datatables.net',
-        'unsafe-inline',
     ];
 
     /**
@@ -100,7 +99,7 @@ class ContentSecurityPolicy extends BaseConfig
      *
      * @var list<string>|string
      */
-    public $childSrc = 'self';
+    public $childSrc = ['self', 'blob:'];
 
     /**
      * Limits the origins that you can connect to (via XHR,
@@ -108,7 +107,10 @@ class ContentSecurityPolicy extends BaseConfig
      *
      * @var list<string>|string
      */
-    public $connectSrc = 'self';
+     public $connectSrc = [
+        'self',
+        'https://cdn.jsdelivr.net',
+    ];
 
     /**
      * Specifies the origins that can serve web fonts.

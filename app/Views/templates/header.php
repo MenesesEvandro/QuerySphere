@@ -7,10 +7,6 @@
     <title>QuerySphere</title>
 
     <link href="<?= base_url('dist/bundle.css') ?>" rel="stylesheet">
-
-   <style>
-        
-    </style>
 </head>
 
 <body>

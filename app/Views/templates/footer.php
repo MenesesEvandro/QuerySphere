@@ -31,7 +31,7 @@
                         'App.charts.valueAxis',
                     ) ?></label><select id="chart-value-col" class="form-select"></select></div>
                 </div>
-                <div class="mt-3" style="position: relative; height:60vh; width:100%"><canvas id="myChart"></canvas>
+                <div class="mt-3 chart-container"><canvas id="myChart"></canvas>
                 </div>
             </div>
             <div class="modal-footer">
@@ -263,7 +263,7 @@
                     <button class="btn btn-success btn-sm me-2 mb-1 mb-md-0 execute-query-btn">
                         <i class="fa-solid fa-play me-1"></i> <?= lang('App.workspace.execute') ?> (Ctrl+Enter)
                     </button>
-                    <button class="btn btn-warning btn-sm me-2 mb-1 mb-md-0 save-changes-btn" style="display: none;">
+                    <button class="btn btn-warning btn-sm me-2 mb-1 mb-md-0 save-changes-btn">
                         <i class="fa-solid fa-save me-1"></i> <?= lang('App.workspace.save_changes') ?>
                     </button>
                     <button class="btn btn-info btn-sm me-2 mb-1 mb-md-0 explain-query-btn">
@@ -307,13 +307,12 @@
             </section>
 
             <section class="results-panel p-2 d-flex flex-column">
-                <div class="pagination-controls pb-2 border-bottom d-flex justify-content-between align-items-center"
-                    style="display: none;">
+                <div class="pagination-controls pb-2 border-bottom d-flex justify-content-between align-items-center">
                     <div>
                         <button class="btn btn-sm btn-outline-secondary pagination-prev">&laquo; <?= lang('App.general.previous') ?></button>
                         <button class="btn btn-sm btn-outline-secondary pagination-next"><?= lang('App.general.next') ?> &raquo;</button>
                     </div>
-                    <div class="pagination-info" style="font-size: 0.9em;"></div>
+                    <div class="pagination-info"></div>
                 </div>
 
                 <ul class="nav nav-tabs flex-shrink-0 results-tab-nav" role="tablist">
@@ -324,7 +323,7 @@
                         <button class="nav-link plan-tab" data-bs-toggle="tab" data-bs-target=".execution-plan-pane" type="button" role="tab"><?= lang('App.workspace.explain') ?></button>
                     </li>
                 </ul>
-                <div class="tab-content flex-grow-1 results-tab-content" style="overflow: auto;">
+                <div class="tab-content flex-grow-1 results-tab-content">
                     <div class="results-placeholder p-3">
                         <?= lang('App.workspace.queryResultsPlaceholder') ?>
                     </div>
@@ -338,85 +337,33 @@
     </div>
 </template>
 
-<script>
-    const themeManager = {
-        /**
-         * Aplica o tema especificado (light ou dark) ao corpo do documento
-         * e atualiza o ícone do botão de alternância de tema.
-         * Também salva a preferência no localStorage.
-         * @param {string} theme - 'light' ou 'dark'
-         */
-        applyTheme: function (theme) {
-            const isLight = (theme === 'light');
-            document.body.classList.toggle("light-theme", isLight);
+<script {csp-script-nonce}>
+    window.site_url = '<?= site_url('/') ?>';
+    window.csrfTokenName = '<?= csrf_token() ?>';
+    window.csrfTokenValue = '<?= csrf_hash() ?>';
+    window.DB_TYPE = '<?= $db_type ?? '' ?>';
+    window.sessionDb = '<?= $db_database ?? '' ?>';
 
-            document.getElementById("theme-toggle-btn").innerHTML = isLight ?
-                '<i class="fa-solid fa-moon"></i>' :
-                '<i class="fa-solid fa-sun"></i>';
+    // Objeto de Idiomas (LANG)
+    <?= view('templates/scripts/lang') ?>;
 
-            localStorage.setItem("querysphere_theme", theme);
-
-            // Percorre todas as abas existentes e atualiza o tema de cada editor.
-            if (typeof TabManager !== 'undefined' && TabManager.tabs) {
-                const newTheme = isLight ? "default" : "material-darker";
-                for (const paneId in TabManager.tabs) {
-                    if (TabManager.tabs.hasOwnProperty(paneId)) {
-                        const tab = TabManager.tabs[paneId];
-                        if (tab && tab.editor) {
-                            tab.editor.setOption("theme", newTheme);
-                        }
-                    }
-                }
-            }
-        },
-
-        /**
-         * Inicializa o gerenciador de temas, aplicando o tema salvo
-         * ou detectando a preferência do sistema.
-         */
-        init: function () {
-            const savedTheme = localStorage.getItem("querysphere_theme");
-
-            if (savedTheme) {
-                this.applyTheme(savedTheme);
-            } else if (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches) {
-                this.applyTheme("light");
-            } else {
-                this.applyTheme("dark");
-            }
-        }
-    };
-
-    themeManager.init();
-
-    // language
-    <?= view('templates/scripts/lang') ?>
-</script>
-
-<script src="<?= base_url('dist/bundle.js') ?>"></script>
-
-<script>
-const DB_TYPE = '<?= $db_type ?? '' ?>';
-const sessionDb = '<?= $db_database ?? '' ?>';
-var resultsDataTable = null; 
-const site_url = '<?= site_url('/') ?>';
-window.csrfTokenName = '<?= csrf_token() ?>';
-window.csrfTokenValue = '<?= csrf_hash() ?>';
-
-window.sessionTimeoutConfig = {
-    enabled: <?= json_encode(filter_var(env('SESSION_TIMEOUT_ENABLED', false), FILTER_VALIDATE_BOOLEAN)) ?>,
-    timeoutMinutes: <?= (int) env('SESSION_TIMEOUT_MINUTES', 15) ?>,
-    warningSeconds: <?= (int) env('SESSION_TIMEOUT_WARNING_SECONDS', 30) ?>,
-    logoutUrl: '<?= site_url('logout') ?>',
-    lang: {
+    // Configuração do Timeout da Sessão
+    window.sessionTimeoutConfig = {
+        enabled: <?= json_encode(filter_var(env('SESSION_TIMEOUT_ENABLED', false), FILTER_VALIDATE_BOOLEAN)) ?>,
+        timeoutMinutes: <?= (int) env('SESSION_TIMEOUT_MINUTES', 15) ?>,
+        warningSeconds: <?= (int) env('SESSION_TIMEOUT_WARNING_SECONDS', 30) ?>,
+        logoutUrl: '<?= site_url('logout') ?>',
+        lang: {
             title: '<?= lang('App.general.session_expired_title') ?>',
             message: '<?= lang('App.general.session_expired_message') ?>',
             countdown: '<?= lang('App.general.session_countdown_message') ?>',
             stayConnected: '<?= lang('App.general.session_stay_connected') ?>'
         }
-};
+    };
+
 </script>
 
-</body>
+<script src="<?= base_url('dist/bundle.js') ?>"></script>
 
+</body>
 </html>

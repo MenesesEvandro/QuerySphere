@@ -7,10 +7,9 @@
     <title>QuerySphere - <?= lang('App.connection.connect') ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous">
-    <style>
+    <style {csp-style-nonce}>
         body { display: flex; align-items: center; justify-content: center; min-height: 100vh; background-color: #f8f9fa; }
         .connection-card { max-width: 480px; width: 100%; }
-        .https-warning, .crypto-warning { display: none; }
     </style>
 </head>
 <body>
@@ -18,10 +17,10 @@
 
 <div class="card shadow-lg border-0 connection-card">
     <div class="card-body p-5">
-        <div class="alert alert-danger https-warning" role="alert">
+        <div class="alert alert-danger https-warning d-none" role="alert">
             <?= lang('App.general.https_warning') ?>
         </div>
-        <div class="alert alert-danger crypto-warning" role="alert">
+        <div class="alert alert-danger crypto-warning d-none" role="alert">
             <?= lang('App.general.crypto_warning') ?>
         </div>
         <h2 class="card-title text-center mb-1"><i class="fa-solid fa-database text-primary" aria-hidden="true"></i> QuerySphere</h2>
@@ -155,7 +154,7 @@
         <div>
             <a href="<?= site_url(
                 'check',
-            ) ?>" class="text-decoration-none text-muted" style="font-size: 0.9em;">
+            ) ?>" class="text-decoration-none text-muted">
                 <i class="fa-solid fa-check-circle me-1" aria-hidden="true"></i> <?= lang(
                     'App.server_check.title',
                 ) ?>
@@ -273,16 +272,16 @@
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
 
-<script>
+<script {csp-script-nonce}>
     <?= view('templates/scripts/lang', $this->data) ?>
     
     $(async function () {
         // Check for HTTPS and Web Crypto API support
         if (window.location.protocol !== 'https:') {
-            $('.https-warning').show();
+            $('.https-warning').removeClass('d-none');
         }
         if (!window.crypto || !window.crypto.subtle) {
-            $('.crypto-warning').show();
+            $('.crypto-warning').removeClass('d-none');
             return;
         }
 

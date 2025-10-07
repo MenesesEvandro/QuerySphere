@@ -10,9 +10,10 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, 'public/dist'),
     filename: 'bundle.js',
-    publicPath: 'auto', // <-- ADICIONADO AQUI: Crucial para os caminhos dos ativos
+    publicPath: 'auto',
     clean: true,
   },
+  devtool: 'cheap-module-source-map',
   module: {
     rules: [
       {

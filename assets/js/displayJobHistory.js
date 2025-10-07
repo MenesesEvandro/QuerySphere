@@ -50,7 +50,7 @@ window.displayJobHistory = function (jobName) {
                             <td>${item.step_name}</td>
                             <td>${formatDuration(item.run_duration)}</td>
                             <td>${formatRunStatus(item.run_status)}</td>
-                            <td><div style="max-height: 100px; overflow-y: auto;">${item.message}</div></td>
+                            <td><div class="dvJobHistory">${item.message}</div></td>
                         </tr>
                     `);
         });

@@ -13,7 +13,7 @@ window.renderSharedScripts = function () {
         $list.append(`
                         <li class="list-group-item list-group-item-action p-2">
                             <div class="d-flex w-100 justify-content-between">
-                                <span class="load-shared-script" data-sql="${script.sql}" style="cursor:pointer; font-weight: 500;">
+                                <span class="load-shared-script" data-sql="${script.sql}">
                                     ${$('<div>').text(script.name).html()}
                                 </span>
                                 <button class="btn btn-sm btn-outline-danger delete-shared-script" data-id="${script.id}" title="Apagar Script">

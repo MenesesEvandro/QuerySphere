@@ -218,3 +218,67 @@ body.editor-maximized .query-editor-panel {
 .nav-item.pinned .tab-close-btn {
   display: none;
 }
+
+.pagination-controls {
+  display: none;
+}
+.pagination-info {
+  font-size: 0.9em;
+}
+.save-changes-btn {
+  display: none;
+}
+/* Estilo para o container do gráfico */
+.chart-container {
+  position: relative;
+  height: 60vh;
+  width: 100%;
+}
+
+#hpc {
+  display: none;
+}
+
+.panelTab {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.tdNotes {
+  font-size: 0.9em;
+}
+
+.dvJobHistory {
+  max-height: 100px;
+  overflow-y: auto;
+}
+
+.execHistory {
+  cursor: pointer;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.load-script {
+  cursor: pointer;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.load-shared-script {
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.w-100pct {
+  width: 100%;
+}
+
+.planContainer {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}

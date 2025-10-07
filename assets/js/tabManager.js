@@ -801,7 +801,7 @@ window.TabManager = {
       tableName: null,
       changedData: {},
     };
-    $pane.find('.save-changes-btn').hide();
+    $pane.find('.save-changes-btn').addClass('d-none');
 
     const sql = tab.editor.getSelection() || tab.editor.getValue();
     tab.currentSql = sql;
@@ -876,7 +876,7 @@ window.TabManager = {
           );
           if (result.data?.length) {
             const $table = $(
-              `<table id="${tableId}" class="table table-sm table-bordered table-striped table-hover" style="width:100%"></table>`
+              `<table id="${tableId}" class="table table-sm table-bordered table-striped table-hover w-100pct"></table>`
             );
             const $thead = $('<thead><tr></tr></thead>'),
               $tfoot = $('<tfoot><tr></tr></tfoot>');
@@ -1010,9 +1010,9 @@ window.TabManager = {
         const $planContainer = $pane.find('.execution-plan-pane').empty();
         if (response.db_type === 'mysql') {
           $planContainer.append(
-            $(
-              '<pre style="white-space: pre-wrap; word-wrap: break-word;"></pre>'
-            ).text(JSON.stringify(JSON.parse(response.plan), null, 2))
+            $('<pre class="planContainer"></pre>').text(
+              JSON.stringify(JSON.parse(response.plan), null, 2)
+            )
           );
         } else {
           QP.showPlan($planContainer.get(0), response.plan);
@@ -1162,7 +1162,7 @@ window.TabManager = {
       .then(() => {
         notifier.show(LANG.data_saved, 'success');
         tab.editableGrid.changedData = {};
-        $btn.hide();
+        $btn.addClass('d-none');
         $(`#${paneId}`)
           .find('.datatable-row-changed')
           .removeClass('datatable-row-changed');

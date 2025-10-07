@@ -4,8 +4,7 @@ window.refreshHistory = function () {
     if (history?.length) {
       $.each(history, (i, query) => {
         $list.append(`
-                        <li class="list-group-item list-group-item-action p-2" 
-                            style="cursor:pointer; font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" 
+                        <li class="list-group-item list-group-item-action p-2 execHistory" 
                             title="${query}" 
                             data-query="${query}">
                             ${query}

@@ -61,6 +61,40 @@ import './objectExplorer.js';
 import './jobsHandlers.js';
 import './localEventHandlers.js';
 
+const themeManager = {
+  applyTheme: function (theme) {
+    const isLight = theme === 'light';
+    document.body.classList.toggle('light-theme', isLight);
+    document.getElementById('theme-toggle-btn').innerHTML = isLight
+      ? '<i class="fa-solid fa-moon"></i>'
+      : '<i class="fa-solid fa-sun"></i>';
+    localStorage.setItem('querysphere_theme', theme);
+
+    if (typeof TabManager !== 'undefined' && TabManager.tabs) {
+      const newTheme = isLight ? 'default' : 'material-darker';
+      for (const paneId in TabManager.tabs) {
+        if (TabManager.tabs.hasOwnProperty(paneId)) {
+          const tab = TabManager.tabs[paneId];
+          if (tab && tab.editor) {
+            tab.editor.setOption('theme', newTheme);
+          }
+        }
+      }
+    }
+  },
+  init: function () {
+    const savedTheme = localStorage.getItem('querysphere_theme');
+    this.applyTheme(
+      savedTheme ||
+        (window.matchMedia &&
+        window.matchMedia('(prefers-color-scheme: light)').matches
+          ? 'light'
+          : 'dark')
+    );
+  },
+};
+themeManager.init();
+
 // Bloco de inicialização da aplicação
 $(function () {
   $('#theme-toggle-btn').on('click', () => {

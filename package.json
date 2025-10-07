@@ -14,7 +14,8 @@
     "pretty-js": "npx prettier assets/js/**/*.js --write",
     "pretty-css": "npx prettier assets/css/**/*.css --write",
     "pretty-all": "npm run pretty-js && npm run pretty-css",
-    "build": "npm run pretty-all && npm run lint-all && webpack --mode=production"
+    "build": "npm run pretty-all && npm run lint-all && webpack --mode=production",
+    "build:dev": "webpack --mode=development --watch"
   },
   "repository": {
     "type": "git",
