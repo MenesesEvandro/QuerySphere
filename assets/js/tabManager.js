@@ -4,6 +4,7 @@ import {
   customSqlHint,
 } from './intellisense.js';
 import notifier from './notifier.js';
+import { format } from 'sql-formatter';
 
 /**
  * TabManager
@@ -1246,6 +1247,39 @@ window.TabManager = {
         return newRow;
       });
       window.exportToJson(filename, jsonData);
+    }
+  },
+
+  /**
+   * Formata o código SQL na aba ativa usando a biblioteca sql-formatter no frontend.
+   * A formatação é instantânea e não requer uma chamada ao servidor.
+   * @param {string} paneId - O ID da aba ativa.
+   */
+  formatSql: function (paneId) {
+    const tab = this.tabs[paneId];
+    if (!tab) return;
+
+    const editor = tab.editor;
+    const currentSql = editor.getValue();
+
+    if (!currentSql.trim()) {
+      return;
+    }
+
+    try {
+      const dialect = window.DB_TYPE === 'mysql' ? 'mysql' : 'tsql';
+
+      const formattedSql = format(currentSql, {
+        language: dialect,
+        tabWidth: 4,
+        keywordCase: 'upper',
+      });
+
+      editor.setValue(formattedSql);
+      editor.focus();
+    } catch (e) {
+      console.error('SQL Formatting Error:', e);
+      notifier.show(LANG.format_fail, 'error');
     }
   },
 };
