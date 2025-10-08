@@ -1200,4 +1200,52 @@ window.TabManager = {
           .html(`<i class="fa-solid fa-save me-1"></i> ${LANG.save_changes}`);
       });
   },
+
+  /**
+   * Exporta os dados do resultado da query ativa para um ficheiro (CSV ou JSON).
+   * @param {string} paneId - O ID da aba ativa.
+   * @param {string} format - O formato para exportação ('csv' ou 'json').
+   */
+  exportResult: function (paneId, format) {
+    const tab = this.tabs[paneId];
+
+    if (
+      !tab ||
+      !tab.lastResultData ||
+      !tab.lastResultData.results ||
+      !tab.lastResultData.results.length
+    ) {
+      notifier.show(LANG.feedback.noquery_to_export, 'warning');
+      return;
+    }
+
+    const resultSet = tab.lastResultData.results[0];
+    const headers = resultSet.headers;
+    const data = resultSet.data;
+
+    if (!data || data.length === 0) {
+      notifier.show(LANG.feedback.noquery_to_export, 'warning');
+      return;
+    }
+
+    const timestamp = new Date()
+      .toISOString()
+      .slice(0, 19)
+      .replace('T', '_')
+      .replace(/:/g, '-');
+    const filename = `export_${timestamp}.${format}`;
+
+    if (format === 'csv') {
+      window.exportToCsv(filename, headers, data);
+    } else if (format === 'json') {
+      const jsonData = data.map((row) => {
+        const newRow = {};
+        headers.forEach((header, index) => {
+          newRow[header] = Object.values(row)[index];
+        });
+        return newRow;
+      });
+      window.exportToJson(filename, jsonData);
+    }
+  },
 };
