@@ -1,3 +1,10 @@
+import {
+  initializeIntellisense,
+  refreshIntellisense,
+  customSqlHint,
+} from './intellisense.js';
+import notifier from './notifier.js';
+
 /**
  * TabManager
  *
@@ -264,6 +271,7 @@ window.TabManager = {
       smartIndent: true,
       extraKeys: {
         'Ctrl-Space': 'autocomplete',
+        'Alt-Space': 'autocomplete',
         F5: () => $pane.find('.execute-query-btn').trigger('click'),
         'Ctrl-Enter': () => $pane.find('.execute-query-btn').trigger('click'),
         'Ctrl-F': 'findPersistent',
@@ -271,7 +279,10 @@ window.TabManager = {
         F3: 'findNext',
         'Shift-F3': 'findPrev',
       },
-      hintOptions: { tables: {} },
+      hintOptions: {
+        hint: customSqlHint,
+        schemaData: {},
+      },
     });
     editor.setSize('100%', '100%');
     editor.setValue(initialState.sql || '');
@@ -321,8 +332,20 @@ window.TabManager = {
       this.saveTabsState();
     });
 
+    editor.on('inputRead', function (instance, change) {
+      if (instance.state.completionActive) {
+        return;
+      }
+      const token = instance.getTokenAt(instance.getCursor());
+      if (token.string.length > 0) {
+        CodeMirror.commands.autocomplete(instance, null, {
+          completeSingle: false,
+        });
+      }
+    });
+
     this.attachTabEvents(paneId);
-    this.initializeIntellisense(paneId);
+    initializeIntellisense(this.tabs[paneId]);
   },
 
   /**

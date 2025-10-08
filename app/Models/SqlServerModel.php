@@ -1348,4 +1348,87 @@ class SqlServerModel extends BaseDatabaseModel
 
         return false;
     }
+
+    /**
+     * Retrieves a rich, structured representation of the database schema for a given database.
+     * This method is optimized to fetch all necessary data for the IntelliSense feature in a single query.
+     * The resulting array includes a list of all schemas and a detailed map of all objects (tables and views),
+     * including their type and a list of their columns with data types.
+     *
+     * @param string $database The name of the database to retrieve the schema from.
+     * @return array An associative array structured for IntelliSense, containing:
+     * - 'objects' (array): A map where keys are fully qualified object names (e.g., 'dbo.Users')
+     * and values are arrays containing the object 'type' ('table' or 'view') and a 'columns' map
+     * (column name => data type).
+     * - 'schemas' (array): A simple list of all unique schema names found in the database.
+     * Returns an empty array if the connection is not available.
+     * @example
+     * [
+     * 'objects' => [
+     * 'dbo.Orders' => [
+     * 'type' => 'table',
+     * 'columns' => [
+     * 'OrderID' => 'int',
+     * 'OrderDate' => 'datetime'
+     * ]
+     * ],
+     * 'dbo.vw_RecentInvoices' => [
+     * 'type' => 'view',
+     * 'columns' => [
+     * 'InvoiceID' => 'int',
+     * 'TotalAmount' => 'decimal'
+     * ]
+     * ]
+     * ],
+     * 'schemas' => ['dbo', 'sales']
+     * ]
+     */
+    public function getRichSchema(string $database): array
+    {
+        if (!$this->hasConnection()) {
+            return [];
+        }
+
+        $sql = "
+            SELECT 
+                t.TABLE_SCHEMA, 
+                t.TABLE_NAME, 
+                t.TABLE_TYPE, 
+                c.COLUMN_NAME, 
+                c.DATA_TYPE 
+            FROM [{$database}].INFORMATION_SCHEMA.TABLES t 
+            INNER JOIN [{$database}].INFORMATION_SCHEMA.COLUMNS c 
+                ON t.TABLE_NAME = c.TABLE_NAME AND t.TABLE_SCHEMA = c.TABLE_SCHEMA 
+            ORDER BY t.TABLE_SCHEMA, t.TABLE_NAME, c.ORDINAL_POSITION;
+        ";
+
+        $stmt = sqlsrv_query($this->conn, $sql);
+        $schema = ['objects' => [], 'schemas' => []];
+        $schemas = [];
+
+        if ($stmt) {
+            while ($row = sqlsrv_fetch_array($stmt, SQLSRV_FETCH_ASSOC)) {
+                $schemaName = $row['TABLE_SCHEMA'];
+                $tableName = $row['TABLE_NAME'];
+                $fullObjectName = $schemaName . '.' . $tableName;
+
+                if (!in_array($schemaName, $schemas)) {
+                    $schemas[] = $schemaName;
+                }
+
+                if (!isset($schema['objects'][$fullObjectName])) {
+                    $schema['objects'][$fullObjectName] = [
+                        'type' => str_contains($row['TABLE_TYPE'], 'VIEW') ? 'view' : 'table',
+                        'columns' => []
+                    ];
+                }
+
+                $schema['objects'][$fullObjectName]['columns'][$row['COLUMN_NAME']] = $row['DATA_TYPE'];
+            }
+            sqlsrv_free_stmt($stmt);
+        }
+
+        $schema['schemas'] = $schemas;
+        return $schema;
+    }
 }

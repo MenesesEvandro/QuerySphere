@@ -41,7 +41,7 @@ class Connection extends BaseController
             'last_successful_query',
             'query_history',
         ]);
-        
+
         $data['logout_message'] = session()->getFlashdata('logout_message');
 
         return view('connection/index', $data);

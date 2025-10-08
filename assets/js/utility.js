@@ -1,3 +1,5 @@
+import notifier from './notifier.js';
+
 window.getSavedScripts = function () {
   return JSON.parse(localStorage.getItem('querysphere_scripts')) || [];
 };

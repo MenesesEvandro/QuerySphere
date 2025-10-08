@@ -39,7 +39,6 @@ import 'crypto-js';
 import '../../public/libs/qp/qp.js';
 
 // scripts da sua aplicação (ainda para atualizar)
-import './notifier.js';
 import './utility.js';
 import './tabManager.js';
 import './export.js';
@@ -61,6 +60,7 @@ import './localEventHandlers.js';
 import SessionTimeout from './sessionTimeout.js';
 import ConnectionStatus from './connectionStatus.js';
 import { confirmModal, showConfirmModal } from './confirmModal.js';
+import notifier from './notifier.js';
 
 const themeManager = {
   applyTheme: function (theme) {

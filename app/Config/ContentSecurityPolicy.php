@@ -107,9 +107,9 @@ class ContentSecurityPolicy extends BaseConfig
      *
      * @var list<string>|string
      */
-     public $connectSrc = [
-        'self',
-        'https://cdn.jsdelivr.net',
+    public $connectSrc = [
+       'self',
+       'https://cdn.jsdelivr.net',
     ];
 
     /**

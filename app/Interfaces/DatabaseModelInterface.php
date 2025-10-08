@@ -72,4 +72,5 @@ interface DatabaseModelInterface
     public function createForeignKey(string $database, string $schema, string $table, string $fkName, array $columns, string $refTable, array $refColumns): array;
     public function dropForeignKey(string $database, string $schema, string $table, string $fkName): array;
     public function checkConnection(): bool;
+    public function getRichSchema(string $database): array;
 }

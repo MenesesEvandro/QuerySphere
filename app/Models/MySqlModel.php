@@ -1109,4 +1109,86 @@ class MySqlModel extends BaseDatabaseModel
         // The ping method is the most efficient way to check a MySQLi connection
         return $this->conn->ping();
     }
+
+    /**
+     * Retrieves a rich, structured representation of the database schema for a given database.
+     * This method is optimized to fetch all necessary data for the IntelliSense feature in a single query.
+     * For MySQL, the schema is the database itself. The resulting array includes a map of all
+     * objects (tables and views), their type, and a list of their columns with data types.
+     *
+     * @param string $database The name of the database to retrieve the schema from.
+     * @return array An associative array structured for IntelliSense, containing:
+     * - 'objects' (array): A map where keys are object names (e.g., 'Users')
+     * and values are arrays containing the object 'type' ('table' or 'view') and a 'columns' map
+     * (column name => data type).
+     * - 'schemas' (array): A simple list containing only the database name, as MySQL treats schemas and databases similarly in this context.
+     * Returns an empty array if the connection is not available.
+     * @example
+     * [
+     * 'objects' => [
+     * 'orders' => [
+     * 'type' => 'table',
+     * 'columns' => [
+     * 'order_id' => 'int',
+     * 'order_date' => 'datetime'
+     * ]
+     * ],
+     * 'vw_recent_invoices' => [
+     * 'type' => 'view',
+     * 'columns' => [
+     * 'invoice_id' => 'int',
+     * 'total_amount' => 'decimal'
+     * ]
+     * ]
+     * ],
+     * 'schemas' => ['my_database']
+     * ]
+     */
+    public function getRichSchema(string $database): array
+    {
+        if (!$this->hasConnection()) {
+            return [];
+        }
+
+        $sql = "
+            SELECT 
+                t.TABLE_SCHEMA, 
+                t.TABLE_NAME, 
+                t.TABLE_TYPE, 
+                c.COLUMN_NAME, 
+                c.DATA_TYPE 
+            FROM information_schema.TABLES t 
+            JOIN information_schema.COLUMNS c 
+                ON t.TABLE_NAME = c.TABLE_NAME AND t.TABLE_SCHEMA = c.TABLE_SCHEMA 
+            WHERE t.TABLE_SCHEMA = ? 
+            ORDER BY t.TABLE_NAME, c.ORDINAL_POSITION;
+        ";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bind_param('s', $database);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        $schema = ['objects' => [], 'schemas' => [$database]];
+
+        if ($result) {
+            while ($row = $result->fetch_assoc()) {
+                $tableName = $row['TABLE_NAME'];
+                $fullObjectName = $tableName; // In MySQL, the schema is the database itself
+
+                if (!isset($schema['objects'][$fullObjectName])) {
+                    $schema['objects'][$fullObjectName] = [
+                        'type' => str_contains($row['TABLE_TYPE'], 'VIEW') ? 'view' : 'table',
+                        'columns' => []
+                    ];
+                }
+
+                $schema['objects'][$fullObjectName]['columns'][$row['COLUMN_NAME']] = $row['DATA_TYPE'];
+            }
+            $result->free();
+        }
+
+        $stmt->close();
+        return $schema;
+    }
 }

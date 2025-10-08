@@ -1,4 +1,5 @@
 import { showConfirmModal } from './confirmModal.js';
+import notifier from './notifier.js';
 
 const csrfTokenName = window.csrfTokenName;
 const csrfTokenValue = window.csrfTokenValue;

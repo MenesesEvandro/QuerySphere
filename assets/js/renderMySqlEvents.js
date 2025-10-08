@@ -1,3 +1,5 @@
+import notifier from './notifier.js';
+
 window.renderMySqlEvents = function () {
   const $container = $('#mysql-events-container').html(
     `<div class="text-center p-3"><div class="spinner-border" role="status"><span class="visually-hidden">${LANG.loading}</span></div></div>`

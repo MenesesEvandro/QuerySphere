@@ -1,4 +1,5 @@
 import { showConfirmModal } from './confirmModal.js';
+import notifier from './notifier.js';
 
 window.schemaEditor = {
   modal: new bootstrap.Modal(document.getElementById('schema-editor-modal')),

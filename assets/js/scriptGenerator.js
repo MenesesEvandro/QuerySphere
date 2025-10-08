@@ -1,3 +1,5 @@
+import notifier from './notifier.js';
+
 /**
  * scriptGenerator
  *

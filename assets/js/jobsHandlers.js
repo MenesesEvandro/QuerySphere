@@ -1,3 +1,5 @@
+import notifier from './notifier.js';
+
 $('#agent-jobs-container').on('click', '.start-job', function () {
   const csrfTokenName = window.csrfTokenName;
   const csrfTokenValue = window.csrfTokenValue;

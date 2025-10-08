@@ -1,3 +1,5 @@
+import notifier from './notifier.js';
+
 $('#db-selector-list').on('click', 'a', function (e) {
   e.preventDefault();
   const dbName = $(this).data('dbname');
